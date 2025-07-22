@@ -157,6 +157,44 @@ describe('PrismaUserRepository', () => {
     });
   });
 
+  describe('findByExternalAuth', () => {
+    it('should return user when found via external provider', async () => {
+      const mockPrismaUser = {
+        id: 'user-123',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'hashed-password',
+        status: 'active',
+        departmentId: 'dept-1',
+        externalProvider: 'google',
+        externalId: 'g123',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        roles: []
+      };
+
+      prismaClient.user.findFirst.mockResolvedValue(mockPrismaUser as any);
+
+      const result = await repository.findByExternalAuth('google', 'g123');
+
+      expect(result).not.toBeNull();
+      expect(result?.id).toBe('user-123');
+      expect(prismaClient.user.findFirst).toHaveBeenCalledWith({
+        where: { externalProvider: 'google', externalId: 'g123' },
+        include: { roles: { include: { role: true } } },
+      });
+    });
+
+    it('should return null when user not found via external provider', async () => {
+      prismaClient.user.findFirst.mockResolvedValue(null);
+
+      const result = await repository.findByExternalAuth('google', 'unknown');
+
+      expect(result).toBeNull();
+    });
+  });
+
   describe('create', () => {
     it('should create user successfully', async () => {
       const mockPrismaCreatedUser = {

@@ -6,6 +6,7 @@ import { Role } from '../../../domain/entities/Role';
 class MockUserRepository implements UserRepositoryPort {
   private users: Map<string, User> = new Map();
   private emailIndex: Map<string, string> = new Map();
+  private externalIndex: Map<string, string> = new Map();
 
   async findById(id: string): Promise<User | null> {
     return this.users.get(id) || null;
@@ -13,6 +14,12 @@ class MockUserRepository implements UserRepositoryPort {
 
   async findByEmail(email: string): Promise<User | null> {
     const userId = this.emailIndex.get(email);
+    return userId ? this.users.get(userId) || null : null;
+  }
+
+  async findByExternalAuth(provider: string, externalId: string): Promise<User | null> {
+    const key = `${provider}:${externalId}`;
+    const userId = this.externalIndex.get(key);
     return userId ? this.users.get(userId) || null : null;
   }
 
@@ -43,6 +50,11 @@ class MockUserRepository implements UserRepositoryPort {
     if (user) {
       this.users.delete(id);
       this.emailIndex.delete(user.email);
+      for (const [key, uid] of this.externalIndex.entries()) {
+        if (uid === id) {
+          this.externalIndex.delete(key);
+        }
+      }
     }
   }
 
@@ -50,6 +62,12 @@ class MockUserRepository implements UserRepositoryPort {
   clear(): void {
     this.users.clear();
     this.emailIndex.clear();
+    this.externalIndex.clear();
+  }
+
+  // Utility for tests to simulate external auth binding
+  setExternalAuth(userId: string, provider: string, externalId: string): void {
+    this.externalIndex.set(`${provider}:${externalId}`, userId);
   }
 }
 
@@ -144,6 +162,25 @@ describe('UserRepositoryPort Interface', () => {
       const result = await repository.findByEmail('JOHN.DOE@EXAMPLE.COM');
 
       expect(result).toBeNull(); // Case sensitive
+    });
+  });
+
+  describe('findByExternalAuth', () => {
+    it('should return user when found via provider and id', async () => {
+      await repository.create(testUser);
+      repository.setExternalAuth('user-123', 'google', 'g123');
+
+      const result = await repository.findByExternalAuth('google', 'g123');
+
+      expect(result).toEqual(testUser);
+    });
+
+    it('should return null when external auth not registered', async () => {
+      await repository.create(testUser);
+
+      const result = await repository.findByExternalAuth('github', 'x999');
+
+      expect(result).toBeNull();
     });
   });
 
