@@ -19,6 +19,7 @@ model User {
   department   Department @relation(fields: [departmentId], references: [id])
   departmentId String
   roles      UserRole[]
+  permissions UserPermission[]
   managedDepartments Department[] @relation("DepartmentManager")
 }
 
@@ -26,6 +27,7 @@ model Role {
   id    String @id @default(uuid())
   label String
   users UserRole[]
+  permissions RolePermission[]
 }
 
 model Department {
@@ -37,6 +39,7 @@ model Department {
   managerUserId      String?
   manager            User?       @relation("DepartmentManager", fields: [managerUserId], references: [id])
   users              User[]
+  permissions DepartmentPermission[]
 }
 
 model UserRole {
@@ -46,4 +49,40 @@ model UserRole {
   roleId String
 
   @@id([userId, roleId])
+}
+
+model Permission {
+  id            String   @id @default(uuid())
+  permissionKey String   @unique
+  description   String
+  userPermissions       UserPermission[]
+  rolePermissions       RolePermission[]
+  departmentPermissions DepartmentPermission[]
+}
+
+model UserPermission {
+  user        User       @relation(fields: [userId], references: [id])
+  userId      String
+  permission  Permission @relation(fields: [permissionId], references: [id])
+  permissionId String
+
+  @@id([userId, permissionId])
+}
+
+model RolePermission {
+  role        Role       @relation(fields: [roleId], references: [id])
+  roleId      String
+  permission  Permission @relation(fields: [permissionId], references: [id])
+  permissionId String
+
+  @@id([roleId, permissionId])
+}
+
+model DepartmentPermission {
+  department  Department @relation(fields: [departmentId], references: [id])
+  departmentId String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId String
+
+  @@id([departmentId, permissionId])
 }
