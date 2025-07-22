@@ -1,0 +1,93 @@
+import { PrismaClient } from '@prisma/client';
+import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { PrismaRoleRepository } from '../../../adapters/repositories/PrismaRoleRepository';
+import { Role } from '../../../domain/entities/Role';
+
+describe('PrismaRoleRepository', () => {
+  let repository: PrismaRoleRepository;
+  let prisma: DeepMockProxy<PrismaClient>;
+  let role: Role;
+
+  beforeEach(() => {
+    prisma = mockDeep<PrismaClient>();
+    repository = new PrismaRoleRepository(prisma);
+    role = new Role('role-1', 'Admin');
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe('findById', () => {
+    it('should return a role when found', async () => {
+      prisma.role.findUnique.mockResolvedValue({ id: 'role-1', label: 'Admin' } as any);
+
+      const result = await repository.findById('role-1');
+
+      expect(result).toEqual(role);
+      expect(prisma.role.findUnique).toHaveBeenCalledWith({ where: { id: 'role-1' } });
+    });
+
+    it('should return null when not found', async () => {
+      prisma.role.findUnique.mockResolvedValue(null);
+
+      const result = await repository.findById('unknown');
+
+      expect(result).toBeNull();
+      expect(prisma.role.findUnique).toHaveBeenCalledWith({ where: { id: 'unknown' } });
+    });
+  });
+
+  describe('findByLabel', () => {
+    it('should return a role by label', async () => {
+      prisma.role.findFirst.mockResolvedValue({ id: 'role-1', label: 'Admin' } as any);
+
+      const result = await repository.findByLabel('Admin');
+
+      expect(result).toEqual(role);
+      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { label: 'Admin' } });
+    });
+
+    it('should return null when role not found', async () => {
+      prisma.role.findFirst.mockResolvedValue(null);
+
+      const result = await repository.findByLabel('Unknown');
+
+      expect(result).toBeNull();
+      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { label: 'Unknown' } });
+    });
+  });
+
+  describe('create', () => {
+    it('should create a role', async () => {
+      prisma.role.create.mockResolvedValue({ id: 'role-1', label: 'Admin' } as any);
+
+      const result = await repository.create(role);
+
+      expect(result).toEqual(role);
+      expect(prisma.role.create).toHaveBeenCalledWith({ data: { id: 'role-1', label: 'Admin' } });
+    });
+  });
+
+  describe('update', () => {
+    it('should update a role', async () => {
+      prisma.role.update.mockResolvedValue({ id: 'role-1', label: 'Super Admin' } as any);
+
+      role.label = 'Super Admin';
+      const result = await repository.update(role);
+
+      expect(result).toEqual(new Role('role-1', 'Super Admin'));
+      expect(prisma.role.update).toHaveBeenCalledWith({ where: { id: 'role-1' }, data: { label: 'Super Admin' } });
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete a role', async () => {
+      prisma.role.delete.mockResolvedValue(undefined as any);
+
+      await repository.delete('role-1');
+
+      expect(prisma.role.delete).toHaveBeenCalledWith({ where: { id: 'role-1' } });
+    });
+  });
+});
