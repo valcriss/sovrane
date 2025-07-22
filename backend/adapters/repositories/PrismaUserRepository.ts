@@ -1,55 +1,75 @@
 import { PrismaClient } from '@prisma/client';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { User } from '../../domain/entities/User';
+import { Role } from '../../domain/entities/Role';
 
 export class PrismaUserRepository implements UserRepositoryPort {
-    constructor(private prisma: PrismaClient) { }
+  constructor(private prisma: PrismaClient) {}
 
-    async findById(id: string): Promise<User | null> {
-        const record = await this.prisma.user.findUnique({ where: { id } });
-        return record ? new User(
-            record.id,
-            record.firstname,
-            record.lastname,
-            record.email,
-            record.roles,
-            record.status as "active" | "suspended" | "archived" | undefined
-        ) : null;
-    }
+  private mapRecord(record: any): User {
+    return new User(
+      record.id,
+      record.firstname,
+      record.lastname,
+      record.email,
+      record.roles.map((ur: any) => new Role(ur.role.id, ur.role.label)),
+      record.status as 'active' | 'suspended' | 'archived'
+    );
+  }
 
-    async findByEmail(email: string): Promise<User | null> {
-        const record = await this.prisma.user.findUnique({ where: { email } });
-        return record ? new User(record.id, record.firstName, record.lastName, record.email, record.roles, record.status) : null;
-    }
+  async findById(id: string): Promise<User | null> {
+    const record = await this.prisma.user.findUnique({
+      where: { id },
+      include: { roles: { include: { role: true } } },
+    });
+    return record ? this.mapRecord(record) : null;
+  }
 
-    async create(user: User): Promise<User> {
-        const record = await this.prisma.user.create({
-            data: {
-                id: user.id,
-                firstname: user.firstName,
-                lastname: user.lastName,
-                email: user.email,
-                // roles: user.roles.join(','), // Removed because 'roles' is not a valid field in Prisma schema
-                status: user.status,
-            },
-        });
-        return new User(record.id, record.firstname, record.lastname, record.email, record.roles, record.status);
-    }
+  async findByEmail(email: string): Promise<User | null> {
+    const record = await this.prisma.user.findUnique({
+      where: { email },
+      include: { roles: { include: { role: true } } },
+    });
+    return record ? this.mapRecord(record) : null;
+  }
 
-    async update(user: User): Promise<User> {
-        const record = await this.prisma.user.update({
-            where: { id: user.id },
-            data: {
-                login: user.firstName, // Assuming firstName is used as login
-                email: user.email,
-                roles: user.roles.join(','), // Assuming roles are stored as a comma-separated string
-                status: user.status,
-            },
-        });
-        return new User(record.id, record.firstName, record.lastName, record.email, record.roles, record.status);
-    }
+  async create(user: User): Promise<User> {
+    const record = await this.prisma.user.create({
+      data: {
+        id: user.id,
+        firstname: user.firstName,
+        lastname: user.lastName,
+        email: user.email,
+        password: '',
+        status: user.status,
+        roles: {
+          create: user.roles.map(r => ({ role: { connect: { id: r.id } } })),
+        },
+      },
+      include: { roles: { include: { role: true } } },
+    });
+    return this.mapRecord(record);
+  }
 
-    async delete(id: string): Promise<void> {
-        await this.prisma.user.delete({ where: { id } });
-    }
+  async update(user: User): Promise<User> {
+    const record = await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        firstname: user.firstName,
+        lastname: user.lastName,
+        email: user.email,
+        status: user.status,
+        roles: {
+          deleteMany: {},
+          create: user.roles.map(r => ({ role: { connect: { id: r.id } } })),
+        },
+      },
+      include: { roles: { include: { role: true } } },
+    });
+    return this.mapRecord(record);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.user.delete({ where: { id } });
+  }
 }
