@@ -8,18 +8,23 @@ generator client {
 }
 
 model User {
-  id         String   @id @default(uuid())
-  firstname  String
-  lastname   String
-  email      String   @unique
-  password   String
-  status     String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId String
-  roles      UserRole[]
-  permissions UserPermission[]
+  id                 String   @id @default(uuid())
+  firstname          String
+  lastname           String
+  email              String   @unique
+  password           String?
+  status             String
+  picture            String?
+  metadata           Json?
+  emailVerified      Boolean? @default(false)
+  externalId         String?
+  externalProvider   String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  department         Department @relation(fields: [departmentId], references: [id])
+  departmentId       String
+  roles              UserRole[]
+  permissions        UserPermission[]
   managedDepartments Department[] @relation("DepartmentManager")
 }
 

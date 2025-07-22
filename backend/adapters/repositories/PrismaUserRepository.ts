@@ -34,6 +34,17 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return record ? this.mapRecord(record) : null;
   }
 
+  async findByExternalAuth(provider: string, externalId: string): Promise<User | null> {
+    const record = await this.prisma.user.findFirst({
+      where: { 
+        externalProvider: provider,
+        externalId: externalId
+      },
+      include: { roles: { include: { role: true } } },
+    });
+    return record ? this.mapRecord(record) : null;
+  }
+
   async create(user: User): Promise<User> {
     const record = await this.prisma.user.create({
       data: {

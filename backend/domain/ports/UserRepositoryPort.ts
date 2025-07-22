@@ -21,6 +21,15 @@ export interface UserRepositoryPort {
   findByEmail(email: string): Promise<User | null>;
 
   /**
+   * Find a user by their external authentication provider and ID.
+   *
+   * @param provider - Name of the external authentication provider (e.g., 'google', 'github').
+   * @param externalId - Unique identifier from the external provider.
+   * @returns The matching {@link User} or `null` if not found.
+   */
+  findByExternalAuth(provider: string, externalId: string): Promise<User | null>
+
+  /**
    * Persist a new user.
    *
    * @param user - User entity to create.
