@@ -48,6 +48,7 @@ module.exports = [
       '*.d.ts',
       'coverage/',
       '.env*',
+      'tests/',
       'adapters/orm/prisma/migrations/',
     ],
   },
