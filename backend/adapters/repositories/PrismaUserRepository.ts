@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User as PrismaUser, Role as PrismaRole } from '@prisma/client';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { User } from '../../domain/entities/User';
 import { Role } from '../../domain/entities/Role';
@@ -6,13 +6,13 @@ import { Role } from '../../domain/entities/Role';
 export class PrismaUserRepository implements UserRepositoryPort {
   constructor(private prisma: PrismaClient) {}
 
-  private mapRecord(record: any): User {
+  private mapRecord(record: PrismaUser & { roles: Array<{ role: PrismaRole }> }): User {
     return new User(
       record.id,
       record.firstname,
       record.lastname,
       record.email,
-      record.roles.map((ur: any) => new Role(ur.role.id, ur.role.label)),
+      record.roles.map((ur) => new Role(ur.role.id, ur.role.label)),
       record.status as 'active' | 'suspended' | 'archived'
     );
   }
