@@ -23,7 +23,8 @@ describe('PrismaUserRepository', () => {
       'Doe',
       'john.doe@example.com',
       [mockRole],
-      'active'
+      'active',
+      'dept-1'
     );
   });
 
@@ -40,6 +41,7 @@ describe('PrismaUserRepository', () => {
         email: 'john.doe@example.com',
         password: 'hashed-password',
         status: 'active',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -94,6 +96,7 @@ describe('PrismaUserRepository', () => {
         email: 'jane.smith@example.com',
         password: 'hashed-password',
         status: 'active',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: []
@@ -117,6 +120,7 @@ describe('PrismaUserRepository', () => {
         email: 'john.doe@example.com',
         password: 'hashed-password',
         status: 'active',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -162,6 +166,7 @@ describe('PrismaUserRepository', () => {
         email: 'john.doe@example.com',
         password: 'hashed-password',
         status: 'active',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -191,6 +196,7 @@ describe('PrismaUserRepository', () => {
           lastname: 'Doe',
           email: 'john.doe@example.com',
           password: '',
+          departmentId: 'dept-1',
           status: 'active',
           roles: {
             create: [{ role: { connect: { id: 'role-123' } } }],
@@ -207,7 +213,8 @@ describe('PrismaUserRepository', () => {
         'Smith',
         'jane.smith@example.com',
         [],
-        'active'
+        'active',
+        'dept-1'
       );
 
       const mockPrismaCreatedUser = {
@@ -217,6 +224,7 @@ describe('PrismaUserRepository', () => {
         email: 'jane.smith@example.com',
         password: 'hashed-password',
         status: 'active',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: []
@@ -234,6 +242,7 @@ describe('PrismaUserRepository', () => {
           lastname: 'Smith',
           email: 'jane.smith@example.com',
           password: '',
+          departmentId: 'dept-1',
           status: 'active',
           roles: {
             create: [],
@@ -252,7 +261,8 @@ describe('PrismaUserRepository', () => {
         'Smith',
         'johnny.smith@example.com',
         [mockRole],
-        'suspended'
+        'suspended',
+        'dept-1'
       );
 
       const mockPrismaUpdatedUser = {
@@ -262,6 +272,7 @@ describe('PrismaUserRepository', () => {
         email: 'johnny.smith@example.com',
         password: 'hashed-password',
         status: 'suspended',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -294,6 +305,7 @@ describe('PrismaUserRepository', () => {
           lastname: 'Smith',
           email: 'johnny.smith@example.com',
           status: 'suspended',
+          departmentId: 'dept-1',
           roles: {
             deleteMany: {},
             create: [{ role: { connect: { id: 'role-123' } } }],
@@ -311,7 +323,8 @@ describe('PrismaUserRepository', () => {
         'Doe',
         'john.doe@example.com',
         [newRole],
-        'active'
+        'active',
+        'dept-1'
       );
 
       const mockPrismaUpdatedUser = {
@@ -321,6 +334,7 @@ describe('PrismaUserRepository', () => {
         email: 'john.doe@example.com',
         password: 'hashed-password',
         status: 'active',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -350,6 +364,7 @@ describe('PrismaUserRepository', () => {
           lastname: 'Doe',
           email: 'john.doe@example.com',
           status: 'active',
+          departmentId: 'dept-1',
           roles: {
             deleteMany: {},
             create: [{ role: { connect: { id: 'role-456' } } }],
@@ -366,7 +381,8 @@ describe('PrismaUserRepository', () => {
         'Doe',
         'john.doe@example.com',
         [],
-        'active'
+        'active',
+        'dept-1'
       );
 
       const mockPrismaUpdatedUser = {
@@ -376,6 +392,7 @@ describe('PrismaUserRepository', () => {
         email: 'john.doe@example.com',
         password: 'hashed-password',
         status: 'active',
+        departmentId: 'dept-1',
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: []
@@ -394,6 +411,7 @@ describe('PrismaUserRepository', () => {
           lastname: 'Doe',
           email: 'john.doe@example.com',
           status: 'active',
+          departmentId: 'dept-1',
           roles: {
             deleteMany: {},
             create: [],

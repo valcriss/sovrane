@@ -67,7 +67,8 @@ describe('UserRepositoryPort Interface', () => {
       'Doe',
       'john.doe@example.com',
       [testRole],
-      'active'
+      'active',
+      'dept-1'
     );
   });
 
@@ -91,7 +92,8 @@ describe('UserRepositoryPort Interface', () => {
         'Smith',
         'jane.smith@example.com',
         [],
-        'active'
+        'active',
+        'dept-1'
       );
 
       await repository.create(testUser);
@@ -176,7 +178,8 @@ describe('UserRepositoryPort Interface', () => {
         testUser.lastName,
         'newemail@example.com',
         testUser.roles,
-        testUser.status
+        testUser.status,
+        'dept-1'
       );
       
       await repository.update(updatedUser);
@@ -227,8 +230,8 @@ describe('UserRepositoryPort Interface', () => {
     });
 
     it('should maintain data consistency across operations', async () => {
-      const user1 = new User('user-1', 'User', 'One', 'user1@example.com');
-      const user2 = new User('user-2', 'User', 'Two', 'user2@example.com');
+      const user1 = new User('user-1', 'User', 'One', 'user1@example.com', [], 'active', 'dept-1');
+      const user2 = new User('user-2', 'User', 'Two', 'user2@example.com', [], 'active', 'dept-1');
 
       await repository.create(user1);
       await repository.create(user2);

@@ -13,7 +13,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
       record.lastname,
       record.email,
       record.roles.map((ur) => new Role(ur.role.id, ur.role.label)),
-      record.status as 'active' | 'suspended' | 'archived'
+      record.status as 'active' | 'suspended' | 'archived',
+      record.departmentId
     );
   }
 
@@ -42,6 +43,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         email: user.email,
         password: '',
         status: user.status,
+        departmentId: user.departmentId,
         roles: {
           create: user.roles.map(r => ({ role: { connect: { id: r.id } } })),
         },
@@ -59,6 +61,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         lastname: user.lastName,
         email: user.email,
         status: user.status,
+        departmentId: user.departmentId,
         roles: {
           deleteMany: {},
           create: user.roles.map(r => ({ role: { connect: { id: r.id } } })),

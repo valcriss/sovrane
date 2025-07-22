@@ -16,13 +16,27 @@ model User {
   status     String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+  department   Department @relation(fields: [departmentId], references: [id])
+  departmentId String
   roles      UserRole[]
+  managedDepartments Department[] @relation("DepartmentManager")
 }
 
 model Role {
   id    String @id @default(uuid())
   label String
   users UserRole[]
+}
+
+model Department {
+  id                 String      @id @default(uuid())
+  label              String
+  parentDepartmentId String?
+  parent             Department? @relation("DepartmentParent", fields: [parentDepartmentId], references: [id])
+  children           Department[] @relation("DepartmentParent")
+  managerUserId      String?
+  manager            User?       @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  users              User[]
 }
 
 model UserRole {

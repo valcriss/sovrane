@@ -15,7 +15,8 @@ describe('User Entity', () => {
       'Doe',
       'john.doe@example.com',
       [userRole],
-      'active'
+      'active',
+      'dept-1'
     );
   });
 
@@ -34,7 +35,10 @@ describe('User Entity', () => {
         'user-456',
         'Jane',
         'Smith',
-        'jane.smith@example.com'
+        'jane.smith@example.com',
+        [],
+        'active',
+        'dept-1'
       );
 
       expect(userWithoutRoles.roles).toEqual([]);
@@ -47,7 +51,9 @@ describe('User Entity', () => {
         'Bob',
         'Wilson',
         'bob.wilson@example.com',
-        [adminRole]
+        [adminRole],
+        'active',
+        'dept-1'
       );
 
       expect(userWithoutStatus.status).toBe('active');
@@ -105,7 +111,8 @@ describe('User Entity', () => {
         'User',
         'admin.user@example.com',
         [adminRole, userRole],
-        'active'
+        'active',
+        'dept-1'
       );
 
       expect(multiRoleUser.roles).toHaveLength(2);
