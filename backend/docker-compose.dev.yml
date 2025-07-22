@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=sovrane
+      - POSTGRES_USER=sovrane
+      - POSTGRES_PASSWORD=sovrane
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-sovrane} -d ${POSTGRES_DB:-sovrane} && psql -U ${POSTGRES_USER:-sovrane} -d ${POSTGRES_DB:-sovrane} -c 'SELECT 1'",
+        ]
+      interval: 3s
+      timeout: 5s
+      retries: 15
+      start_period: 10s
+
+volumes:
+  db-data:
