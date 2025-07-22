@@ -66,6 +66,11 @@ This backend uses a **hexagonal (ports & adapters) architecture** to maximize mo
 
 ## Code Quality and Test Coverage
 
+### **Comments**
+
+- **Before every commit**, verify that every class, method, and property in the domain directory (including all subfolders) is fully commented. Each should have clear and complete documentation to describe its purpose and usage.
+
+
 ### **Linting**
 
 - **Before every commit**, ensure the code passes linting without warnings or errors:
