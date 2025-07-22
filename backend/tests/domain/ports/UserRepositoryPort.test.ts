@@ -1,0 +1,250 @@
+import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
+import { User } from '../../../domain/entities/User';
+import { Role } from '../../../domain/entities/Role';
+
+// Mock implementation for testing the interface
+class MockUserRepository implements UserRepositoryPort {
+  private users: Map<string, User> = new Map();
+  private emailIndex: Map<string, string> = new Map();
+
+  async findById(id: string): Promise<User | null> {
+    return this.users.get(id) || null;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    const userId = this.emailIndex.get(email);
+    return userId ? this.users.get(userId) || null : null;
+  }
+
+  async create(user: User): Promise<User> {
+    this.users.set(user.id, user);
+    this.emailIndex.set(user.email, user.id);
+    return user;
+  }
+
+  async update(user: User): Promise<User> {
+    if (!this.users.has(user.id)) {
+      throw new Error('User not found');
+    }
+    
+    const existingUser = this.users.get(user.id);
+    if (existingUser) {
+      // Remove old email index
+      this.emailIndex.delete(existingUser.email);
+    }
+    
+    this.users.set(user.id, user);
+    this.emailIndex.set(user.email, user.id);
+    return user;
+  }
+
+  async delete(id: string): Promise<void> {
+    const user = this.users.get(id);
+    if (user) {
+      this.users.delete(id);
+      this.emailIndex.delete(user.email);
+    }
+  }
+
+  // Helper method for testing
+  clear(): void {
+    this.users.clear();
+    this.emailIndex.clear();
+  }
+}
+
+describe('UserRepositoryPort Interface', () => {
+  let repository: MockUserRepository;
+  let testUser: User;
+  let testRole: Role;
+
+  beforeEach(() => {
+    repository = new MockUserRepository();
+    testRole = new Role('role-123', 'Admin');
+    testUser = new User(
+      'user-123',
+      'John',
+      'Doe',
+      'john.doe@example.com',
+      [testRole],
+      'active'
+    );
+  });
+
+  afterEach(() => {
+    repository.clear();
+  });
+
+  describe('create', () => {
+    it('should create and return a user', async () => {
+      const result = await repository.create(testUser);
+
+      expect(result).toEqual(testUser);
+      expect(result.id).toBe('user-123');
+      expect(result.email).toBe('john.doe@example.com');
+    });
+
+    it('should allow creating multiple users', async () => {
+      const user2 = new User(
+        'user-456',
+        'Jane',
+        'Smith',
+        'jane.smith@example.com',
+        [],
+        'active'
+      );
+
+      await repository.create(testUser);
+      await repository.create(user2);
+
+      const foundUser1 = await repository.findById('user-123');
+      const foundUser2 = await repository.findById('user-456');
+
+      expect(foundUser1).toEqual(testUser);
+      expect(foundUser2).toEqual(user2);
+    });
+  });
+
+  describe('findById', () => {
+    it('should return user when found', async () => {
+      await repository.create(testUser);
+
+      const result = await repository.findById('user-123');
+
+      expect(result).toEqual(testUser);
+    });
+
+    it('should return null when user not found', async () => {
+      const result = await repository.findById('non-existent-id');
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('findByEmail', () => {
+    it('should return user when found by email', async () => {
+      await repository.create(testUser);
+
+      const result = await repository.findByEmail('john.doe@example.com');
+
+      expect(result).toEqual(testUser);
+    });
+
+    it('should return null when user not found by email', async () => {
+      const result = await repository.findByEmail('nonexistent@example.com');
+
+      expect(result).toBeNull();
+    });
+
+    it('should handle case sensitivity correctly', async () => {
+      await repository.create(testUser);
+
+      const result = await repository.findByEmail('JOHN.DOE@EXAMPLE.COM');
+
+      expect(result).toBeNull(); // Case sensitive
+    });
+  });
+
+  describe('update', () => {
+    it('should update existing user', async () => {
+      await repository.create(testUser);
+
+      testUser.firstName = 'Johnny';
+      testUser.status = 'suspended';
+
+      const result = await repository.update(testUser);
+
+      expect(result.firstName).toBe('Johnny');
+      expect(result.status).toBe('suspended');
+
+      const foundUser = await repository.findById('user-123');
+      expect(foundUser?.firstName).toBe('Johnny');
+      expect(foundUser?.status).toBe('suspended');
+    });
+
+    it('should throw error when updating non-existent user', async () => {
+      await expect(repository.update(testUser)).rejects.toThrow('User not found');
+    });
+
+    it('should handle email change in update', async () => {
+      await repository.create(testUser);
+
+      // Create a new user object with updated email
+      const updatedUser = new User(
+        testUser.id,
+        testUser.firstName,
+        testUser.lastName,
+        'newemail@example.com',
+        testUser.roles,
+        testUser.status
+      );
+      
+      await repository.update(updatedUser);
+
+      const foundByOldEmail = await repository.findByEmail('john.doe@example.com');
+      const foundByNewEmail = await repository.findByEmail('newemail@example.com');
+
+      expect(foundByOldEmail).toBeNull();
+      expect(foundByNewEmail).toEqual(updatedUser);
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete existing user', async () => {
+      await repository.create(testUser);
+
+      await repository.delete('user-123');
+
+      const result = await repository.findById('user-123');
+      expect(result).toBeNull();
+
+      const resultByEmail = await repository.findByEmail('john.doe@example.com');
+      expect(resultByEmail).toBeNull();
+    });
+
+    it('should not throw error when deleting non-existent user', async () => {
+      await expect(repository.delete('non-existent-id')).resolves.not.toThrow();
+    });
+  });
+
+  describe('Integration scenarios', () => {
+    it('should handle complete user lifecycle', async () => {
+      // Create
+      await repository.create(testUser);
+      let found = await repository.findById('user-123');
+      expect(found).toEqual(testUser);
+
+      // Update
+      testUser.firstName = 'Johnny';
+      await repository.update(testUser);
+      found = await repository.findById('user-123');
+      expect(found?.firstName).toBe('Johnny');
+
+      // Delete
+      await repository.delete('user-123');
+      found = await repository.findById('user-123');
+      expect(found).toBeNull();
+    });
+
+    it('should maintain data consistency across operations', async () => {
+      const user1 = new User('user-1', 'User', 'One', 'user1@example.com');
+      const user2 = new User('user-2', 'User', 'Two', 'user2@example.com');
+
+      await repository.create(user1);
+      await repository.create(user2);
+
+      // Both should be findable by ID
+      expect(await repository.findById('user-1')).toEqual(user1);
+      expect(await repository.findById('user-2')).toEqual(user2);
+
+      // Both should be findable by email
+      expect(await repository.findByEmail('user1@example.com')).toEqual(user1);
+      expect(await repository.findByEmail('user2@example.com')).toEqual(user2);
+
+      // Delete one shouldn't affect the other
+      await repository.delete('user-1');
+      expect(await repository.findById('user-1')).toBeNull();
+      expect(await repository.findById('user-2')).toEqual(user2);
+    });
+  });
+});

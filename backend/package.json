@@ -7,11 +7,28 @@
   "type": "commonjs",
   "main": "index.ts",
   "scripts": {
-    "migrate": "prisma migrate dev --schema adapters/orm/prisma/schema.prisma",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "database:update": "prisma migrate dev --schema adapters/orm/prisma/schema.prisma",
+    "database:reset": "prisma migrate reset --schema adapters/orm/prisma/schema.prisma",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --coverage --watchAll=false",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",
     "prisma": "^6.12.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.31.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "eslint": "^9.31.0",
+    "jest": "^30.0.5",
+    "jest-mock-extended": "^4.0.0",
+    "ts-jest": "^29.4.0",
+    "typescript": "^5.8.3"
   }
 }
