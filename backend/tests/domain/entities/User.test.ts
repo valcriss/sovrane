@@ -36,11 +36,11 @@ describe('User Entity', () => {
         'Jane',
         'Smith',
         'jane.smith@example.com',
-        [],
+        undefined as any,
         'active',
         'dept-1'
       );
-
+      
       expect(userWithoutRoles.roles).toEqual([]);
       expect(userWithoutRoles.status).toBe('active');
     });
@@ -52,10 +52,10 @@ describe('User Entity', () => {
         'Wilson',
         'bob.wilson@example.com',
         [adminRole],
-        'active',
+        undefined as any,
         'dept-1'
       );
-
+      
       expect(userWithoutStatus.status).toBe('active');
     });
   });
