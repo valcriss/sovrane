@@ -1,6 +1,6 @@
-import { SiteRepositoryPort } from '../domain/ports/SiteRepositoryPort';
-import { UserRepositoryPort } from '../domain/ports/UserRepositoryPort';
-import { DepartmentRepositoryPort } from '../domain/ports/DepartmentRepositoryPort';
+import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
+import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
+import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
 
 /**
  * Use case for removing a site only when no user or department is attached to it.

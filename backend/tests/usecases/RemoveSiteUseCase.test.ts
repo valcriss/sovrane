@@ -1,5 +1,5 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { RemoveSiteUseCase } from '../../usecases/RemoveSiteUseCase';
+import { RemoveSiteUseCase } from '../../usecases/site/RemoveSiteUseCase';
 import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
