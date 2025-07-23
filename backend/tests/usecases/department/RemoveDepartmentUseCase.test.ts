@@ -1,5 +1,5 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { DeleteDepartmentUseCase } from '../../../usecases/department/DeleteDepartmentUseCase';
+import { RemoveDepartmentUseCase } from '../../../usecases/department/RemoveDepartmentUseCase';
 import { DepartmentRepositoryPort } from '../../../domain/ports/DepartmentRepositoryPort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { User } from '../../../domain/entities/User';
@@ -7,10 +7,10 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 
-describe('DeleteDepartmentUseCase', () => {
+describe('RemoveDepartmentUseCase', () => {
   let deptRepo: DeepMockProxy<DepartmentRepositoryPort>;
   let userRepo: DeepMockProxy<UserRepositoryPort>;
-  let useCase: DeleteDepartmentUseCase;
+  let useCase: RemoveDepartmentUseCase;
   let department: Department;
   let site: Site;
   let user: User;
@@ -19,7 +19,7 @@ describe('DeleteDepartmentUseCase', () => {
   beforeEach(() => {
     deptRepo = mockDeep<DepartmentRepositoryPort>();
     userRepo = mockDeep<UserRepositoryPort>();
-    useCase = new DeleteDepartmentUseCase(deptRepo, userRepo);
+    useCase = new RemoveDepartmentUseCase(deptRepo, userRepo);
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
     role = new Role('role-1', 'Admin');

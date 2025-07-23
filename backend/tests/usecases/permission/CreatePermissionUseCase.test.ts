@@ -1,7 +1,7 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { CreatePermissionUseCase } from '../../usecases/CreatePermissionUseCase';
-import { PermissionRepositoryPort } from '../../domain/ports/PermissionRepositoryPort';
-import { Permission } from '../../domain/entities/Permission';
+import { CreatePermissionUseCase } from '../../../usecases/permission/CreatePermissionUseCase';
+import { PermissionRepositoryPort } from '../../../domain/ports/PermissionRepositoryPort';
+import { Permission } from '../../../domain/entities/Permission';
 
 describe('CreatePermissionUseCase', () => {
   let repository: DeepMockProxy<PermissionRepositoryPort>;

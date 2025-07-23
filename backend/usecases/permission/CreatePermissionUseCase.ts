@@ -1,5 +1,5 @@
-import { PermissionRepositoryPort } from '../domain/ports/PermissionRepositoryPort';
-import { Permission } from '../domain/entities/Permission';
+import { PermissionRepositoryPort } from '../../domain/ports/PermissionRepositoryPort';
+import { Permission } from '../../domain/entities/Permission';
 
 /**
  * Use case responsible for creating a {@link Permission}.
