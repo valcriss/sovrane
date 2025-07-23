@@ -1,0 +1,75 @@
+import request from 'supertest';
+import express from 'express';
+import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
+import { createRoleRouter } from '../../../../adapters/controllers/rest/roleController';
+import { RoleRepositoryPort } from '../../../../domain/ports/RoleRepositoryPort';
+import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
+import { LoggerPort } from '../../../../domain/ports/LoggerPort';
+import { Role } from '../../../../domain/entities/Role';
+import { Permission } from '../../../../domain/entities/Permission';
+
+describe('Role REST controller', () => {
+  let app: express.Express;
+  let roleRepo: DeepMockProxy<RoleRepositoryPort>;
+  let userRepo: DeepMockProxy<UserRepositoryPort>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
+  let role: Role;
+  let permission: Permission;
+
+  beforeEach(() => {
+    roleRepo = mockDeep<RoleRepositoryPort>();
+    userRepo = mockDeep<UserRepositoryPort>();
+    logger = mockDeep<LoggerPort>();
+    permission = new Permission('p', 'P', 'desc');
+    role = new Role('r', 'Role', [permission]);
+    roleRepo.create.mockResolvedValue(role);
+    roleRepo.update.mockResolvedValue(role);
+    userRepo.findByRoleId.mockResolvedValue([]);
+    roleRepo.delete.mockResolvedValue();
+
+    app = express();
+    app.use(express.json());
+    app.use('/api', createRoleRouter(roleRepo, userRepo, logger));
+  });
+
+  it('should create a role', async () => {
+    const res = await request(app)
+      .post('/api/roles')
+      .send({
+        id: 'r',
+        label: 'Role',
+        permissions: [{ id: 'p', permissionKey: 'P', description: 'desc' }],
+      });
+
+    expect(res.status).toBe(201);
+    expect(roleRepo.create).toHaveBeenCalled();
+  });
+
+  it('should update a role', async () => {
+    const res = await request(app)
+      .put('/api/roles/r')
+      .send({
+        label: 'Role',
+        permissions: [{ id: 'p', permissionKey: 'P', description: 'desc' }],
+      });
+
+    expect(res.status).toBe(200);
+    expect(roleRepo.update).toHaveBeenCalled();
+  });
+
+  it('should delete a role', async () => {
+    const res = await request(app).delete('/api/roles/r');
+
+    expect(res.status).toBe(204);
+    expect(roleRepo.delete).toHaveBeenCalledWith('r');
+  });
+
+  it('should return 400 when deletion fails', async () => {
+    userRepo.findByRoleId.mockResolvedValueOnce([{} as any]);
+
+    const res = await request(app).delete('/api/roles/r');
+
+    expect(res.status).toBe(400);
+    expect(roleRepo.delete).not.toHaveBeenCalled();
+  });
+});
