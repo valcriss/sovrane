@@ -45,6 +45,16 @@ class MockUserRepository implements UserRepositoryPort {
     return result;
   }
 
+  async findBySiteId(siteId: string): Promise<User[]> {
+    const result: User[] = [];
+    for (const user of this.users.values()) {
+      if (user.site.id === siteId) {
+        result.push(user);
+      }
+    }
+    return result;
+  }
+
   async create(user: User): Promise<User> {
     this.users.set(user.id, user);
     this.emailIndex.set(user.email, user.id);
@@ -239,6 +249,22 @@ describe('UserRepositoryPort Interface', () => {
 
     it('should return empty array when no users have role', async () => {
       const result = await repository.findByRoleId('missing');
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('findBySiteId', () => {
+    it('should return users belonging to a site', async () => {
+      await repository.create(testUser);
+
+      const result = await repository.findBySiteId('site-1');
+
+      expect(result).toEqual([testUser]);
+    });
+
+    it('should return empty array when no users belong to site', async () => {
+      const result = await repository.findBySiteId('missing');
 
       expect(result).toEqual([]);
     });

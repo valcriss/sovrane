@@ -1,25 +1,25 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { CreateSiteUseCase } from '../../usecases/site/CreateSiteUseCase';
+import { UpdateSiteUseCase } from '../../usecases/UpdateSiteUseCase';
 import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
 import { Site } from '../../domain/entities/Site';
 
-describe('CreateSiteUseCase', () => {
+describe('UpdateSiteUseCase', () => {
   let repository: DeepMockProxy<SiteRepositoryPort>;
-  let useCase: CreateSiteUseCase;
+  let useCase: UpdateSiteUseCase;
   let site: Site;
 
   beforeEach(() => {
     repository = mockDeep<SiteRepositoryPort>();
-    useCase = new CreateSiteUseCase(repository);
+    useCase = new UpdateSiteUseCase(repository);
     site = new Site('site-1', 'HQ');
   });
 
-  it('should create a site via repository', async () => {
-    repository.create.mockResolvedValue(site);
+  it('should update a site via repository', async () => {
+    repository.update.mockResolvedValue(site);
 
     const result = await useCase.execute(site);
 
     expect(result).toBe(site);
-    expect(repository.create).toHaveBeenCalledWith(site);
+    expect(repository.update).toHaveBeenCalledWith(site);
   });
 });

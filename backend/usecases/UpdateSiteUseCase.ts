@@ -2,18 +2,18 @@ import { SiteRepositoryPort } from '../domain/ports/SiteRepositoryPort';
 import { Site } from '../domain/entities/Site';
 
 /**
- * Use case responsible for creating a {@link Site}.
+ * Use case responsible for updating an existing {@link Site}.
  */
-export class CreateSiteUseCase {
+export class UpdateSiteUseCase {
   constructor(private readonly siteRepository: SiteRepositoryPort) {}
 
   /**
-   * Execute the use case.
+   * Execute the update.
    *
-   * @param site - The site to persist.
-   * @returns The created {@link Site}.
+   * @param site - Updated site entity.
+   * @returns The persisted {@link Site} after update.
    */
   async execute(site: Site): Promise<Site> {
-    return this.siteRepository.create(site);
+    return this.siteRepository.update(site);
   }
 }

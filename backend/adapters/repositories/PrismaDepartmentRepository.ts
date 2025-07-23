@@ -60,4 +60,12 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
   async delete(id: string): Promise<void> {
     await this.prisma.department.delete({ where: { id } });
   }
+
+  async findBySiteId(siteId: string): Promise<Department[]> {
+    const records = await this.prisma.department.findMany({
+      where: { siteId },
+      include: { site: true },
+    });
+    return records.map(r => this.mapRecord(r));
+  }
 }

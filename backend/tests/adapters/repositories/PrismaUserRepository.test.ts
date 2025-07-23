@@ -729,7 +729,7 @@ describe('PrismaUserRepository', () => {
 
   describe('findByRoleId', () => {
     it('should retrieve users by role', async () => {
-      prismaClient.user.findMany.mockResolvedValue([{
+      prismaClient.user.findMany.mockResolvedValue([{ 
         id: 'user-123',
         firstname: 'John',
         lastname: 'Doe',
@@ -752,6 +752,41 @@ describe('PrismaUserRepository', () => {
       expect(result).toHaveLength(1);
       expect(prismaClient.user.findMany).toHaveBeenCalledWith({
         where: { roles: { some: { roleId: 'role-1' } } },
+        include: {
+          roles: { include: { role: true } },
+          department: { include: { site: true } },
+          site: true,
+          permissions: { include: { permission: true } },
+        },
+      });
+    });
+  });
+
+  describe('findBySiteId', () => {
+    it('should retrieve users by site', async () => {
+      prismaClient.user.findMany.mockResolvedValue([{ 
+        id: 'user-123',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com',
+        password: '',
+        status: 'active',
+        departmentId: 'dept-1',
+        siteId: 'site-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null, siteId: 'site-1', site: { id: 'site-1', label: 'HQ' } },
+        site: { id: 'site-1', label: 'HQ' },
+        picture: null,
+        permissions: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        roles: []
+      }] as any);
+
+      const result = await repository.findBySiteId('site-1');
+
+      expect(result).toHaveLength(1);
+      expect(prismaClient.user.findMany).toHaveBeenCalledWith({
+        where: { siteId: 'site-1' },
         include: {
           roles: { include: { role: true } },
           department: { include: { site: true } },
