@@ -14,7 +14,8 @@
     "test:watch": "jest --watch",
     "test:ci": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix"
+    "lint:fix": "eslint . --ext .ts --fix",
+    "dev": "ts-node infrastructure/server.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.12.0",
