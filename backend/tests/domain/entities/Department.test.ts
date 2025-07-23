@@ -1,4 +1,5 @@
 import { Department } from '../../../domain/entities/Department';
+import { Permission } from '../../../domain/entities/Permission';
 
 describe('Department Entity', () => {
   it('should construct a department with all properties', () => {
@@ -14,6 +15,12 @@ describe('Department Entity', () => {
     dept.label = 'Human Resources';
     dept.parentDepartmentId = 'dept-1';
     dept.managerUserId = 'user-2';
+
+    const perm = new Permission('perm-1', 'READ', 'read');
+    dept.permissions.push(perm);
+
+    expect(dept.permissions).toHaveLength(1);
+    expect(dept.permissions[0]).toBe(perm);
 
     expect(dept.label).toBe('Human Resources');
     expect(dept.parentDepartmentId).toBe('dept-1');

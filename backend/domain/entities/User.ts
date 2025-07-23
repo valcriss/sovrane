@@ -1,4 +1,6 @@
 import { Role } from './Role';
+import { Department } from './Department';
+import { Permission } from './Permission';
 
 /**
  * Represents a user within the system.
@@ -13,8 +15,10 @@ export class User {
    * @param email - Email address used to contact the user.
    * @param roles - Collection of {@link Role} instances assigned to the user.
    * @param status - Current account status.
-   * @param departmentId - Identifier of the department the user belongs to.
-   */
+   * @param department - {@link Department} the user belongs to.
+   * @param picture - Optional profile picture URL.
+   * @param permissions - Collection of {@link Permission} granted directly to the user.
+  */
   constructor(
     public readonly id: string,
     public firstName: string,
@@ -22,7 +26,9 @@ export class User {
     public email: string,
     public roles: Role[] = [],
     public status: 'active' | 'suspended' | 'archived' = 'active',
-    public departmentId: string,
+    public department: Department,
+    public picture?: string,
+    public permissions: Permission[] = [],
   ) {}
 }
 

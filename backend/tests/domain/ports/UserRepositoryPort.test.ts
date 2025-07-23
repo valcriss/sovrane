@@ -1,6 +1,7 @@
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
+import { Department } from '../../../domain/entities/Department';
 
 // Mock implementation for testing the interface
 class MockUserRepository implements UserRepositoryPort {
@@ -75,10 +76,12 @@ describe('UserRepositoryPort Interface', () => {
   let repository: MockUserRepository;
   let testUser: User;
   let testRole: Role;
+  let department: Department;
 
   beforeEach(() => {
     repository = new MockUserRepository();
     testRole = new Role('role-123', 'Admin');
+    department = new Department('dept-1', 'IT');
     testUser = new User(
       'user-123',
       'John',
@@ -86,7 +89,7 @@ describe('UserRepositoryPort Interface', () => {
       'john.doe@example.com',
       [testRole],
       'active',
-      'dept-1'
+      department
     );
   });
 
@@ -111,7 +114,7 @@ describe('UserRepositoryPort Interface', () => {
         'jane.smith@example.com',
         [],
         'active',
-        'dept-1'
+        department
       );
 
       await repository.create(testUser);
@@ -216,7 +219,7 @@ describe('UserRepositoryPort Interface', () => {
         'newemail@example.com',
         testUser.roles,
         testUser.status,
-        'dept-1'
+        department
       );
       
       await repository.update(updatedUser);
@@ -267,8 +270,8 @@ describe('UserRepositoryPort Interface', () => {
     });
 
     it('should maintain data consistency across operations', async () => {
-      const user1 = new User('user-1', 'User', 'One', 'user1@example.com', [], 'active', 'dept-1');
-      const user2 = new User('user-2', 'User', 'Two', 'user2@example.com', [], 'active', 'dept-1');
+      const user1 = new User('user-1', 'User', 'One', 'user1@example.com', [], 'active', department);
+      const user2 = new User('user-2', 'User', 'Two', 'user2@example.com', [], 'active', department);
 
       await repository.create(user1);
       await repository.create(user2);

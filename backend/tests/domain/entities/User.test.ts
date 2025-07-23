@@ -1,14 +1,18 @@
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
+import { Department } from '../../../domain/entities/Department';
+import { Permission } from '../../../domain/entities/Permission';
 
 describe('User Entity', () => {
   let user: User;
   let adminRole: Role;
   let userRole: Role;
+  let department: Department;
 
   beforeEach(() => {
     adminRole = new Role('admin-id', 'Admin');
     userRole = new Role('user-id', 'User');
+    department = new Department('dept-1', 'IT');
     user = new User(
       'user-123',
       'John',
@@ -16,7 +20,7 @@ describe('User Entity', () => {
       'john.doe@example.com',
       [userRole],
       'active',
-      'dept-1'
+      department,
     );
   });
 
@@ -38,7 +42,7 @@ describe('User Entity', () => {
         'jane.smith@example.com',
         undefined as any,
         'active',
-        'dept-1'
+        department
       );
       
       expect(userWithoutRoles.roles).toEqual([]);
@@ -53,7 +57,7 @@ describe('User Entity', () => {
         'bob.wilson@example.com',
         [adminRole],
         undefined as any,
-        'dept-1'
+        department
       );
       
       expect(userWithoutStatus.status).toBe('active');
@@ -90,6 +94,16 @@ describe('User Entity', () => {
       expect(user.roles).toHaveLength(1);
       expect(user.roles).toContain(userRole);
     });
+
+    it('should handle picture and permissions properties', () => {
+      const perm = new Permission('perm-1', 'READ', 'read');
+      user.picture = 'avatar.png';
+      user.permissions.push(perm);
+
+      expect(user.picture).toBe('avatar.png');
+      expect(user.permissions).toHaveLength(1);
+      expect(user.permissions[0]).toBe(perm);
+    });
   });
 
   describe('User Status', () => {
@@ -112,7 +126,7 @@ describe('User Entity', () => {
         'admin.user@example.com',
         [adminRole, userRole],
         'active',
-        'dept-1'
+        department
       );
 
       expect(multiRoleUser.roles).toHaveLength(2);
