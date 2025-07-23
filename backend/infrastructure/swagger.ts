@@ -24,9 +24,9 @@ export const swaggerSpec = swaggerJsdoc({
 });
 
 export interface SetupSwaggerOptions {
-    app: Application;
+  app: Application;
 }
 
 export function setupSwagger(app: Application): void {
-    app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 }

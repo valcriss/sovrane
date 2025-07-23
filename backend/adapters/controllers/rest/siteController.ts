@@ -24,6 +24,15 @@ export function createSiteRouter(
 ): Router {
   const router = express.Router();
 
+  /**
+   * @openapi
+   * /sites:
+   *   post:
+   *     summary: Create a site.
+   *     responses:
+   *       201:
+   *         description: Site created
+   */
   router.post('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /sites', getContext());
     const { id, label } = req.body;
@@ -33,6 +42,15 @@ export function createSiteRouter(
     res.status(201).json(site);
   });
 
+  /**
+   * @openapi
+   * /sites/{id}:
+   *   put:
+   *     summary: Update a site.
+   *     responses:
+   *       200:
+   *         description: Updated site
+   */
   router.put('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /sites/:id', getContext());
     const { label } = req.body;
@@ -43,6 +61,15 @@ export function createSiteRouter(
     res.json(site);
   });
 
+  /**
+   * @openapi
+   * /sites/{id}:
+   *   delete:
+   *     summary: Remove a site.
+   *     responses:
+   *       204:
+   *         description: Site deleted
+   */
   router.delete('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /sites/:id', getContext());
     const { id } = req.params;
