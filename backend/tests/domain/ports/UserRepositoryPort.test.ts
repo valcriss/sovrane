@@ -25,6 +25,16 @@ class MockUserRepository implements UserRepositoryPort {
     return userId ? this.users.get(userId) || null : null;
   }
 
+  async findByDepartmentId(departmentId: string): Promise<User[]> {
+    const result: User[] = [];
+    for (const user of this.users.values()) {
+      if (user.department.id === departmentId) {
+        result.push(user);
+      }
+    }
+    return result;
+  }
+
   async create(user: User): Promise<User> {
     this.users.set(user.id, user);
     this.emailIndex.set(user.email, user.id);
@@ -189,6 +199,22 @@ describe('UserRepositoryPort Interface', () => {
       const result = await repository.findByExternalAuth('github', 'x999');
 
       expect(result).toBeNull();
+    });
+  });
+
+  describe('findByDepartmentId', () => {
+    it('should return users belonging to department', async () => {
+      await repository.create(testUser);
+
+      const result = await repository.findByDepartmentId('dept-1');
+
+      expect(result).toEqual([testUser]);
+    });
+
+    it('should return empty array when no users match', async () => {
+      const result = await repository.findByDepartmentId('missing');
+
+      expect(result).toEqual([]);
     });
   });
 

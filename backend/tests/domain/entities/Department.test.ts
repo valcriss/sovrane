@@ -30,4 +30,14 @@ describe('Department Entity', () => {
     expect(dept.managerUserId).toBe('user-2');
     expect(dept.site).toBe(site);
   });
+
+  it('should use default values when optional parameters are omitted', () => {
+    const site = new Site('site-2', 'Branch');
+    const dept = new Department('dept-3', 'Support', undefined as any, undefined as any, site);
+
+    expect(dept.parentDepartmentId).toBeNull();
+    expect(dept.managerUserId).toBeNull();
+    expect(dept.permissions).toEqual([]);
+    expect(dept.site).toBe(site);
+  });
 });
