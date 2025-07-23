@@ -11,6 +11,8 @@ import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
 import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
+import { setupSwagger } from './swagger';
+
 async function bootstrap(): Promise<void> {
   const logger = new ConsoleLoggerAdapter();
   const prisma = createPrisma(logger);
@@ -32,7 +34,8 @@ async function bootstrap(): Promise<void> {
   });
 
   app.use('/api', createUserRouter(authService, userRepository, logger));
-
+  setupSwagger(app);
+  
   const httpServer = http.createServer(app);
   const io = new SocketIOServer(httpServer);
   registerUserGateway(io, authService, logger);

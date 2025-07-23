@@ -153,6 +153,20 @@ export function createUserRouter(
 
   router.use(authMiddleware);
 
+  /**
+   * @openapi
+   * /users/me:
+   *   get:
+   *     summary: Returns the current user profile.
+   *     responses:
+   *       200:
+   *         description: Current user profile
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *                 $ref: '#/components/schemas/User'
+   */
   router.get('/users/me', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users/me', getContext());
     const useCase = new GetCurrentUserProfileUseCase(userRepository);
