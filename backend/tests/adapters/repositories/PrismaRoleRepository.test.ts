@@ -2,15 +2,18 @@ import { PrismaClient } from '@prisma/client';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { PrismaRoleRepository } from '../../../adapters/repositories/PrismaRoleRepository';
 import { Role } from '../../../domain/entities/Role';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
 describe('PrismaRoleRepository', () => {
   let repository: PrismaRoleRepository;
   let prisma: DeepMockProxy<PrismaClient>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let role: Role;
 
   beforeEach(() => {
     prisma = mockDeep<PrismaClient>();
-    repository = new PrismaRoleRepository(prisma);
+    logger = mockDeep<LoggerPort>();
+    repository = new PrismaRoleRepository(prisma, logger);
     role = new Role('role-1', 'Admin');
   });
 

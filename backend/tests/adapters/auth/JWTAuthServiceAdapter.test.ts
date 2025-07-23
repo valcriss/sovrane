@@ -6,10 +6,12 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
 describe('JWTAuthServiceAdapter', () => {
   const secret = 'secret';
   let repo: DeepMockProxy<UserRepositoryPort>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let adapter: JWTAuthServiceAdapter;
   let user: User;
   let role: Role;
@@ -18,11 +20,12 @@ describe('JWTAuthServiceAdapter', () => {
 
   beforeEach(() => {
     repo = mockDeep<UserRepositoryPort>();
+    logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
-    adapter = new JWTAuthServiceAdapter(secret, repo);
+    adapter = new JWTAuthServiceAdapter(secret, repo, logger);
   });
 
   it('should verify token and return user', async () => {
