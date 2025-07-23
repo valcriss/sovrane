@@ -2,6 +2,7 @@ import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
+import { Site } from '../../../domain/entities/Site';
 
 // Mock implementation for testing the interface
 class MockUserRepository implements UserRepositoryPort {
@@ -77,11 +78,13 @@ describe('UserRepositoryPort Interface', () => {
   let testUser: User;
   let testRole: Role;
   let department: Department;
+  let site: Site;
 
   beforeEach(() => {
     repository = new MockUserRepository();
     testRole = new Role('role-123', 'Admin');
-    department = new Department('dept-1', 'IT');
+    site = new Site('site-1', 'HQ');
+    department = new Department('dept-1', 'IT', null, null, site);
     testUser = new User(
       'user-123',
       'John',
@@ -89,7 +92,8 @@ describe('UserRepositoryPort Interface', () => {
       'john.doe@example.com',
       [testRole],
       'active',
-      department
+      department,
+      site
     );
   });
 
@@ -114,7 +118,8 @@ describe('UserRepositoryPort Interface', () => {
         'jane.smith@example.com',
         [],
         'active',
-        department
+        department,
+        site
       );
 
       await repository.create(testUser);
@@ -219,7 +224,8 @@ describe('UserRepositoryPort Interface', () => {
         'newemail@example.com',
         testUser.roles,
         testUser.status,
-        department
+        department,
+        site
       );
       
       await repository.update(updatedUser);
@@ -270,8 +276,8 @@ describe('UserRepositoryPort Interface', () => {
     });
 
     it('should maintain data consistency across operations', async () => {
-      const user1 = new User('user-1', 'User', 'One', 'user1@example.com', [], 'active', department);
-      const user2 = new User('user-2', 'User', 'Two', 'user2@example.com', [], 'active', department);
+      const user1 = new User('user-1', 'User', 'One', 'user1@example.com', [], 'active', department, site);
+      const user2 = new User('user-2', 'User', 'Two', 'user2@example.com', [], 'active', department, site);
 
       await repository.create(user1);
       await repository.create(user2);
