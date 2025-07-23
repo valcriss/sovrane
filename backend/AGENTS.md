@@ -84,6 +84,14 @@ This backend uses a **hexagonal (ports & adapters) architecture** to maximize mo
 - Write unit, integration, and e2e tests for all modules and adapters.
 - Check coverage reports and address any uncovered code.
 
+### **Logging**
+
+When developing or modifying the backend, always ensure that application logs are added at the appropriate level (error, warn, info, debug, trace) according to the documentation available in **backend/docs/Logging.md**.
+
+All logs must use the project's logging service, not direct console calls.
+
+Logs should include relevant context for traceability.
+
 ---
 
 ## Guidelines for AI Agents
