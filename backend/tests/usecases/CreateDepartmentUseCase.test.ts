@@ -1,5 +1,5 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { CreateDepartmentUseCase } from '../../usecases/CreateDepartmentUseCase';
+import { CreateDepartmentUseCase } from '../../usecases/department/CreateDepartmentUseCase';
 import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
 import { Department } from '../../domain/entities/Department';
 import { Site } from '../../domain/entities/Site';

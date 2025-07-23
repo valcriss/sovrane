@@ -25,6 +25,15 @@ describe('PrismaSiteRepository', () => {
     expect(prisma.site.findUnique).toHaveBeenCalledWith({ where: { id: 'site-1' } });
   });
 
+  it('should return null when site not found by id', async () => {
+    prisma.site.findUnique.mockResolvedValue(null);
+
+    const result = await repo.findById('missing');
+
+    expect(result).toBeNull();
+    expect(prisma.site.findUnique).toHaveBeenCalledWith({ where: { id: 'missing' } });
+  });
+
   it('should create a site', async () => {
     prisma.site.create.mockResolvedValue({ id: 'site-1', label: 'HQ' } as any);
     const result = await repo.create(site);
@@ -37,6 +46,15 @@ describe('PrismaSiteRepository', () => {
     const result = await repo.findByLabel('HQ');
     expect(result).toEqual(site);
     expect(prisma.site.findFirst).toHaveBeenCalledWith({ where: { label: 'HQ' } });
+  });
+
+  it('should return null when site not found by label', async () => {
+    prisma.site.findFirst.mockResolvedValue(null);
+
+    const result = await repo.findByLabel('missing');
+
+    expect(result).toBeNull();
+    expect(prisma.site.findFirst).toHaveBeenCalledWith({ where: { label: 'missing' } });
   });
 
   it('should update a site', async () => {

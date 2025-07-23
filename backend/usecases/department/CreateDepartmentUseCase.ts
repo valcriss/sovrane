@@ -1,5 +1,5 @@
-import { DepartmentRepositoryPort } from '../domain/ports/DepartmentRepositoryPort';
-import { Department } from '../domain/entities/Department';
+import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
+import { Department } from '../../domain/entities/Department';
 
 /**
  * Use case responsible for creating a {@link Department}.

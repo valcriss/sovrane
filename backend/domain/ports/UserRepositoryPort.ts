@@ -27,7 +27,15 @@ export interface UserRepositoryPort {
    * @param externalId - Unique identifier from the external provider.
    * @returns The matching {@link User} or `null` if not found.
    */
-  findByExternalAuth(provider: string, externalId: string): Promise<User | null>
+  findByExternalAuth(provider: string, externalId: string): Promise<User | null>;
+
+  /**
+   * Retrieve all users belonging to the specified department.
+   *
+   * @param departmentId - Identifier of the department.
+   * @returns Array of matching {@link User} instances.
+   */
+  findByDepartmentId(departmentId: string): Promise<User[]>;
 
   /**
    * Persist a new user.

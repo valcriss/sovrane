@@ -81,6 +81,19 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return record ? this.mapRecord(record) : null;
   }
 
+  async findByDepartmentId(departmentId: string): Promise<User[]> {
+    const records = await this.prisma.user.findMany({
+      where: { departmentId },
+      include: {
+        roles: { include: { role: true } },
+        department: { include: { site: true } },
+        site: true,
+        permissions: { include: { permission: true } },
+      },
+    });
+    return records.map(r => this.mapRecord(r));
+  }
+
   async create(user: User): Promise<User> {
     const record = await this.prisma.user.create({
       data: {
