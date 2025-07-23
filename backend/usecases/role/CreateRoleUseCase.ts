@@ -1,5 +1,5 @@
-import { RoleRepositoryPort } from '../domain/ports/RoleRepositoryPort';
-import { Role } from '../domain/entities/Role';
+import { RoleRepositoryPort } from '../../domain/ports/RoleRepositoryPort';
+import { Role } from '../../domain/entities/Role';
 
 /**
  * Use case responsible for creating a {@link Role}.

@@ -35,6 +35,16 @@ class MockUserRepository implements UserRepositoryPort {
     return result;
   }
 
+  async findByRoleId(roleId: string): Promise<User[]> {
+    const result: User[] = [];
+    for (const user of this.users.values()) {
+      if (user.roles.some(r => r.id === roleId)) {
+        result.push(user);
+      }
+    }
+    return result;
+  }
+
   async create(user: User): Promise<User> {
     this.users.set(user.id, user);
     this.emailIndex.set(user.email, user.id);
@@ -213,6 +223,22 @@ describe('UserRepositoryPort Interface', () => {
 
     it('should return empty array when no users match', async () => {
       const result = await repository.findByDepartmentId('missing');
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe('findByRoleId', () => {
+    it('should return users with given role', async () => {
+      await repository.create(testUser);
+
+      const result = await repository.findByRoleId('role-123');
+
+      expect(result).toEqual([testUser]);
+    });
+
+    it('should return empty array when no users have role', async () => {
+      const result = await repository.findByRoleId('missing');
 
       expect(result).toEqual([]);
     });

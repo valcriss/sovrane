@@ -38,6 +38,14 @@ export interface UserRepositoryPort {
   findByDepartmentId(departmentId: string): Promise<User[]>;
 
   /**
+   * Retrieve all users assigned to the specified role.
+   *
+   * @param roleId - Identifier of the role.
+   * @returns Array of matching {@link User} instances.
+   */
+  findByRoleId(roleId: string): Promise<User[]>;
+
+  /**
    * Persist a new user.
    *
    * @param user - User entity to create.
