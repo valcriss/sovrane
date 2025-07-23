@@ -24,6 +24,15 @@ export function createPermissionRouter(
 ): Router {
   const router = express.Router();
 
+  /**
+   * @openapi
+   * /permissions:
+   *   post:
+   *     summary: Create a permission.
+   *     responses:
+   *       201:
+   *         description: Permission created
+   */
   router.post('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /permissions', getContext());
     const useCase = new CreatePermissionUseCase(repository);
@@ -32,6 +41,15 @@ export function createPermissionRouter(
     res.status(201).json(permission);
   });
 
+  /**
+   * @openapi
+   * /permissions/{id}:
+   *   put:
+   *     summary: Update a permission.
+   *     responses:
+   *       200:
+   *         description: Updated permission
+   */
   router.put('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /permissions/:id', getContext());
     const permission = parsePermission({ ...req.body, id: req.params.id });
@@ -41,6 +59,15 @@ export function createPermissionRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /permissions/{id}:
+   *   delete:
+   *     summary: Remove a permission.
+   *     responses:
+   *       204:
+   *         description: Permission removed
+   */
   router.delete('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /permissions/:id', getContext());
     const useCase = new RemovePermissionUseCase(repository);

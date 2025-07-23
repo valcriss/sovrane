@@ -97,6 +97,15 @@ export function createUserRouter(
     }
   };
 
+  /**
+   * @openapi
+   * /users:
+   *   post:
+   *     summary: Register a new user.
+   *     responses:
+   *       201:
+   *         description: User created
+   */
   router.post('/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /users', getContext());
     const useCase = new RegisterUserUseCase(userRepository);
@@ -105,6 +114,15 @@ export function createUserRouter(
     res.status(201).json(user);
   });
 
+  /**
+   * @openapi
+   * /auth/login:
+   *   post:
+   *     summary: Authenticate a user with email and password.
+   *     responses:
+   *       200:
+   *         description: Authenticated user
+   */
   router.post('/auth/login', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/login', getContext());
     const { email, password } = req.body;
@@ -119,6 +137,15 @@ export function createUserRouter(
     }
   });
 
+  /**
+   * @openapi
+   * /auth/provider:
+   *   post:
+   *     summary: Authenticate a user with an external provider.
+   *     responses:
+   *       200:
+   *         description: Authenticated user
+   */
   router.post('/auth/provider', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/provider', getContext());
     const { provider, token } = req.body;
@@ -133,6 +160,15 @@ export function createUserRouter(
     }
   });
 
+  /**
+   * @openapi
+   * /auth/request-reset:
+   *   post:
+   *     summary: Request a password reset email.
+   *     responses:
+   *       204:
+   *         description: Request accepted
+   */
   router.post('/auth/request-reset', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/request-reset', getContext());
     const { email } = req.body;
@@ -142,6 +178,15 @@ export function createUserRouter(
     res.status(204).end();
   });
 
+  /**
+   * @openapi
+   * /auth/reset:
+   *   post:
+   *     summary: Reset a user password.
+   *     responses:
+   *       204:
+   *         description: Password reset
+   */
   router.post('/auth/reset', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/reset', getContext());
     const { token, password } = req.body;
@@ -180,6 +225,15 @@ export function createUserRouter(
     res.json(user);
   });
 
+  /**
+   * @openapi
+   * /users/{id}:
+   *   put:
+   *     summary: Update a user profile.
+   *     responses:
+   *       200:
+   *         description: Updated user
+   */
   router.put('/users/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /users/:id', getContext());
     const user = parseUser({ ...req.body, id: req.params.id });
@@ -189,6 +243,15 @@ export function createUserRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /users/{id}/status:
+   *   put:
+   *     summary: Change user status.
+   *     responses:
+   *       200:
+   *         description: Updated user status
+   */
   router.put('/users/:id/status', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /users/:id/status', getContext());
     const { status } = req.body;
@@ -203,6 +266,15 @@ export function createUserRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /users/{id}:
+   *   delete:
+   *     summary: Remove a user.
+   *     responses:
+   *       204:
+   *         description: User removed
+   */
   router.delete('/users/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /users/:id', getContext());
     const useCase = new RemoveUserUseCase(userRepository);

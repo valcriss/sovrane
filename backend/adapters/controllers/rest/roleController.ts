@@ -33,6 +33,15 @@ export function createRoleRouter(
 ): Router {
   const router = express.Router();
 
+  /**
+   * @openapi
+   * /roles:
+   *   post:
+   *     summary: Create a role.
+   *     responses:
+   *       201:
+   *         description: Role created
+   */
   router.post('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /roles', getContext());
     const useCase = new CreateRoleUseCase(roleRepository);
@@ -41,6 +50,15 @@ export function createRoleRouter(
     res.status(201).json(role);
   });
 
+  /**
+   * @openapi
+   * /roles/{id}:
+   *   put:
+   *     summary: Update a role.
+   *     responses:
+   *       200:
+   *         description: Updated role
+   */
   router.put('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /roles/:id', getContext());
     const role = parseRole({ ...req.body, id: req.params.id });
@@ -50,6 +68,15 @@ export function createRoleRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /roles/{id}:
+   *   delete:
+   *     summary: Remove a role.
+   *     responses:
+   *       204:
+   *         description: Role deleted
+   */
   router.delete('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /roles/:id', getContext());
     const useCase = new RemoveRoleUseCase(roleRepository, userRepository);

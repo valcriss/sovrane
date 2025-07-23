@@ -50,6 +50,15 @@ export function createDepartmentRouter(
 ): Router {
   const router = express.Router();
 
+  /**
+   * @openapi
+   * /departments:
+   *   post:
+   *     summary: Create a department.
+   *     responses:
+   *       201:
+   *         description: Department created
+   */
   router.post('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments', getContext());
     const useCase = new CreateDepartmentUseCase(departmentRepository);
@@ -58,6 +67,15 @@ export function createDepartmentRouter(
     res.status(201).json(department);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}:
+   *   put:
+   *     summary: Update a department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.put('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id', getContext());
     const department = parseDepartment({ ...req.body, id: req.params.id });
@@ -67,6 +85,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/children/{childId}:
+   *   post:
+   *     summary: Add a child department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.post('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/children/:childId', getContext());
     const useCase = new AddChildDepartmentUseCase(departmentRepository);
@@ -80,6 +107,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/children/{childId}:
+   *   delete:
+   *     summary: Remove a child department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.delete('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/children/:childId', getContext());
     const useCase = new RemoveChildDepartmentUseCase(departmentRepository);
@@ -93,6 +129,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/manager:
+   *   put:
+   *     summary: Set department manager.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.put('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/manager', getContext());
     const useCase = new SetDepartmentManagerUseCase(departmentRepository);
@@ -106,6 +151,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/manager:
+   *   delete:
+   *     summary: Remove department manager.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.delete('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/manager', getContext());
     const useCase = new RemoveDepartmentManagerUseCase(departmentRepository);
@@ -119,6 +173,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/parent:
+   *   put:
+   *     summary: Set parent department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.put('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/parent', getContext());
     const useCase = new SetDepartmentParentDepartmentUseCase(departmentRepository);
@@ -132,6 +195,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/parent:
+   *   delete:
+   *     summary: Remove parent department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.delete('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/parent', getContext());
     const useCase = new RemoveDepartmentParentDepartmentUseCase(departmentRepository);
@@ -145,6 +217,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/permissions:
+   *   put:
+   *     summary: Add permission to department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.put('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/permissions', getContext());
     const useCase = new SetDepartmentPermissionUseCase(departmentRepository);
@@ -159,6 +240,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/permissions/{permissionId}:
+   *   delete:
+   *     summary: Remove a permission from department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.delete('/departments/:id/permissions/:permissionId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/permissions/:permissionId', getContext());
     const useCase = new RemoveDepartmentPermissionUseCase(departmentRepository);
@@ -172,6 +262,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/users/{userId}:
+   *   put:
+   *     summary: Attach user to department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.put('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/users/:userId', getContext());
     const useCase = new AddDepartmentUserUseCase(userRepository, departmentRepository);
@@ -185,6 +284,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/users/{userId}:
+   *   delete:
+   *     summary: Detach user from department.
+   *     responses:
+   *       200:
+   *         description: Updated department
+   */
   router.delete('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/users/:userId', getContext());
     const useCase = new RemoveDepartmentUserUseCase(userRepository);
@@ -198,6 +306,15 @@ export function createDepartmentRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}:
+   *   delete:
+   *     summary: Remove a department.
+   *     responses:
+   *       204:
+   *         description: Department deleted
+   */
   router.delete('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id', getContext());
     const useCase = new RemoveDepartmentUseCase(departmentRepository, userRepository);
