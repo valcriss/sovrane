@@ -2,9 +2,9 @@ import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositor
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 
 /**
- * Use case for deleting a department only when no user is attached to it.
+ * Use case for removing a department only when no user is attached to it.
  */
-export class DeleteDepartmentUseCase {
+export class RemoveDepartmentUseCase {
   constructor(
     private readonly departmentRepository: DepartmentRepositoryPort,
     private readonly userRepository: UserRepositoryPort,
