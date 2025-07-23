@@ -30,7 +30,15 @@ describe('User REST controller', () => {
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     repo.findById.mockResolvedValue(user);
     auth.verifyToken.mockResolvedValue(user);
+    repo.create.mockResolvedValue(user);
+    repo.update.mockResolvedValue(user);
+    repo.delete.mockResolvedValue();
+    auth.authenticate.mockResolvedValue(user);
+    auth.authenticateWithProvider.mockResolvedValue(user);
+    auth.requestPasswordReset.mockResolvedValue();
+    auth.resetPassword.mockResolvedValue();
     app = express();
+    app.use(express.json());
     app.use('/api', createUserRouter(auth, repo, logger));
   });
 
@@ -75,5 +83,121 @@ describe('User REST controller', () => {
       .get('/api/users/me')
       .set('Authorization', 'Bearer token');
     expect(res.status).toBe(404);
+  });
+
+  it('should register a user', async () => {
+    const res = await request(app)
+      .post('/api/users')
+      .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
+
+    expect(res.status).toBe(201);
+    expect(repo.create).toHaveBeenCalled();
+  });
+
+  it('should authenticate a user', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'john@example.com', password: 'secret' });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      id: 'u',
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'john@example.com',
+      roles: [role],
+      status: 'active',
+      department,
+      site,
+      permissions: [],
+    });
+    expect(auth.authenticate).toHaveBeenCalled();
+  });
+
+  it('should return 401 when authentication fails', async () => {
+    auth.authenticate.mockRejectedValue(new Error('bad'));
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'john@example.com', password: 'bad' });
+
+    expect(res.status).toBe(401);
+  });
+
+  it('should authenticate with provider', async () => {
+    const res = await request(app)
+      .post('/api/auth/provider')
+      .send({ provider: 'oidc', token: 't' });
+
+    expect(res.status).toBe(200);
+    expect(auth.authenticateWithProvider).toHaveBeenCalled();
+  });
+
+  it('should return 401 when provider authentication fails', async () => {
+    auth.authenticateWithProvider.mockRejectedValue(new Error('bad'));
+
+    const res = await request(app)
+      .post('/api/auth/provider')
+      .send({ provider: 'oidc', token: 'bad' });
+
+    expect(res.status).toBe(401);
+  });
+
+  it('should request password reset', async () => {
+    const res = await request(app)
+      .post('/api/auth/request-reset')
+      .send({ email: 'john@example.com' });
+
+    expect(res.status).toBe(204);
+    expect(auth.requestPasswordReset).toHaveBeenCalledWith('john@example.com');
+  });
+
+  it('should reset password', async () => {
+    const res = await request(app)
+      .post('/api/auth/reset')
+      .send({ token: 'tok', password: 'new' });
+
+    expect(res.status).toBe(204);
+    expect(auth.resetPassword).toHaveBeenCalledWith('tok', 'new');
+  });
+
+  it('should update user profile', async () => {
+    const res = await request(app)
+      .put('/api/users/u')
+      .set('Authorization', 'Bearer token')
+      .send({ firstName: 'Jane', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
+
+    expect(res.status).toBe(200);
+    expect(repo.update).toHaveBeenCalled();
+  });
+
+  it('should change user status', async () => {
+    const res = await request(app)
+      .put('/api/users/u/status')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'suspended' });
+
+    expect(res.status).toBe(200);
+    expect(repo.update).toHaveBeenCalled();
+  });
+
+  it('should return 404 when status change user not found', async () => {
+    repo.findById.mockResolvedValueOnce(null);
+
+    const res = await request(app)
+      .put('/api/users/u/status')
+      .set('Authorization', 'Bearer token')
+      .send({ status: 'suspended' });
+
+    expect(res.status).toBe(404);
+  });
+
+  it('should remove user', async () => {
+    const res = await request(app)
+      .delete('/api/users/u')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(204);
+    expect(repo.delete).toHaveBeenCalledWith('u');
   });
 });
