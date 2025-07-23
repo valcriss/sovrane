@@ -1,5 +1,5 @@
-import { SiteRepositoryPort } from '../domain/ports/SiteRepositoryPort';
-import { Site } from '../domain/entities/Site';
+import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
+import { Site } from '../../domain/entities/Site';
 
 /**
  * Use case responsible for updating an existing {@link Site}.
