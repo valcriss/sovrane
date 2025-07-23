@@ -1,6 +1,7 @@
 import { Role } from './Role';
 import { Department } from './Department';
 import { Permission } from './Permission';
+import { Site } from './Site';
 
 /**
  * Represents a user within the system.
@@ -16,6 +17,7 @@ export class User {
    * @param roles - Collection of {@link Role} instances assigned to the user.
    * @param status - Current account status.
    * @param department - {@link Department} the user belongs to.
+   * @param site - {@link Site} where the user is located.
    * @param picture - Optional profile picture URL.
    * @param permissions - Collection of {@link Permission} granted directly to the user.
   */
@@ -27,6 +29,7 @@ export class User {
     public roles: Role[] = [],
     public status: 'active' | 'suspended' | 'archived' = 'active',
     public department: Department,
+    public site: Site,
     public picture?: string,
     public permissions: Permission[] = [],
   ) {}

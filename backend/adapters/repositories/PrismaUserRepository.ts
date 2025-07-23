@@ -1,8 +1,9 @@
-import { PrismaClient, User as PrismaUser, Role as PrismaRole, Department as PrismaDepartment, Permission as PrismaPermission } from '@prisma/client';
+import { PrismaClient, User as PrismaUser, Role as PrismaRole, Department as PrismaDepartment, Permission as PrismaPermission, Site as PrismaSite } from '@prisma/client';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { User } from '../../domain/entities/User';
 import { Role } from '../../domain/entities/Role';
 import { Department } from '../../domain/entities/Department';
+import { Site } from '../../domain/entities/Site';
 import { Permission } from '../../domain/entities/Permission';
 
 export class PrismaUserRepository implements UserRepositoryPort {
@@ -11,7 +12,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
   private mapRecord(
     record: PrismaUser & {
       roles: Array<{ role: PrismaRole }>;
-      department: PrismaDepartment;
+      department: PrismaDepartment & { site: PrismaSite };
+      site: PrismaSite;
       permissions: Array<{ permission: PrismaPermission }>;
     },
   ): User {
@@ -27,7 +29,9 @@ export class PrismaUserRepository implements UserRepositoryPort {
         record.department.label,
         record.department.parentDepartmentId,
         record.department.managerUserId,
+        new Site(record.department.site.id, record.department.site.label),
       ),
+      new Site(record.site.id, record.site.label),
       record.picture ?? undefined,
       record.permissions.map((up) =>
         new Permission(up.permission.id, up.permission.permissionKey, up.permission.description),
@@ -40,7 +44,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
       where: { id },
       include: {
         roles: { include: { role: true } },
-        department: true,
+        department: { include: { site: true } },
+        site: true,
         permissions: { include: { permission: true } },
       },
     });
@@ -52,7 +57,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
       where: { email },
       include: {
         roles: { include: { role: true } },
-        department: true,
+        department: { include: { site: true } },
+        site: true,
         permissions: { include: { permission: true } },
       },
     });
@@ -67,7 +73,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
       },
       include: {
         roles: { include: { role: true } },
-        department: true,
+        department: { include: { site: true } },
+        site: true,
         permissions: { include: { permission: true } },
       },
     });
@@ -84,6 +91,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         password: '',
         status: user.status,
         departmentId: user.department.id,
+        siteId: user.site.id,
         picture: user.picture,
         permissions: {
           create: user.permissions.map((p) => ({ permission: { connect: { id: p.id } } })),
@@ -94,7 +102,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
       },
       include: {
         roles: { include: { role: true } },
-        department: true,
+        department: { include: { site: true } },
+        site: true,
         permissions: { include: { permission: true } },
       },
     });
@@ -110,6 +119,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         email: user.email,
         status: user.status,
         departmentId: user.department.id,
+        siteId: user.site.id,
         picture: user.picture,
         permissions: {
           deleteMany: {},
@@ -122,7 +132,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
       },
       include: {
         roles: { include: { role: true } },
-        department: true,
+        department: { include: { site: true } },
+        site: true,
         permissions: { include: { permission: true } },
       },
     });

@@ -2,17 +2,20 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
+import { Site } from '../../../domain/entities/Site';
 
 describe('User Entity', () => {
   let user: User;
   let adminRole: Role;
   let userRole: Role;
   let department: Department;
+  let site: Site;
 
   beforeEach(() => {
     adminRole = new Role('admin-id', 'Admin');
     userRole = new Role('user-id', 'User');
-    department = new Department('dept-1', 'IT');
+    site = new Site('site-1', 'HQ');
+    department = new Department('dept-1', 'IT', null, null, site);
     user = new User(
       'user-123',
       'John',
@@ -21,6 +24,7 @@ describe('User Entity', () => {
       [userRole],
       'active',
       department,
+      site,
     );
   });
 
@@ -42,7 +46,8 @@ describe('User Entity', () => {
         'jane.smith@example.com',
         undefined as any,
         'active',
-        department
+        department,
+        site
       );
       
       expect(userWithoutRoles.roles).toEqual([]);
@@ -57,7 +62,8 @@ describe('User Entity', () => {
         'bob.wilson@example.com',
         [adminRole],
         undefined as any,
-        department
+        department,
+        site
       );
       
       expect(userWithoutStatus.status).toBe('active');
@@ -126,7 +132,8 @@ describe('User Entity', () => {
         'admin.user@example.com',
         [adminRole, userRole],
         'active',
-        department
+        department,
+        site
       );
 
       expect(multiRoleUser.roles).toHaveLength(2);

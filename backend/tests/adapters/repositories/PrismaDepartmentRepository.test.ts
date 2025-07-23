@@ -2,16 +2,19 @@ import { PrismaClient } from '@prisma/client';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { PrismaDepartmentRepository } from '../../../adapters/repositories/PrismaDepartmentRepository';
 import { Department } from '../../../domain/entities/Department';
+import { Site } from '../../../domain/entities/Site';
 
 describe('PrismaDepartmentRepository', () => {
   let repo: PrismaDepartmentRepository;
   let prisma: DeepMockProxy<PrismaClient>;
   let dept: Department;
+  let site: Site;
 
   beforeEach(() => {
     prisma = mockDeep<PrismaClient>();
     repo = new PrismaDepartmentRepository(prisma);
-    dept = new Department('dept-1', 'IT', null, 'user-1');
+    site = new Site('site-1', 'HQ');
+    dept = new Department('dept-1', 'IT', null, 'user-1', site);
   });
 
   afterEach(() => {
@@ -23,12 +26,14 @@ describe('PrismaDepartmentRepository', () => {
       id: 'dept-1',
       label: 'IT',
       parentDepartmentId: null,
-      managerUserId: 'user-1'
+      managerUserId: 'user-1',
+      siteId: 'site-1',
+      site: { id: 'site-1', label: 'HQ' }
     } as any);
 
     const result = await repo.findById('dept-1');
     expect(result).toEqual(dept);
-    expect(prisma.department.findUnique).toHaveBeenCalledWith({ where: { id: 'dept-1' } });
+    expect(prisma.department.findUnique).toHaveBeenCalledWith({ where: { id: 'dept-1' }, include: { site: true } });
   });
 
   it('should return null when department not found', async () => {
@@ -37,7 +42,7 @@ describe('PrismaDepartmentRepository', () => {
     const result = await repo.findById('unknown');
 
     expect(result).toBeNull();
-    expect(prisma.department.findUnique).toHaveBeenCalledWith({ where: { id: 'unknown' } });
+    expect(prisma.department.findUnique).toHaveBeenCalledWith({ where: { id: 'unknown' }, include: { site: true } });
   });
 
   it('should create a department', async () => {
@@ -45,7 +50,9 @@ describe('PrismaDepartmentRepository', () => {
       id: 'dept-1',
       label: 'IT',
       parentDepartmentId: null,
-      managerUserId: 'user-1'
+      managerUserId: 'user-1',
+      siteId: 'site-1',
+      site: { id: 'site-1', label: 'HQ' }
     } as any);
 
     const result = await repo.create(dept);
@@ -55,9 +62,10 @@ describe('PrismaDepartmentRepository', () => {
         id: 'dept-1',
         label: 'IT',
         parentDepartmentId: null,
-        managerUserId: 'user-1'
+        managerUserId: 'user-1',
+        siteId: 'site-1'
       }
-    });
+    , include: { site: true } });
   });
 
   it('should find by label', async () => {
@@ -65,12 +73,14 @@ describe('PrismaDepartmentRepository', () => {
       id: 'dept-1',
       label: 'IT',
       parentDepartmentId: null,
-      managerUserId: 'user-1'
+      managerUserId: 'user-1',
+      siteId: 'site-1',
+      site: { id: 'site-1', label: 'HQ' }
     } as any);
 
     const result = await repo.findByLabel('IT');
     expect(result).toEqual(dept);
-    expect(prisma.department.findFirst).toHaveBeenCalledWith({ where: { label: 'IT' } });
+    expect(prisma.department.findFirst).toHaveBeenCalledWith({ where: { label: 'IT' }, include: { site: true } });
   });
 
   it('should return null when department not found by label', async () => {
@@ -79,16 +89,18 @@ describe('PrismaDepartmentRepository', () => {
     const result = await repo.findByLabel('Unknown');
 
     expect(result).toBeNull();
-    expect(prisma.department.findFirst).toHaveBeenCalledWith({ where: { label: 'Unknown' } });
+    expect(prisma.department.findFirst).toHaveBeenCalledWith({ where: { label: 'Unknown' }, include: { site: true } });
   });
 
   it('should update a department', async () => {
-    const updated = new Department('dept-1', 'Tech', null, 'user-2');
+    const updated = new Department('dept-1', 'Tech', null, 'user-2', site);
     prisma.department.update.mockResolvedValue({
       id: 'dept-1',
       label: 'Tech',
       parentDepartmentId: null,
-      managerUserId: 'user-2'
+      managerUserId: 'user-2',
+      siteId: 'site-1',
+      site: { id: 'site-1', label: 'HQ' }
     } as any);
 
     const result = await repo.update(updated);
@@ -98,8 +110,10 @@ describe('PrismaDepartmentRepository', () => {
       data: {
         label: 'Tech',
         parentDepartmentId: null,
-        managerUserId: 'user-2'
-      }
+        managerUserId: 'user-2',
+        siteId: 'site-1'
+      },
+      include: { site: true }
     });
   });
 

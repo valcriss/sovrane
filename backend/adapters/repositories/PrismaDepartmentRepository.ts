@@ -1,6 +1,7 @@
-import { PrismaClient, Department as PrismaDepartment } from '@prisma/client';
+import { PrismaClient, Department as PrismaDepartment, Site as PrismaSite } from '@prisma/client';
 import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
 import { Department } from '../../domain/entities/Department';
+import { Site } from '../../domain/entities/Site';
 
 /**
  * Prisma-based implementation of {@link DepartmentRepositoryPort}.
@@ -8,22 +9,23 @@ import { Department } from '../../domain/entities/Department';
 export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
   constructor(private prisma: PrismaClient) {}
 
-  private mapRecord(record: PrismaDepartment): Department {
+  private mapRecord(record: PrismaDepartment & { site: PrismaSite }): Department {
     return new Department(
       record.id,
       record.label,
       record.parentDepartmentId,
       record.managerUserId,
+      new Site(record.site.id, record.site.label),
     );
   }
 
   async findById(id: string): Promise<Department | null> {
-    const record = await this.prisma.department.findUnique({ where: { id } });
+    const record = await this.prisma.department.findUnique({ where: { id }, include: { site: true } });
     return record ? this.mapRecord(record) : null;
   }
 
   async findByLabel(label: string): Promise<Department | null> {
-    const record = await this.prisma.department.findFirst({ where: { label } });
+    const record = await this.prisma.department.findFirst({ where: { label }, include: { site: true } });
     return record ? this.mapRecord(record) : null;
   }
 
@@ -34,7 +36,9 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
         label: department.label,
         parentDepartmentId: department.parentDepartmentId,
         managerUserId: department.managerUserId,
+        siteId: department.site.id,
       },
+      include: { site: true },
     });
     return this.mapRecord(record);
   }
@@ -46,7 +50,9 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
         label: department.label,
         parentDepartmentId: department.parentDepartmentId,
         managerUserId: department.managerUserId,
+        siteId: department.site.id,
       },
+      include: { site: true },
     });
     return this.mapRecord(record);
   }

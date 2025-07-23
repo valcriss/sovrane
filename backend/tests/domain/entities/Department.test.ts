@@ -1,9 +1,11 @@
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
+import { Site } from '../../../domain/entities/Site';
 
 describe('Department Entity', () => {
   it('should construct a department with all properties', () => {
-    const dept = new Department('dept-1', 'IT', null, 'user-1');
+    const site = new Site('site-1', 'HQ');
+    const dept = new Department('dept-1', 'IT', null, 'user-1', site);
     expect(dept.id).toBe('dept-1');
     expect(dept.label).toBe('IT');
     expect(dept.parentDepartmentId).toBeNull();
@@ -11,7 +13,8 @@ describe('Department Entity', () => {
   });
 
   it('should allow modifying mutable properties', () => {
-    const dept = new Department('dept-2', 'HR');
+    const site = new Site('site-1', 'HQ');
+    const dept = new Department('dept-2', 'HR', null, null, site);
     dept.label = 'Human Resources';
     dept.parentDepartmentId = 'dept-1';
     dept.managerUserId = 'user-2';
@@ -25,5 +28,6 @@ describe('Department Entity', () => {
     expect(dept.label).toBe('Human Resources');
     expect(dept.parentDepartmentId).toBe('dept-1');
     expect(dept.managerUserId).toBe('user-2');
+    expect(dept.site).toBe(site);
   });
 });

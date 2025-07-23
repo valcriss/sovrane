@@ -1,5 +1,6 @@
 import { DepartmentRepositoryPort } from '../../../domain/ports/DepartmentRepositoryPort';
 import { Department } from '../../../domain/entities/Department';
+import { Site } from '../../../domain/entities/Site';
 
 class MockDepartmentRepository implements DepartmentRepositoryPort {
   private depts: Map<string, Department> = new Map();
@@ -48,10 +49,12 @@ class MockDepartmentRepository implements DepartmentRepositoryPort {
 describe('DepartmentRepositoryPort Interface', () => {
   let repo: MockDepartmentRepository;
   let dept: Department;
+  let site: Site;
 
   beforeEach(() => {
     repo = new MockDepartmentRepository();
-    dept = new Department('dept-1', 'IT');
+    site = new Site('site-1', 'HQ');
+    dept = new Department('dept-1', 'IT', null, null, site);
   });
 
   afterEach(() => {
@@ -62,6 +65,7 @@ describe('DepartmentRepositoryPort Interface', () => {
     await repo.create(dept);
     expect(await repo.findById('dept-1')).toEqual(dept);
     expect(await repo.findByLabel('IT')).toEqual(dept);
+    expect((await repo.findById('dept-1'))?.site).toBe(site);
   });
 
   it('should update an existing department', async () => {
@@ -70,6 +74,7 @@ describe('DepartmentRepositoryPort Interface', () => {
     const updated = await repo.update(dept);
     expect(updated.label).toBe('Tech');
     expect(await repo.findByLabel('Tech')).toEqual(dept);
+    expect(updated.site).toBe(site);
   });
 
   it('should delete a department', async () => {

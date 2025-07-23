@@ -5,6 +5,7 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
+import { Site } from '../../../domain/entities/Site';
 
 describe('PrismaUserRepository', () => {
   let repository: PrismaUserRepository;
@@ -12,6 +13,7 @@ describe('PrismaUserRepository', () => {
   let mockUser: User;
   let mockRole: Role;
   let department: Department;
+  let site: Site;
 
   beforeEach(() => {
     // Create deep mock of Prisma client
@@ -20,7 +22,8 @@ describe('PrismaUserRepository', () => {
 
     // Setup test data
     mockRole = new Role('role-123', 'Admin');
-    department = new Department('dept-1', 'IT');
+    site = new Site('site-1', 'HQ');
+    department = new Department('dept-1', 'IT', null, null, site);
     mockUser = new User(
       'user-123',
       'John',
@@ -28,7 +31,8 @@ describe('PrismaUserRepository', () => {
       'john.doe@example.com',
       [mockRole],
       'active',
-      department
+      department,
+      site
     );
   });
 
@@ -46,7 +50,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -81,7 +87,8 @@ describe('PrismaUserRepository', () => {
         where: { id: 'user-123' },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -97,7 +104,8 @@ describe('PrismaUserRepository', () => {
         where: { id: 'non-existent-id' },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -112,7 +120,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -139,7 +149,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -167,7 +179,8 @@ describe('PrismaUserRepository', () => {
         where: { email: 'john.doe@example.com' },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -192,7 +205,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         externalProvider: 'google',
@@ -212,7 +227,8 @@ describe('PrismaUserRepository', () => {
         where: { externalProvider: 'google', externalId: 'g123' },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -237,7 +253,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -270,6 +288,7 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           password: '',
           departmentId: 'dept-1',
+          siteId: 'site-1',
           picture: undefined,
           permissions: { create: [] },
           status: 'active',
@@ -279,7 +298,8 @@ describe('PrismaUserRepository', () => {
         },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -297,7 +317,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [{ userId: 'user-123', permissionId: 'perm-1', permission: { id: 'perm-1', permissionKey: 'READ', description: 'read' } }],
         createdAt: new Date(),
@@ -318,6 +340,7 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           password: '',
           departmentId: 'dept-1',
+          siteId: 'site-1',
           picture: undefined,
           permissions: { create: [{ permission: { connect: { id: 'perm-1' } } }] },
           status: 'active',
@@ -327,7 +350,8 @@ describe('PrismaUserRepository', () => {
         },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -341,7 +365,8 @@ describe('PrismaUserRepository', () => {
         'jane.smith@example.com',
         [],
         'active',
-        department
+        department,
+        site
       );
 
       const mockPrismaCreatedUser = {
@@ -352,7 +377,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -373,6 +400,7 @@ describe('PrismaUserRepository', () => {
           email: 'jane.smith@example.com',
           password: '',
           departmentId: 'dept-1',
+          siteId: 'site-1',
           picture: undefined,
           permissions: { create: [] },
           status: 'active',
@@ -382,7 +410,8 @@ describe('PrismaUserRepository', () => {
         },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -398,7 +427,8 @@ describe('PrismaUserRepository', () => {
         'johnny.smith@example.com',
         [mockRole],
         'suspended',
-        department
+        department,
+        site
       );
 
       const mockPrismaUpdatedUser = {
@@ -409,7 +439,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'suspended',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -445,6 +477,7 @@ describe('PrismaUserRepository', () => {
           email: 'johnny.smith@example.com',
           status: 'suspended',
           departmentId: 'dept-1',
+          siteId: 'site-1',
           picture: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
@@ -454,7 +487,8 @@ describe('PrismaUserRepository', () => {
         },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -469,7 +503,8 @@ describe('PrismaUserRepository', () => {
         'john.doe@example.com',
         [newRole],
         'active',
-        department
+        department,
+        site
       );
 
       const mockPrismaUpdatedUser = {
@@ -480,7 +515,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -513,6 +550,7 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           status: 'active',
           departmentId: 'dept-1',
+          siteId: 'site-1',
           picture: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
@@ -522,7 +560,8 @@ describe('PrismaUserRepository', () => {
         },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -538,6 +577,7 @@ describe('PrismaUserRepository', () => {
         [mockRole],
         'active',
         department,
+        site,
         undefined,
         [perm]
       );
@@ -550,7 +590,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [{ userId: 'user-123', permissionId: 'perm-2', permission: { id: 'perm-2', permissionKey: 'WRITE', description: 'write' } }],
         createdAt: new Date(),
@@ -571,6 +613,7 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           status: 'active',
           departmentId: 'dept-1',
+          siteId: 'site-1',
           picture: undefined,
           permissions: { deleteMany: {}, create: [{ permission: { connect: { id: 'perm-2' } } }] },
           roles: {
@@ -580,7 +623,8 @@ describe('PrismaUserRepository', () => {
         },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
@@ -594,7 +638,8 @@ describe('PrismaUserRepository', () => {
         'john.doe@example.com',
         [],
         'active',
-        department
+        department,
+        site
       );
 
       const mockPrismaUpdatedUser = {
@@ -605,7 +650,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
-        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
         picture: null,
         permissions: [],
         createdAt: new Date(),
@@ -627,6 +674,7 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           status: 'active',
           departmentId: 'dept-1',
+          siteId: 'site-1',
           picture: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
@@ -636,7 +684,8 @@ describe('PrismaUserRepository', () => {
         },
         include: {
           roles: { include: { role: true } },
-          department: true,
+          department: { include: { site: true } },
+          site: true,
           permissions: { include: { permission: true } },
         },
       });
