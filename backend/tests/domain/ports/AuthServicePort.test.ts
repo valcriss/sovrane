@@ -36,6 +36,13 @@ class MockAuthService implements AuthServicePort {
     }
     this.resetToken = undefined;
   }
+
+  async verifyToken(token: string): Promise<User> {
+    if (token !== 'valid') {
+      throw new Error('Invalid token');
+    }
+    return this.user;
+  }
 }
 
 describe('AuthServicePort Interface', () => {
@@ -82,6 +89,16 @@ describe('AuthServicePort Interface', () => {
     it('should throw on invalid token', async () => {
       await service.requestPasswordReset('john@example.com');
       await expect(service.resetPassword('bad', 'new')).rejects.toThrow('Invalid token');
+    });
+  });
+
+  describe('verifyToken', () => {
+    it('should return user on valid token', async () => {
+      await expect(service.verifyToken('valid')).resolves.toEqual(user);
+    });
+
+    it('should throw on invalid token', async () => {
+      await expect(service.verifyToken('bad')).rejects.toThrow('Invalid token');
     });
   });
 });

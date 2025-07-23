@@ -36,4 +36,12 @@ export interface AuthServicePort {
    * @param newPassword - The new password to set.
    */
   resetPassword(token: string, newPassword: string): Promise<void>;
+
+  /**
+   * Validate an authentication token and return the associated user.
+   *
+   * @param token - JWT or OIDC token provided by the client.
+   * @returns The authenticated {@link User}.
+   */
+  verifyToken(token: string): Promise<User>;
 }
