@@ -8,12 +8,14 @@ import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
+import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 
 describe('User WebSocket gateway', () => {
   let io: Server;
   let httpServer: ReturnType<typeof createServer>;
   let url: string;
   let auth: DeepMockProxy<AuthServicePort>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let user: User;
   let role: Role;
   let department: Department;
@@ -23,12 +25,13 @@ describe('User WebSocket gateway', () => {
     httpServer = createServer();
     io = new Server(httpServer);
     auth = mockDeep<AuthServicePort>();
+    logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
-    registerUserGateway(io, auth);
+    registerUserGateway(io, auth, logger);
     httpServer.listen(() => {
       const address = httpServer.address() as any;
       url = `http://localhost:${address.port}`;

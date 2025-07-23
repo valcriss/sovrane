@@ -3,16 +3,19 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { PrismaDepartmentRepository } from '../../../adapters/repositories/PrismaDepartmentRepository';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
 describe('PrismaDepartmentRepository', () => {
   let repo: PrismaDepartmentRepository;
   let prisma: DeepMockProxy<PrismaClient>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let dept: Department;
   let site: Site;
 
   beforeEach(() => {
     prisma = mockDeep<PrismaClient>();
-    repo = new PrismaDepartmentRepository(prisma);
+    logger = mockDeep<LoggerPort>();
+    repo = new PrismaDepartmentRepository(prisma, logger);
     site = new Site('site-1', 'HQ');
     dept = new Department('dept-1', 'IT', null, 'user-1', site);
   });

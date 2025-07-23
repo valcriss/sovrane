@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import { AuthServicePort } from '../../domain/ports/AuthServicePort';
 import { User } from '../../domain/entities/User';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
+import { LoggerPort } from '../../domain/ports/LoggerPort';
+import { getContext } from '../../infrastructure/loggerContext';
 
 /**
  * Authentication adapter for verifying internally issued JWT tokens.
@@ -13,10 +15,15 @@ export class JWTAuthServiceAdapter implements AuthServicePort {
    * @param secret - Secret used to sign and verify tokens.
    * @param userRepository - Repository for retrieving users.
    */
-  constructor(private readonly secret: string, private readonly userRepository: UserRepositoryPort) {}
+  constructor(
+    private readonly secret: string,
+    private readonly userRepository: UserRepositoryPort,
+    private readonly logger: LoggerPort,
+  ) {}
 
   async authenticate(email: string, _password: string): Promise<User> {
     void _password;
+    this.logger.debug('Authenticating via JWT', getContext());
     const user = await this.userRepository.findByEmail(email);
     if (!user) {
       throw new Error('Invalid credentials');
@@ -42,6 +49,7 @@ export class JWTAuthServiceAdapter implements AuthServicePort {
   }
 
   async verifyToken(token: string): Promise<User> {
+    this.logger.debug('Verifying JWT token', getContext());
     const payload = jwt.verify(token, this.secret) as jwt.JwtPayload;
     const userId = payload.sub as string;
     const user = await this.userRepository.findById(userId);

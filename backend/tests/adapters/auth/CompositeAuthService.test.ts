@@ -1,6 +1,7 @@
 import { CompositeAuthService } from '../../../adapters/auth/CompositeAuthService';
 import { mockDeep } from 'jest-mock-extended';
 import { AuthServicePort } from '../../../domain/ports/AuthServicePort';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
@@ -9,6 +10,7 @@ import { Site } from '../../../domain/entities/Site';
 describe('CompositeAuthService', () => {
   let primary: ReturnType<typeof mockDeep<AuthServicePort>>;
   let secondary: ReturnType<typeof mockDeep<AuthServicePort>>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let service: CompositeAuthService;
   let user: User;
   let role: Role;
@@ -18,7 +20,8 @@ describe('CompositeAuthService', () => {
   beforeEach(() => {
     primary = mockDeep<AuthServicePort>();
     secondary = mockDeep<AuthServicePort>();
-    service = new CompositeAuthService([primary, secondary]);
+    logger = mockDeep<LoggerPort>();
+    service = new CompositeAuthService([primary, secondary], logger);
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);

@@ -1,28 +1,36 @@
 import { PrismaClient, Permission as PrismaPermission } from '@prisma/client';
 import { Permission } from '../../domain/entities/Permission';
 import { PermissionRepositoryPort } from '../../domain/ports/PermissionRepositoryPort';
+import { LoggerPort } from '../../domain/ports/LoggerPort';
+import { getContext } from '../../infrastructure/loggerContext';
 
 /**
  * Prisma-based implementation of {@link PermissionRepositoryPort}.
  */
 export class PrismaPermissionRepository implements PermissionRepositoryPort {
-  constructor(private prisma: PrismaClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private readonly logger: LoggerPort,
+  ) {}
 
   private mapRecord(record: PrismaPermission): Permission {
     return new Permission(record.id, record.permissionKey, record.description);
   }
 
   async findById(id: string): Promise<Permission | null> {
+    this.logger.debug('Permission findById', getContext());
     const record = await this.prisma.permission.findUnique({ where: { id } });
     return record ? this.mapRecord(record) : null;
   }
 
   async findByKey(permissionKey: string): Promise<Permission | null> {
+    this.logger.debug('Permission findByKey', getContext());
     const record = await this.prisma.permission.findFirst({ where: { permissionKey } });
     return record ? this.mapRecord(record) : null;
   }
 
   async create(permission: Permission): Promise<Permission> {
+    this.logger.info('Creating permission', getContext());
     const record = await this.prisma.permission.create({
       data: { id: permission.id, permissionKey: permission.permissionKey, description: permission.description },
     });
@@ -30,6 +38,7 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
   }
 
   async update(permission: Permission): Promise<Permission> {
+    this.logger.info('Updating permission', getContext());
     const record = await this.prisma.permission.update({
       where: { id: permission.id },
       data: { permissionKey: permission.permissionKey, description: permission.description },
@@ -38,6 +47,7 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
   }
 
   async delete(id: string): Promise<void> {
+    this.logger.info('Deleting permission', getContext());
     await this.prisma.permission.delete({ where: { id } });
   }
 }

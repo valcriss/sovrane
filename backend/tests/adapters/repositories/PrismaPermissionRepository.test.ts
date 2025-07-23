@@ -2,17 +2,20 @@ import { PrismaClient } from '@prisma/client';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { PrismaPermissionRepository } from '../../../adapters/repositories/PrismaPermissionRepository';
 import { Permission } from '../../../domain/entities/Permission';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
 describe('PrismaPermissionRepository', () => {
   let repository: PrismaPermissionRepository;
   let prisma: DeepMockProxy<PrismaClient>;
   let prismaAny: any;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let perm: Permission;
 
   beforeEach(() => {
     prisma = mockDeep<PrismaClient>();
     prismaAny = prisma as any;
-    repository = new PrismaPermissionRepository(prisma);
+    logger = mockDeep<LoggerPort>();
+    repository = new PrismaPermissionRepository(prisma, logger);
     perm = new Permission('perm-1', 'READ', 'Read access');
   });
 

@@ -5,9 +5,14 @@ import { Role } from '../../domain/entities/Role';
 import { Department } from '../../domain/entities/Department';
 import { Site } from '../../domain/entities/Site';
 import { Permission } from '../../domain/entities/Permission';
+import { LoggerPort } from '../../domain/ports/LoggerPort';
+import { getContext } from '../../infrastructure/loggerContext';
 
 export class PrismaUserRepository implements UserRepositoryPort {
-  constructor(private prisma: PrismaClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private readonly logger: LoggerPort,
+  ) {}
 
   private mapRecord(
     record: PrismaUser & {
@@ -40,6 +45,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findById(id: string): Promise<User | null> {
+    this.logger.debug('User findById', getContext());
     const record = await this.prisma.user.findUnique({
       where: { id },
       include: {
@@ -53,6 +59,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findByEmail(email: string): Promise<User | null> {
+    this.logger.debug('User findByEmail', getContext());
     const record = await this.prisma.user.findUnique({
       where: { email },
       include: {
@@ -66,6 +73,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findByExternalAuth(provider: string, externalId: string): Promise<User | null> {
+    this.logger.debug('User findByExternalAuth', getContext());
     const record = await this.prisma.user.findFirst({
       where: { 
         externalProvider: provider,
@@ -82,6 +90,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findByDepartmentId(departmentId: string): Promise<User[]> {
+    this.logger.debug('User findByDepartmentId', getContext());
     const records = await this.prisma.user.findMany({
       where: { departmentId },
       include: {
@@ -95,6 +104,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findByRoleId(roleId: string): Promise<User[]> {
+    this.logger.debug('User findByRoleId', getContext());
     const records = await this.prisma.user.findMany({
       where: { roles: { some: { roleId } } },
       include: {
@@ -108,6 +118,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async findBySiteId(siteId: string): Promise<User[]> {
+    this.logger.debug('User findBySiteId', getContext());
     const records = await this.prisma.user.findMany({
       where: { siteId },
       include: {
@@ -121,6 +132,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async create(user: User): Promise<User> {
+    this.logger.info('Creating user', getContext());
     const record = await this.prisma.user.create({
       data: {
         id: user.id,
@@ -150,6 +162,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async update(user: User): Promise<User> {
+    this.logger.info('Updating user', getContext());
     const record = await this.prisma.user.update({
       where: { id: user.id },
       data: {
@@ -180,6 +193,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
   }
 
   async delete(id: string): Promise<void> {
+    this.logger.info('Deleting user', getContext());
     await this.prisma.user.delete({ where: { id } });
   }
 }

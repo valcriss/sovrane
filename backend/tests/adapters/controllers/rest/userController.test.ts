@@ -8,11 +8,13 @@ import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
+import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 
 describe('User REST controller', () => {
   let app: express.Express;
   let auth: DeepMockProxy<AuthServicePort>;
   let repo: DeepMockProxy<UserRepositoryPort>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let user: User;
   let role: Role;
   let department: Department;
@@ -21,6 +23,7 @@ describe('User REST controller', () => {
   beforeEach(() => {
     auth = mockDeep<AuthServicePort>();
     repo = mockDeep<UserRepositoryPort>();
+    logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
@@ -28,7 +31,7 @@ describe('User REST controller', () => {
     repo.findById.mockResolvedValue(user);
     auth.verifyToken.mockResolvedValue(user);
     app = express();
-    app.use('/api', createUserRouter(auth, repo));
+    app.use('/api', createUserRouter(auth, repo, logger));
   });
 
   it('should return current user profile', async () => {

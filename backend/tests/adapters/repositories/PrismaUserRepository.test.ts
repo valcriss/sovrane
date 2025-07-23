@@ -6,10 +6,12 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
 import { Site } from '../../../domain/entities/Site';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
 describe('PrismaUserRepository', () => {
   let repository: PrismaUserRepository;
   let prismaClient: DeepMockProxy<PrismaClient>;
+  let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let mockUser: User;
   let mockRole: Role;
   let department: Department;
@@ -18,7 +20,8 @@ describe('PrismaUserRepository', () => {
   beforeEach(() => {
     // Create deep mock of Prisma client
     prismaClient = mockDeep<PrismaClient>();
-    repository = new PrismaUserRepository(prismaClient);
+    logger = mockDeep<LoggerPort>();
+    repository = new PrismaUserRepository(prismaClient, logger);
 
     // Setup test data
     mockRole = new Role('role-123', 'Admin');
