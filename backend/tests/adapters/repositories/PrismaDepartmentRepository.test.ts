@@ -117,6 +117,23 @@ describe('PrismaDepartmentRepository', () => {
     });
   });
 
+  it('should find departments by site id', async () => {
+    prisma.department.findMany.mockResolvedValue([
+      {
+        id: 'dept-1',
+        label: 'IT',
+        parentDepartmentId: null,
+        managerUserId: 'user-1',
+        siteId: 'site-1',
+        site: { id: 'site-1', label: 'HQ' }
+      }
+    ] as any);
+
+    const result = await repo.findBySiteId('site-1');
+    expect(result).toEqual([dept]);
+    expect(prisma.department.findMany).toHaveBeenCalledWith({ where: { siteId: 'site-1' }, include: { site: true } });
+  });
+
   it('should delete a department', async () => {
     prisma.department.delete.mockResolvedValue(undefined as any);
 

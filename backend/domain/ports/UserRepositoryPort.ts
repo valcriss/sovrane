@@ -46,6 +46,14 @@ export interface UserRepositoryPort {
   findByRoleId(roleId: string): Promise<User[]>;
 
   /**
+   * Retrieve all users located at the specified site.
+   *
+   * @param siteId - Identifier of the site.
+   * @returns Array of matching {@link User} instances.
+   */
+  findBySiteId(siteId: string): Promise<User[]>;
+
+  /**
    * Persist a new user.
    *
    * @param user - User entity to create.

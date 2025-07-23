@@ -42,4 +42,12 @@ export interface DepartmentRepositoryPort {
    * @param id - Identifier of the department to delete.
    */
   delete(id: string): Promise<void>;
+
+  /**
+   * Retrieve all departments located at the specified site.
+   *
+   * @param siteId - Identifier of the site.
+   * @returns Array of matching {@link Department} instances.
+   */
+  findBySiteId(siteId: string): Promise<Department[]>;
 }
