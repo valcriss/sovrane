@@ -1,4 +1,5 @@
 import { Role } from '../../../domain/entities/Role';
+import { Permission } from '../../../domain/entities/Permission';
 
 describe('Role Entity', () => {
   let role: Role;
@@ -26,6 +27,14 @@ describe('Role Entity', () => {
     it('should allow modification of mutable label property', () => {
       role.label = 'Super Administrator';
       expect(role.label).toBe('Super Administrator');
+    });
+
+    it('should manage permissions collection', () => {
+      expect(role.permissions).toHaveLength(0);
+      const perm = new Permission('perm-1', 'READ', 'read');
+      role.permissions.push(perm);
+      expect(role.permissions).toHaveLength(1);
+      expect(role.permissions[0]).toBe(perm);
     });
 
     it('should have immutable id property', () => {

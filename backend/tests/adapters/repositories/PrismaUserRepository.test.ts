@@ -3,12 +3,15 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { PrismaUserRepository } from '../../../adapters/repositories/PrismaUserRepository';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
+import { Department } from '../../../domain/entities/Department';
+import { Permission } from '../../../domain/entities/Permission';
 
 describe('PrismaUserRepository', () => {
   let repository: PrismaUserRepository;
   let prismaClient: DeepMockProxy<PrismaClient>;
   let mockUser: User;
   let mockRole: Role;
+  let department: Department;
 
   beforeEach(() => {
     // Create deep mock of Prisma client
@@ -17,6 +20,7 @@ describe('PrismaUserRepository', () => {
 
     // Setup test data
     mockRole = new Role('role-123', 'Admin');
+    department = new Department('dept-1', 'IT');
     mockUser = new User(
       'user-123',
       'John',
@@ -24,7 +28,7 @@ describe('PrismaUserRepository', () => {
       'john.doe@example.com',
       [mockRole],
       'active',
-      'dept-1'
+      department
     );
   });
 
@@ -42,6 +46,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -72,7 +79,11 @@ describe('PrismaUserRepository', () => {
 
       expect(prismaClient.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'user-123' },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
 
@@ -84,7 +95,11 @@ describe('PrismaUserRepository', () => {
       expect(result).toBeNull();
       expect(prismaClient.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'non-existent-id' },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
 
@@ -97,6 +112,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: []
@@ -121,6 +139,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -144,7 +165,11 @@ describe('PrismaUserRepository', () => {
 
       expect(prismaClient.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'john.doe@example.com' },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
 
@@ -167,6 +192,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         externalProvider: 'google',
         externalId: 'g123',
         createdAt: new Date(),
@@ -182,7 +210,11 @@ describe('PrismaUserRepository', () => {
       expect(result?.id).toBe('user-123');
       expect(prismaClient.user.findFirst).toHaveBeenCalledWith({
         where: { externalProvider: 'google', externalId: 'g123' },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
 
@@ -205,6 +237,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -235,12 +270,66 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           password: '',
           departmentId: 'dept-1',
+          picture: undefined,
+          permissions: { create: [] },
           status: 'active',
           roles: {
             create: [{ role: { connect: { id: 'role-123' } } }],
           },
         },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
+      });
+    });
+
+    it('should create user with permissions', async () => {
+      const perm = new Permission('perm-1', 'READ', 'read');
+      mockUser.permissions = [perm];
+
+      const mockPrismaCreatedUserPerm = {
+        id: 'user-123',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'hashed-password',
+        status: 'active',
+        departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [{ userId: 'user-123', permissionId: 'perm-1', permission: { id: 'perm-1', permissionKey: 'READ', description: 'read' } }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        roles: []
+      };
+
+      prismaClient.user.create.mockResolvedValue(mockPrismaCreatedUserPerm as any);
+
+      const result = await repository.create(mockUser);
+
+      expect(result.permissions).toHaveLength(1);
+      expect(prismaClient.user.create).toHaveBeenCalledWith({
+        data: {
+          id: 'user-123',
+          firstname: 'John',
+          lastname: 'Doe',
+          email: 'john.doe@example.com',
+          password: '',
+          departmentId: 'dept-1',
+          picture: undefined,
+          permissions: { create: [{ permission: { connect: { id: 'perm-1' } } }] },
+          status: 'active',
+          roles: {
+            create: [{ role: { connect: { id: 'role-123' } } }],
+          },
+        },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
 
@@ -252,7 +341,7 @@ describe('PrismaUserRepository', () => {
         'jane.smith@example.com',
         [],
         'active',
-        'dept-1'
+        department
       );
 
       const mockPrismaCreatedUser = {
@@ -263,6 +352,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: []
@@ -281,12 +373,18 @@ describe('PrismaUserRepository', () => {
           email: 'jane.smith@example.com',
           password: '',
           departmentId: 'dept-1',
+          picture: undefined,
+          permissions: { create: [] },
           status: 'active',
           roles: {
             create: [],
           },
         },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
   });
@@ -300,7 +398,7 @@ describe('PrismaUserRepository', () => {
         'johnny.smith@example.com',
         [mockRole],
         'suspended',
-        'dept-1'
+        department
       );
 
       const mockPrismaUpdatedUser = {
@@ -311,6 +409,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'suspended',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -344,12 +445,18 @@ describe('PrismaUserRepository', () => {
           email: 'johnny.smith@example.com',
           status: 'suspended',
           departmentId: 'dept-1',
+          picture: undefined,
+          permissions: { deleteMany: {}, create: [] },
           roles: {
             deleteMany: {},
             create: [{ role: { connect: { id: 'role-123' } } }],
           },
         },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
 
@@ -362,7 +469,7 @@ describe('PrismaUserRepository', () => {
         'john.doe@example.com',
         [newRole],
         'active',
-        'dept-1'
+        department
       );
 
       const mockPrismaUpdatedUser = {
@@ -373,6 +480,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: [
@@ -403,12 +513,76 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           status: 'active',
           departmentId: 'dept-1',
+          picture: undefined,
+          permissions: { deleteMany: {}, create: [] },
           roles: {
             deleteMany: {},
             create: [{ role: { connect: { id: 'role-456' } } }],
           },
         },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
+      });
+    });
+
+    it('should update user permissions', async () => {
+      const perm = new Permission('perm-2', 'WRITE', 'write');
+      const updatedUser = new User(
+        'user-123',
+        'John',
+        'Doe',
+        'john.doe@example.com',
+        [mockRole],
+        'active',
+        department,
+        undefined,
+        [perm]
+      );
+
+      const mockPrismaUpdatedPermUser = {
+        id: 'user-123',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'hashed-password',
+        status: 'active',
+        departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [{ userId: 'user-123', permissionId: 'perm-2', permission: { id: 'perm-2', permissionKey: 'WRITE', description: 'write' } }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        roles: []
+      };
+
+      prismaClient.user.update.mockResolvedValue(mockPrismaUpdatedPermUser as any);
+
+      const result = await repository.update(updatedUser);
+
+      expect(result.permissions).toHaveLength(1);
+      expect(prismaClient.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-123' },
+        data: {
+          firstname: 'John',
+          lastname: 'Doe',
+          email: 'john.doe@example.com',
+          status: 'active',
+          departmentId: 'dept-1',
+          picture: undefined,
+          permissions: { deleteMany: {}, create: [{ permission: { connect: { id: 'perm-2' } } }] },
+          roles: {
+            deleteMany: {},
+            create: [{ role: { connect: { id: 'role-123' } } }],
+          },
+        },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
 
@@ -420,7 +594,7 @@ describe('PrismaUserRepository', () => {
         'john.doe@example.com',
         [],
         'active',
-        'dept-1'
+        department
       );
 
       const mockPrismaUpdatedUser = {
@@ -431,6 +605,9 @@ describe('PrismaUserRepository', () => {
         password: 'hashed-password',
         status: 'active',
         departmentId: 'dept-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null },
+        picture: null,
+        permissions: [],
         createdAt: new Date(),
         updatedAt: new Date(),
         roles: []
@@ -450,12 +627,18 @@ describe('PrismaUserRepository', () => {
           email: 'john.doe@example.com',
           status: 'active',
           departmentId: 'dept-1',
+          picture: undefined,
+          permissions: { deleteMany: {}, create: [] },
           roles: {
             deleteMany: {},
             create: [],
           },
         },
-        include: { roles: { include: { role: true } } },
+        include: {
+          roles: { include: { role: true } },
+          department: true,
+          permissions: { include: { permission: true } },
+        },
       });
     });
   });
