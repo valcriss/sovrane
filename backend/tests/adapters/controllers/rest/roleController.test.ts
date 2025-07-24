@@ -32,6 +32,26 @@ describe('Role REST controller', () => {
     app.use('/api', createRoleRouter(roleRepo, userRepo, logger));
   });
 
+  it('should list roles', async () => {
+    roleRepo.findAll.mockResolvedValue([role]);
+
+    const res = await request(app).get('/api/roles');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ id: 'r', label: 'Role', permissions: [{ id: 'p', permissionKey: 'P', description: 'desc' }] }]);
+    expect(roleRepo.findAll).toHaveBeenCalled();
+  });
+
+  it('should get role by id', async () => {
+    roleRepo.findById.mockResolvedValue(role);
+
+    const res = await request(app).get('/api/roles/r');
+
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe('r');
+    expect(roleRepo.findById).toHaveBeenCalledWith('r');
+  });
+
   it('should create a role', async () => {
     const res = await request(app)
       .post('/api/roles')

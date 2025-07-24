@@ -23,6 +23,12 @@ export class PrismaSiteRepository implements SiteRepositoryPort {
     return record ? this.mapRecord(record) : null;
   }
 
+  async findAll(): Promise<Site[]> {
+    this.logger.debug('Site findAll', getContext());
+    const records = await this.prisma.site.findMany();
+    return records.map(r => this.mapRecord(r));
+  }
+
   async findByLabel(label: string): Promise<Site | null> {
     this.logger.debug('Site findByLabel', getContext());
     const record = await this.prisma.site.findFirst({ where: { label } });

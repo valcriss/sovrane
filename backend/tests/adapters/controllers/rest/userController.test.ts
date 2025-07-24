@@ -161,6 +161,30 @@ describe('User REST controller', () => {
     expect(auth.resetPassword).toHaveBeenCalledWith('tok', 'new');
   });
 
+  it('should list users', async () => {
+    repo.findAll.mockResolvedValue([user]);
+
+    const res = await request(app)
+      .get('/api/users')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(res.body[0].id).toBe('u');
+    expect(repo.findAll).toHaveBeenCalled();
+  });
+
+  it('should get user by id', async () => {
+    repo.findById.mockResolvedValue(user);
+
+    const res = await request(app)
+      .get('/api/users/u')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe('u');
+    expect(repo.findById).toHaveBeenCalledWith('u');
+  });
+
   it('should update user profile', async () => {
     const res = await request(app)
       .put('/api/users/u')

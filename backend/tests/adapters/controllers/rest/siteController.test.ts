@@ -30,6 +30,26 @@ describe('Site REST controller', () => {
     app.use('/api', createSiteRouter(siteRepo, userRepo, deptRepo, logger));
   });
 
+  it('should list sites', async () => {
+    siteRepo.findAll.mockResolvedValue([site]);
+
+    const res = await request(app).get('/api/sites');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ id: 's', label: 'Site' }]);
+    expect(siteRepo.findAll).toHaveBeenCalled();
+  });
+
+  it('should get site by id', async () => {
+    siteRepo.findById.mockResolvedValue(site);
+
+    const res = await request(app).get('/api/sites/s');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ id: 's', label: 'Site' });
+    expect(siteRepo.findById).toHaveBeenCalledWith('s');
+  });
+
   it('should create a site', async () => {
     siteRepo.create.mockResolvedValue(site);
 

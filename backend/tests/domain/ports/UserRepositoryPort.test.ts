@@ -14,6 +14,10 @@ class MockUserRepository implements UserRepositoryPort {
     return this.users.get(id) || null;
   }
 
+  async findAll(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const userId = this.emailIndex.get(email);
     return userId ? this.users.get(userId) || null : null;
@@ -138,6 +142,7 @@ describe('UserRepositoryPort Interface', () => {
       expect(result).toEqual(testUser);
       expect(result.id).toBe('user-123');
       expect(result.email).toBe('john.doe@example.com');
+      expect(await repository.findAll()).toEqual([testUser]);
     });
 
     it('should allow creating multiple users', async () => {
@@ -268,6 +273,13 @@ describe('UserRepositoryPort Interface', () => {
 
       expect(result).toEqual([]);
     });
+  });
+
+  it('should list all users', async () => {
+    await repository.create(testUser);
+    const user2 = new User('user-2', 'Jane', 'Smith', 'jane@example.com', [], 'active', department, site);
+    await repository.create(user2);
+    expect(await repository.findAll()).toEqual([testUser, user2]);
   });
 
   describe('update', () => {

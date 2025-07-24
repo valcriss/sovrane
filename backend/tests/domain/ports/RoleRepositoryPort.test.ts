@@ -15,6 +15,10 @@ class MockRoleRepository implements RoleRepositoryPort {
     return roleId ? this.roles.get(roleId) || null : null;
   }
 
+  async findAll(): Promise<Role[]> {
+    return Array.from(this.roles.values());
+  }
+
   async create(role: Role): Promise<Role> {
     this.roles.set(role.id, role);
     this.labelIndex.set(role.label, role.id);
@@ -71,6 +75,7 @@ describe('RoleRepositoryPort Interface', () => {
 
       expect(foundById).toEqual(adminRole);
       expect(foundByLabel).toEqual(adminRole);
+      expect(await repository.findAll()).toEqual([adminRole]);
     });
   });
 
@@ -98,6 +103,13 @@ describe('RoleRepositoryPort Interface', () => {
       expect(await repository.findById('role-1')).toBeNull();
       expect(await repository.findByLabel('Admin')).toBeNull();
     });
+  });
+
+  it('should list all roles', async () => {
+    await repository.create(adminRole);
+    const other = new Role('role-2', 'User');
+    await repository.create(other);
+    expect(await repository.findAll()).toEqual([adminRole, other]);
   });
 
   describe('integration scenario', () => {

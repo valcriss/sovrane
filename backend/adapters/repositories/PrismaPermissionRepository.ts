@@ -23,6 +23,12 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
     return record ? this.mapRecord(record) : null;
   }
 
+  async findAll(): Promise<Permission[]> {
+    this.logger.debug('Permission findAll', getContext());
+    const records = await this.prisma.permission.findMany();
+    return records.map(r => this.mapRecord(r));
+  }
+
   async findByKey(permissionKey: string): Promise<Permission | null> {
     this.logger.debug('Permission findByKey', getContext());
     const record = await this.prisma.permission.findFirst({ where: { permissionKey } });

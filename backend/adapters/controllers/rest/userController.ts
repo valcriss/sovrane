@@ -10,6 +10,8 @@ import { ResetPasswordUseCase } from '../../../usecases/user/ResetPasswordUseCas
 import { UpdateUserProfileUseCase } from '../../../usecases/user/UpdateUserProfileUseCase';
 import { ChangeUserStatusUseCase } from '../../../usecases/user/ChangeUserStatusUseCase';
 import { RemoveUserUseCase } from '../../../usecases/user/RemoveUserUseCase';
+import { GetUsersUseCase } from '../../../usecases/user/GetUsersUseCase';
+import { GetUserUseCase } from '../../../usecases/user/GetUserUseCase';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { getContext } from '../../../infrastructure/loggerContext';
 import { User } from '../../../domain/entities/User';
@@ -421,6 +423,74 @@ export function createUserRouter(
   });
 
   router.use(authMiddleware);
+
+  /**
+   * @openapi
+   * /users:
+   *   get:
+   *     summary: Get all users
+   *     description: Returns the list of all users.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Array of user objects.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/User'
+   */
+  router.get('/users', async (_req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /users', getContext());
+    const useCase = new GetUsersUseCase(userRepository);
+    const users = await useCase.execute();
+    logger.debug('Users retrieved', getContext());
+    res.json(users);
+  });
+
+  /**
+   * @openapi
+   * /users/{id}:
+   *   get:
+   *     summary: Get user by ID
+   *     description: Returns detailed information about a specific user.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Unique identifier of the user.
+   *     responses:
+   *       200:
+   *         description: User details.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
+   *       404:
+   *         description: User not found.
+   */
+  router.get('/users/:id', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /users/:id', getContext());
+    const useCase = new GetUserUseCase(userRepository);
+    const user = await useCase.execute(req.params.id);
+    if (!user) {
+      logger.warn('User not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('User retrieved', getContext());
+    res.json(user);
+  });
 
   /**
    * @openapi

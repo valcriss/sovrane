@@ -14,6 +14,10 @@ class MockSiteRepository implements SiteRepositoryPort {
     return id ? this.sites.get(id) || null : null;
   }
 
+  async findAll(): Promise<Site[]> {
+    return Array.from(this.sites.values());
+  }
+
   async create(site: Site): Promise<Site> {
     this.sites.set(site.id, site);
     this.labelIndex.set(site.label, site.id);
@@ -62,6 +66,7 @@ describe('SiteRepositoryPort Interface', () => {
     await repo.create(site);
     expect(await repo.findById('site-1')).toEqual(site);
     expect(await repo.findByLabel('HQ')).toEqual(site);
+    expect(await repo.findAll()).toEqual([site]);
   });
 
   it('should update an existing site', async () => {
@@ -76,5 +81,12 @@ describe('SiteRepositoryPort Interface', () => {
     await repo.create(site);
     await repo.delete('site-1');
     expect(await repo.findById('site-1')).toBeNull();
+  });
+
+  it('should list all sites', async () => {
+    await repo.create(site);
+    const other = new Site('s2', 'Branch');
+    await repo.create(other);
+    expect(await repo.findAll()).toEqual([site, other]);
   });
 });

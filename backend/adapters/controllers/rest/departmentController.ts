@@ -19,6 +19,8 @@ import { AddChildDepartmentUseCase } from '../../../usecases/department/AddChild
 import { RemoveChildDepartmentUseCase } from '../../../usecases/department/RemoveChildDepartmentUseCase';
 import { AddDepartmentUserUseCase } from '../../../usecases/department/AddDepartmentUserUseCase';
 import { RemoveDepartmentUserUseCase } from '../../../usecases/department/RemoveDepartmentUserUseCase';
+import { GetDepartmentsUseCase } from '../../../usecases/department/GetDepartmentsUseCase';
+import { GetDepartmentUseCase } from '../../../usecases/department/GetDepartmentUseCase';
 
 /**
  * @openapi
@@ -115,6 +117,74 @@ export function createDepartmentRouter(
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
+
+  /**
+   * @openapi
+   * /departments:
+   *   get:
+   *     summary: Get all departments
+   *     description: Returns the list of all departments.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Array of department objects.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Department'
+   */
+  router.get('/departments', async (_req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /departments', getContext());
+    const useCase = new GetDepartmentsUseCase(departmentRepository);
+    const departments = await useCase.execute();
+    logger.debug('Departments retrieved', getContext());
+    res.json(departments);
+  });
+
+  /**
+   * @openapi
+   * /departments/{id}:
+   *   get:
+   *     summary: Get department by ID
+   *     description: Returns detailed information about a specific department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Unique identifier of the department.
+   *     responses:
+   *       200:
+   *         description: Department details.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
+   *       404:
+   *         description: Department not found.
+   */
+  router.get('/departments/:id', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /departments/:id', getContext());
+    const useCase = new GetDepartmentUseCase(departmentRepository);
+    const department = await useCase.execute(req.params.id);
+    if (!department) {
+      logger.warn('Department not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('Department retrieved', getContext());
+    res.json(department);
+  });
 
   /**
    * @openapi
