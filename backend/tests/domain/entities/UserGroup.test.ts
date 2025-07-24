@@ -36,4 +36,10 @@ describe('UserGroup Entity', () => {
     expect(group.description).toBe('newdesc');
     expect(group.members).toHaveLength(2);
   });
+
+  it('should use defaults when optional params omitted', () => {
+    const g = new UserGroup('id', 'label', user);
+    expect(g.members).toEqual([]);
+    expect(g.description).toBeUndefined();
+  });
 });
