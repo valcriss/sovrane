@@ -26,7 +26,7 @@ describe('AddGroupUserUseCase', () => {
     dept = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role');
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
-    group = new UserGroup('g', 'Group', user, [user]);
+    group = new UserGroup('g', 'Group', [user], [user]);
   });
 
   it('should add user to group', async () => {

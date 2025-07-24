@@ -23,7 +23,7 @@ describe('GetUserGroupsUseCase', () => {
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
-    group = new UserGroup('g', 'Group', user, [user]);
+    group = new UserGroup('g', 'Group', [user], [user]);
   });
 
   it('should return groups from repository', async () => {

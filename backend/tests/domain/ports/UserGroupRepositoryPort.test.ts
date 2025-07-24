@@ -50,6 +50,35 @@ class MockGroupRepository implements UserGroupRepositoryPort {
     group.members = group.members.filter(u => u.id !== userId);
     return group;
   }
+
+  async addResponsible(groupId: string, userId: string): Promise<UserGroup | null> {
+    const group = this.groups.get(groupId);
+    const user = users.get(userId);
+    if (!group || !user) return null;
+    group.responsibleUsers.push(user);
+    return group;
+  }
+
+  async removeResponsible(groupId: string, userId: string): Promise<UserGroup | null> {
+    const group = this.groups.get(groupId);
+    if (!group) return null;
+    group.responsibleUsers = group.responsibleUsers.filter(u => u.id !== userId);
+    return group;
+  }
+
+  async listMembers(groupId: string, params: { page: number; limit: number }): Promise<{ items: User[]; page: number; limit: number; total: number }> {
+    const group = this.groups.get(groupId);
+    if (!group) return { items: [], page: params.page, limit: params.limit, total: 0 };
+    const items = group.members.slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: group.members.length };
+  }
+
+  async listResponsibles(groupId: string, params: { page: number; limit: number }): Promise<{ items: User[]; page: number; limit: number; total: number }> {
+    const group = this.groups.get(groupId);
+    if (!group) return { items: [], page: params.page, limit: params.limit, total: 0 };
+    const items = group.responsibleUsers.slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: group.responsibleUsers.length };
+  }
 }
 
 const users = new Map<string, User>();
@@ -69,7 +98,7 @@ describe('UserGroupRepositoryPort Interface', () => {
     role = new Role('r', 'Role');
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
     users.set('u', user);
-    group = new UserGroup('g', 'Group', user, [user]);
+    group = new UserGroup('g', 'Group', [user], [user]);
   });
 
   afterEach(() => {
@@ -103,5 +132,15 @@ describe('UserGroupRepositoryPort Interface', () => {
     expect((await repo.findById('g'))?.members).toHaveLength(2);
     await repo.removeUser('g', 'u2');
     expect((await repo.findById('g'))?.members).toHaveLength(1);
+  });
+
+  it('should add and remove responsible', async () => {
+    await repo.create(group);
+    const other = new User('u3', 'Jack', 'Doe', 'jack@example.com', [role], 'active', dept, site);
+    users.set('u3', other);
+    await repo.addResponsible('g', 'u3');
+    expect((await repo.findById('g'))?.responsibleUsers).toHaveLength(2);
+    await repo.removeResponsible('g', 'u3');
+    expect((await repo.findById('g'))?.responsibleUsers).toHaveLength(1);
   });
 });

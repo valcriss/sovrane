@@ -12,6 +12,10 @@ import { RemoveUserGroupUseCase } from '../../../usecases/userGroup/RemoveUserGr
 import { AddGroupUserUseCase } from '../../../usecases/userGroup/AddGroupUserUseCase';
 import { RemoveGroupUserUseCase } from '../../../usecases/userGroup/RemoveGroupUserUseCase';
 import { GetUserGroupsUseCase } from '../../../usecases/group/GetUserGroupsUseCase';
+import { AddGroupResponsibleUseCase } from '../../../usecases/userGroup/AddGroupResponsibleUseCase';
+import { RemoveGroupResponsibleUseCase } from '../../../usecases/userGroup/RemoveGroupResponsibleUseCase';
+import { GetGroupMembersUseCase } from '../../../usecases/userGroup/GetGroupMembersUseCase';
+import { GetGroupResponsiblesUseCase } from '../../../usecases/userGroup/GetGroupResponsiblesUseCase';
 
 /**
  * @openapi
@@ -31,21 +35,26 @@ import { GetUserGroupsUseCase } from '../../../usecases/group/GetUserGroupsUseCa
  *         description:
  *           type: string
  *           description: Optional group description.
- *         responsibleUser:
- *           $ref: '#/components/schemas/User'
- *           description: The responsible user (group manager).
+ *         responsibleUsers:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/User'
+ *           description: The responsible users (group managers).
  *         members:
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/User'
  *           description: List of users in the group.
- *       required: [id, name, responsibleUser, members]
+*       required: [id, name, responsibleUsers, members]
  */
 
 
 /* istanbul ignore next */
-function parseGroup(body: { id: string; name: string; description?: string }, responsible: User): UserGroup {
-  return new UserGroup(body.id, body.name, responsible, [responsible], body.description);
+function parseGroup(
+  body: { id: string; name: string; description?: string },
+  responsibles: User[],
+): UserGroup {
+  return new UserGroup(body.id, body.name, responsibles, [], body.description);
 }
 
 export function createGroupRouter(
@@ -114,8 +123,12 @@ export function createGroupRouter(
    */
   router.post('/groups', async (req, res): Promise<void> => {
     logger.debug('POST /groups', getContext());
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const group = parseGroup(req.body, (req as any).user);
+    const body = req.body as { id: string; name: string; description?: string; responsibleIds: string[] };
+    const responsibles = await Promise.all(
+      (body.responsibleIds || []).map(id => userRepository.findById(id)),
+    );
+    const validResponsibles = responsibles.filter((u): u is User => !!u);
+    const group = parseGroup(body, validResponsibles);
     const useCase = new CreateUserGroupUseCase(groupRepository);
     const created = await useCase.execute(group);
     res.status(201).json(created);
@@ -216,6 +229,32 @@ export function createGroupRouter(
     res.json(group);
   });
 
+  router.get('/groups/:id/users', async (req, res): Promise<void> => {
+    logger.debug('GET /groups/:id/users', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const useCase = new GetGroupMembersUseCase(groupRepository);
+    const result = await useCase.execute(req.params.id, {
+      page,
+      limit,
+      filters: { search: req.query.search as string | undefined },
+    });
+    res.json(result);
+  });
+
+  router.get('/groups/:id/responsibles', async (req, res): Promise<void> => {
+    logger.debug('GET /groups/:id/responsibles', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const useCase = new GetGroupResponsiblesUseCase(groupRepository);
+    const result = await useCase.execute(req.params.id, {
+      page,
+      limit,
+      filters: { search: req.query.search as string | undefined },
+    });
+    res.json(result);
+  });
+
   /**
    * @openapi
    * /groups/{id}:
@@ -264,7 +303,7 @@ export function createGroupRouter(
       return;
     }
     const user = (req as unknown as { user: User }).user;
-    if (group.responsibleUser.id !== user.id) {
+    if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
     }
@@ -305,7 +344,7 @@ export function createGroupRouter(
       return;
     }
     const user = (req as unknown as { user: User }).user;
-    if (group.responsibleUser.id !== user.id) {
+    if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
     }
@@ -360,11 +399,32 @@ export function createGroupRouter(
       return;
     }
     const user = (req as unknown as { user: User }).user;
-    if (group.responsibleUser.id !== user.id) {
+    if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
     }
     const useCase = new AddGroupUserUseCase(groupRepository, userRepository);
+    const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
+    if (!updated) {
+      res.status(404).end();
+      return;
+    }
+    res.json(updated);
+  });
+
+  router.post('/groups/:id/responsibles', async (req, res): Promise<void> => {
+    logger.debug('POST /groups/:id/responsibles', getContext());
+    const group = await groupRepository.findById(req.params.id);
+    if (!group) {
+      res.status(404).end();
+      return;
+    }
+    const user = (req as unknown as { user: User }).user;
+    if (!group.responsibleUsers.some(u => u.id === user.id)) {
+      res.status(403).end();
+      return;
+    }
+    const useCase = new AddGroupResponsibleUseCase(groupRepository, userRepository);
     const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
     if (!updated) {
       res.status(404).end();
@@ -419,11 +479,32 @@ export function createGroupRouter(
       return;
     }
     const user = (req as unknown as { user: User }).user;
-    if (group.responsibleUser.id !== user.id) {
+    if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
     }
     const useCase = new RemoveGroupUserUseCase(groupRepository, userRepository);
+    const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
+    if (!updated) {
+      res.status(404).end();
+      return;
+    }
+    res.json(updated);
+  });
+
+  router.delete('/groups/:id/responsibles', async (req, res): Promise<void> => {
+    logger.debug('DELETE /groups/:id/responsibles', getContext());
+    const group = await groupRepository.findById(req.params.id);
+    if (!group) {
+      res.status(404).end();
+      return;
+    }
+    const user = (req as unknown as { user: User }).user;
+    if (!group.responsibleUsers.some(u => u.id === user.id)) {
+      res.status(403).end();
+      return;
+    }
+    const useCase = new RemoveGroupResponsibleUseCase(groupRepository, userRepository);
     const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
     if (!updated) {
       res.status(404).end();
