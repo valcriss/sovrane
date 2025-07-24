@@ -2,6 +2,15 @@
  * Defines the contract for role persistence operations.
  */
 import { Role } from '../entities/Role';
+import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
+
+/**
+ * Filters used when listing roles.
+ */
+export interface RoleFilters {
+  /** Free text search on the label. */
+  search?: string;
+}
 
 export interface RoleRepositoryPort {
   /**
@@ -13,11 +22,19 @@ export interface RoleRepositoryPort {
   findById(id: string): Promise<Role | null>;
 
   /**
-   * Retrieve all roles.
-   *
-   * @returns Array of available {@link Role} instances.
-   */
+  * Retrieve all roles.
+  *
+  * @returns Array of available {@link Role} instances.
+  */
   findAll(): Promise<Role[]>;
+
+  /**
+   * Retrieve roles with pagination and optional search.
+   *
+   * @param params - Pagination and filtering parameters.
+   * @returns Paginated list of roles.
+   */
+  findPage(params: ListParams & { filters?: RoleFilters }): Promise<PaginatedResult<Role>>;
 
   /**
    * Retrieve a role by its label.

@@ -1,4 +1,13 @@
 import { UserGroup } from '../entities/UserGroup';
+import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
+
+/**
+ * Filters for listing user groups.
+ */
+export interface UserGroupFilters {
+  /** Free text search on group name. */
+  search?: string;
+}
 
 /**
  * Contract for user group persistence operations.
@@ -13,11 +22,19 @@ export interface UserGroupRepositoryPort {
   findById(id: string): Promise<UserGroup | null>;
 
   /**
-   * Retrieve all user groups.
-   *
-   * @returns Array of {@link UserGroup} instances.
-   */
+  * Retrieve all user groups.
+  *
+  * @returns Array of {@link UserGroup} instances.
+  */
   findAll(): Promise<UserGroup[]>;
+
+  /**
+   * Retrieve user groups using pagination and optional filters.
+   *
+   * @param params - Pagination and filtering parameters.
+   * @returns Paginated list of user groups.
+   */
+  findPage(params: ListParams & { filters?: UserGroupFilters }): Promise<PaginatedResult<UserGroup>>;
 
   /**
    * Persist a new group.

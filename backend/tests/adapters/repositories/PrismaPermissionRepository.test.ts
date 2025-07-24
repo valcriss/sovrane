@@ -96,4 +96,13 @@ describe('PrismaPermissionRepository', () => {
       expect(prismaAny.permission.delete).toHaveBeenCalledWith({ where: { id: 'perm-1' } });
     });
   });
+
+  it('should paginate permissions', async () => {
+    prismaAny.permission.findMany.mockResolvedValue([] as any);
+    prismaAny.permission.count.mockResolvedValue(0 as any);
+    const result = await repository.findPage({ page: 1, limit: 5 });
+    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect(prismaAny.permission.findMany).toHaveBeenCalled();
+    expect(prismaAny.permission.count).toHaveBeenCalled();
+  });
 });

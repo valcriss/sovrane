@@ -429,27 +429,91 @@ export function createUserRouter(
    * /users:
    *   get:
    *     summary: Get all users
-   *     description: Returns the list of all users.
+   *     description: Returns a paginated and filterable list of users.
    *     tags:
    *       - User
    *     security:
    *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of users per page.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Search term to filter users by name or email.
+   *       - in: query
+   *         name: status
+   *         schema:
+   *           type: string
+   *           enum: [active, suspended, archived]
+   *         description: Filter users by status.
+   *       - in: query
+   *         name: departmentId
+   *         schema:
+   *           type: string
+   *         description: Filter by department identifier.
+   *       - in: query
+   *         name: siteId
+   *         schema:
+   *           type: string
+   *         description: Filter by site identifier.
    *     responses:
    *       200:
-   *         description: Array of user objects.
+   *         description: Paginated user list
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/User'
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/User'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+   *               example:
+   *                 items: []
+   *                 page: 1
+   *                 limit: 20
+   *                 total: 0
    */
-  router.get('/users', async (_req: Request, res: Response): Promise<void> => {
+  router.get('/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetUsersUseCase(userRepository);
-    const users = await useCase.execute();
+    const result = await useCase.execute({
+      page,
+      limit,
+      filters: {
+        search: req.query.search as string | undefined,
+        status: req.query.status as
+          | 'active'
+          | 'suspended'
+          | 'archived'
+          | undefined,
+        departmentId: req.query.departmentId as string | undefined,
+        siteId: req.query.siteId as string | undefined,
+        roleId: req.query.roleId as string | undefined,
+      },
+    });
     logger.debug('Users retrieved', getContext());
-    res.json(users);
+    res.json(result);
   });
 
   /**

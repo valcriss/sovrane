@@ -1,6 +1,15 @@
 /* istanbul ignore file */
-import { PrismaClient, User as PrismaUser, Department as PrismaDepartment, Site as PrismaSite, Role as PrismaRole, Permission as PrismaPermission } from '@prisma/client';
-import { UserGroupRepositoryPort } from '../../domain/ports/UserGroupRepositoryPort';
+import {
+  PrismaClient,
+  Prisma,
+  User as PrismaUser,
+  Department as PrismaDepartment,
+  Site as PrismaSite,
+  Role as PrismaRole,
+  Permission as PrismaPermission,
+} from '@prisma/client';
+import { UserGroupRepositoryPort, UserGroupFilters } from '../../domain/ports/UserGroupRepositoryPort';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { UserGroup } from '../../domain/entities/UserGroup';
 import { User } from '../../domain/entities/User';
 import { Role } from '../../domain/entities/Role';
@@ -88,6 +97,36 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return records.map((r: any) => this.mapRecord(r));
+  }
+
+  /* istanbul ignore next */
+  async findPage(
+    params: ListParams & { filters?: UserGroupFilters },
+  ): Promise<PaginatedResult<UserGroup>> {
+    this.logger.debug('UserGroup findPage', getContext());
+    const where: Prisma.UserGroupWhereInput = {};
+    if (params.filters?.search) {
+      where.name = { contains: params.filters.search, mode: 'insensitive' };
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const records = await (this.prisma as any).userGroup.findMany({
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      where,
+      include: {
+        responsibleUser: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
+        members: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
+      },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const total = await (this.prisma as any).userGroup.count({ where });
+    return {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      items: records.map((r: any) => this.mapRecord(r)),
+      page: params.page,
+      limit: params.limit,
+      total,
+    };
   }
 
   async create(group: UserGroup): Promise<UserGroup> {

@@ -24,11 +24,11 @@ describe('GetUsersUseCase', () => {
   });
 
   it('should return users from repository', async () => {
-    repository.findAll.mockResolvedValue([user]);
+    repository.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
 
-    const result = await useCase.execute();
+    const result = await useCase.execute({ page: 1, limit: 20 });
 
-    expect(result).toEqual([user]);
-    expect(repository.findAll).toHaveBeenCalled();
+    expect(result.items).toEqual([user]);
+    expect(repository.findPage).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 });

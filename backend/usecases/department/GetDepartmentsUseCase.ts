@@ -1,8 +1,12 @@
-import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
+import {
+  DepartmentRepositoryPort,
+  DepartmentFilters,
+} from '../../domain/ports/DepartmentRepositoryPort';
 import { Department } from '../../domain/entities/Department';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 
 /**
- * Use case for retrieving all departments.
+ * Use case for retrieving departments with pagination.
  */
 export class GetDepartmentsUseCase {
   constructor(private readonly departmentRepository: DepartmentRepositoryPort) {}
@@ -10,9 +14,12 @@ export class GetDepartmentsUseCase {
   /**
    * Execute the retrieval.
    *
-   * @returns Array of {@link Department} instances.
+   * @param params - Pagination and filtering parameters.
+   * @returns Paginated list of departments.
    */
-  async execute(): Promise<Department[]> {
-    return this.departmentRepository.findAll();
+  async execute(
+    params: ListParams & { filters?: DepartmentFilters },
+  ): Promise<PaginatedResult<Department>> {
+    return this.departmentRepository.findPage(params);
   }
 }

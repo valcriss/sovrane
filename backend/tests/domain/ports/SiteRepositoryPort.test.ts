@@ -18,6 +18,11 @@ class MockSiteRepository implements SiteRepositoryPort {
     return Array.from(this.sites.values());
   }
 
+  async findPage(params: { page: number; limit: number }): Promise<{ items: Site[]; page: number; limit: number; total: number }> {
+    const items = Array.from(this.sites.values()).slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: this.sites.size };
+  }
+
   async create(site: Site): Promise<Site> {
     this.sites.set(site.id, site);
     this.labelIndex.set(site.label, site.id);

@@ -1,5 +1,9 @@
-import { PermissionRepositoryPort } from '../../domain/ports/PermissionRepositoryPort';
+import {
+  PermissionRepositoryPort,
+  PermissionFilters,
+} from '../../domain/ports/PermissionRepositoryPort';
 import { Permission } from '../../domain/entities/Permission';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 
 /**
  * Use case for listing all permissions.
@@ -12,7 +16,9 @@ export class GetPermissionsUseCase {
    *
    * @returns Array of {@link Permission} instances.
    */
-  async execute(): Promise<Permission[]> {
-    return this.permissionRepository.findAll();
+  async execute(
+    params: ListParams & { filters?: PermissionFilters },
+  ): Promise<PaginatedResult<Permission>> {
+    return this.permissionRepository.findPage(params);
   }
 }

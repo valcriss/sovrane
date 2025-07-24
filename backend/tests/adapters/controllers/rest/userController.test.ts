@@ -162,15 +162,25 @@ describe('User REST controller', () => {
   });
 
   it('should list users', async () => {
-    repo.findAll.mockResolvedValue([user]);
+    repo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
 
     const res = await request(app)
-      .get('/api/users')
+      .get('/api/users?page=1&limit=20')
       .set('Authorization', 'Bearer token');
 
     expect(res.status).toBe(200);
-    expect(res.body[0].id).toBe('u');
-    expect(repo.findAll).toHaveBeenCalled();
+    expect(res.body.items[0].id).toBe('u');
+    expect(repo.findPage).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      filters: {
+        search: undefined,
+        status: undefined,
+        departmentId: undefined,
+        siteId: undefined,
+        roleId: undefined,
+      },
+    });
   });
 
   it('should get user by id', async () => {

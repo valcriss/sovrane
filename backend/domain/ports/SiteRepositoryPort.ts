@@ -1,4 +1,13 @@
 import { Site } from '../entities/Site';
+import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
+
+/**
+ * Filters when querying sites.
+ */
+export interface SiteFilters {
+  /** Free text search on the label. */
+  search?: string;
+}
 
 /**
  * Defines the contract for site persistence operations.
@@ -13,11 +22,19 @@ export interface SiteRepositoryPort {
   findById(id: string): Promise<Site | null>;
 
   /**
-   * Retrieve all sites.
-   *
-   * @returns Array of registered {@link Site} instances.
-   */
+  * Retrieve all sites.
+  *
+  * @returns Array of registered {@link Site} instances.
+  */
   findAll(): Promise<Site[]>;
+
+  /**
+   * Retrieve sites with pagination and optional search.
+   *
+   * @param params - Pagination and filtering parameters.
+   * @returns Paginated list of sites.
+   */
+  findPage(params: ListParams & { filters?: SiteFilters }): Promise<PaginatedResult<Site>>;
 
   /**
    * Retrieve a site by its label.

@@ -15,11 +15,11 @@ describe('GetPermissionsUseCase', () => {
   });
 
   it('should return permissions from repository', async () => {
-    repository.findAll.mockResolvedValue([perm]);
+    repository.findPage.mockResolvedValue({ items: [perm], page: 1, limit: 20, total: 1 });
 
-    const result = await useCase.execute();
+    const result = await useCase.execute({ page: 1, limit: 20 });
 
-    expect(result).toEqual([perm]);
-    expect(repository.findAll).toHaveBeenCalled();
+    expect(result.items).toEqual([perm]);
+    expect(repository.findPage).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 });

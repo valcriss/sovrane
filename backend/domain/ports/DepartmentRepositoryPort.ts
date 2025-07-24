@@ -1,4 +1,15 @@
 import { Department } from '../entities/Department';
+import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
+
+/**
+ * Available filters when querying departments.
+ */
+export interface DepartmentFilters {
+  /** Restrict to departments of the specified site. */
+  siteId?: string;
+  /** Free text search on the label. */
+  search?: string;
+}
 
 /**
  * Defines the contract for department persistence operations.
@@ -13,11 +24,19 @@ export interface DepartmentRepositoryPort {
   findById(id: string): Promise<Department | null>;
 
   /**
-   * Retrieve all departments.
-   *
-   * @returns Array of all {@link Department} instances.
-   */
+  * Retrieve all departments.
+  *
+  * @returns Array of all {@link Department} instances.
+  */
   findAll(): Promise<Department[]>;
+
+  /**
+   * Retrieve departments with pagination and optional filters.
+   *
+   * @param params - Pagination and filtering parameters.
+   * @returns Paginated list of {@link Department} instances.
+   */
+  findPage(params: ListParams & { filters?: DepartmentFilters }): Promise<PaginatedResult<Department>>;
 
   /**
    * Retrieve a department by its label.

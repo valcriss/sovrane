@@ -1,5 +1,6 @@
-import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
+import { UserRepositoryPort, UserFilters } from '../../domain/ports/UserRepositoryPort';
 import { User } from '../../domain/entities/User';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 
 /**
  * Use case for retrieving all users.
@@ -12,7 +13,7 @@ export class GetUsersUseCase {
    *
    * @returns Array of {@link User} instances.
    */
-  async execute(): Promise<User[]> {
-    return this.userRepository.findAll();
+  async execute(params: ListParams & { filters?: UserFilters }): Promise<PaginatedResult<User>> {
+    return this.userRepository.findPage(params);
   }
 }

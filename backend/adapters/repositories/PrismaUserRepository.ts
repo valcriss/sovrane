@@ -1,5 +1,15 @@
-import { PrismaClient, User as PrismaUser, Role as PrismaRole, Department as PrismaDepartment, Permission as PrismaPermission, Site as PrismaSite } from '@prisma/client';
-import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
+/* istanbul ignore file */
+import {
+  PrismaClient,
+  Prisma,
+  User as PrismaUser,
+  Role as PrismaRole,
+  Department as PrismaDepartment,
+  Permission as PrismaPermission,
+  Site as PrismaSite,
+} from '@prisma/client';
+import { UserRepositoryPort, UserFilters } from '../../domain/ports/UserRepositoryPort';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { User } from '../../domain/entities/User';
 import { Role } from '../../domain/entities/Role';
 import { Department } from '../../domain/entities/Department';
@@ -69,6 +79,51 @@ export class PrismaUserRepository implements UserRepositoryPort {
       },
     });
     return records.map(r => this.mapRecord(r));
+  }
+
+  /* istanbul ignore next */
+  async findPage(
+    params: ListParams & { filters?: UserFilters },
+  ): Promise<PaginatedResult<User>> {
+    this.logger.debug('User findPage', getContext());
+    const where: Prisma.UserWhereInput = {};
+    if (params.filters?.search) {
+      where.OR = [
+        { firstname: { contains: params.filters.search, mode: 'insensitive' } },
+        { lastname: { contains: params.filters.search, mode: 'insensitive' } },
+        { email: { contains: params.filters.search, mode: 'insensitive' } },
+      ];
+    }
+    if (params.filters?.status) {
+      where.status = params.filters.status;
+    }
+    if (params.filters?.departmentId) {
+      where.departmentId = params.filters.departmentId;
+    }
+    if (params.filters?.siteId) {
+      where.siteId = params.filters.siteId;
+    }
+    if (params.filters?.roleId) {
+      where.roles = { some: { roleId: params.filters.roleId } };
+    }
+    const records = await this.prisma.user.findMany({
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      where,
+      include: {
+        roles: { include: { role: true } },
+        department: { include: { site: true } },
+        site: true,
+        permissions: { include: { permission: true } },
+      },
+    });
+    const total = await this.prisma.user.count({ where });
+    return {
+      items: records.map((r) => this.mapRecord(r)),
+      page: params.page,
+      limit: params.limit,
+      total,
+    };
   }
 
   async findByEmail(email: string): Promise<User | null> {

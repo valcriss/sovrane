@@ -144,4 +144,13 @@ describe('PrismaDepartmentRepository', () => {
 
     expect(prisma.department.delete).toHaveBeenCalledWith({ where: { id: 'dept-1' } });
   });
+
+  it('should paginate departments', async () => {
+    prisma.department.findMany.mockResolvedValue([] as any);
+    prisma.department.count.mockResolvedValue(0 as any);
+    const result = await repo.findPage({ page: 1, limit: 10 });
+    expect(result).toEqual({ items: [], page: 1, limit: 10, total: 0 });
+    expect(prisma.department.findMany).toHaveBeenCalled();
+    expect(prisma.department.count).toHaveBeenCalled();
+  });
 });

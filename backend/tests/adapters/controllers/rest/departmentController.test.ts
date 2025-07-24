@@ -45,13 +45,13 @@ describe('Department REST controller', () => {
   });
 
   it('should list departments', async () => {
-    deptRepo.findAll.mockResolvedValue([department]);
+    deptRepo.findPage.mockResolvedValue({ items: [department], page: 1, limit: 20, total: 1 });
 
-    const res = await request(app).get('/api/departments');
+    const res = await request(app).get('/api/departments?page=1&limit=20');
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual([{ id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' }, permissions: [] }]);
-    expect(deptRepo.findAll).toHaveBeenCalled();
+    expect(res.body.items[0].id).toBe('d');
+    expect(deptRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { siteId: undefined } });
   });
 
   it('should get department by id', async () => {

@@ -51,11 +51,14 @@ describe('Group REST controller', () => {
   });
 
   it('should list groups', async () => {
+    groupRepo.findPage.mockResolvedValue({ items: [group], page: 1, limit: 20, total: 1 });
+
     const res = await request(app)
-      .get('/api/groups')
+      .get('/api/groups?page=1&limit=20')
       .set('Authorization', 'Bearer u');
     expect(res.status).toBe(200);
-    expect(groupRepo.findAll).toHaveBeenCalled();
+    expect(res.body.items[0].id).toBe('g');
+    expect(groupRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
   it('should forbid update when not responsible', async () => {
