@@ -22,6 +22,11 @@ import { AddDepartmentUserUseCase } from '../../../usecases/department/AddDepart
 import { RemoveDepartmentUserUseCase } from '../../../usecases/department/RemoveDepartmentUserUseCase';
 import { GetDepartmentsUseCase } from '../../../usecases/department/GetDepartmentsUseCase';
 import { GetDepartmentUseCase } from '../../../usecases/department/GetDepartmentUseCase';
+import { GetDepartmentChildrenUseCase } from '../../../usecases/department/GetDepartmentChildrenUseCase';
+import { GetDepartmentManagerUseCase } from '../../../usecases/department/GetDepartmentManagerUseCase';
+import { GetDepartmentParentUseCase } from '../../../usecases/department/GetDepartmentParentUseCase';
+import { GetDepartmentPermissionsUseCase } from '../../../usecases/department/GetDepartmentPermissionsUseCase';
+import { GetDepartmentUsersUseCase } from '../../../usecases/department/GetDepartmentUsersUseCase';
 
 /**
  * @openapi
@@ -218,6 +223,82 @@ export function createDepartmentRouter(
     }
     logger.debug('Department retrieved', getContext());
     res.json(department);
+  });
+
+  router.get('/departments/:id/children', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /departments/:id/children', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const useCase = new GetDepartmentChildrenUseCase(departmentRepository);
+    const result = await useCase.execute(req.params.id, {
+      page,
+      limit,
+      filters: {
+        siteId: req.query.siteId as string | undefined,
+        search: req.query.search as string | undefined,
+      },
+    });
+    logger.debug('Department children retrieved', getContext());
+    res.json(result);
+  });
+
+  router.get('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /departments/:id/manager', getContext());
+    const useCase = new GetDepartmentManagerUseCase(departmentRepository, userRepository);
+    const manager = await useCase.execute(req.params.id);
+    if (!manager) {
+      logger.warn('Department manager not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('Department manager retrieved', getContext());
+    res.json(manager);
+  });
+
+  router.get('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /departments/:id/parent', getContext());
+    const useCase = new GetDepartmentParentUseCase(departmentRepository);
+    const parent = await useCase.execute(req.params.id);
+    if (!parent) {
+      logger.warn('Department parent not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('Department parent retrieved', getContext());
+    res.json(parent);
+  });
+
+  router.get('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /departments/:id/permissions', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const useCase = new GetDepartmentPermissionsUseCase(departmentRepository);
+    const result = await useCase.execute(req.params.id, {
+      page,
+      limit,
+      filters: { search: req.query.search as string | undefined },
+    });
+    logger.debug('Department permissions retrieved', getContext());
+    res.json(result);
+  });
+
+  router.get('/departments/:id/users', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /departments/:id/users', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const useCase = new GetDepartmentUsersUseCase(userRepository);
+    const result = await useCase.execute(req.params.id, {
+      page,
+      limit,
+      filters: {
+        search: req.query.search as string | undefined,
+        status: req.query.status as 'active' | 'suspended' | 'archived' | undefined,
+        siteId: req.query.siteId as string | undefined,
+        roleId: req.query.roleId as string | undefined,
+      },
+    });
+    logger.debug('Department users retrieved', getContext());
+    res.json(result);
   });
 
   /**
