@@ -92,7 +92,6 @@ CREATE TABLE "UserGroup" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "description" TEXT,
-    "responsibleUserId" TEXT NOT NULL,
 
     CONSTRAINT "UserGroup_pkey" PRIMARY KEY ("id")
 );
@@ -103,6 +102,14 @@ CREATE TABLE "UserGroupMember" (
     "groupId" TEXT NOT NULL,
 
     CONSTRAINT "UserGroupMember_pkey" PRIMARY KEY ("userId","groupId")
+);
+
+-- CreateTable
+CREATE TABLE "UserGroupResponsible" (
+    "userId" TEXT NOT NULL,
+    "groupId" TEXT NOT NULL,
+
+    CONSTRAINT "UserGroupResponsible_pkey" PRIMARY KEY ("userId","groupId")
 );
 
 -- CreateTable
@@ -169,10 +176,13 @@ ALTER TABLE "DepartmentPermission" ADD CONSTRAINT "DepartmentPermission_departme
 ALTER TABLE "DepartmentPermission" ADD CONSTRAINT "DepartmentPermission_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "Permission"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserGroup" ADD CONSTRAINT "UserGroup_responsibleUserId_fkey" FOREIGN KEY ("responsibleUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "UserGroupMember" ADD CONSTRAINT "UserGroupMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "UserGroupMember" ADD CONSTRAINT "UserGroupMember_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "UserGroup"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserGroupResponsible" ADD CONSTRAINT "UserGroupResponsible_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserGroupResponsible" ADD CONSTRAINT "UserGroupResponsible_groupId_fkey" FOREIGN KEY ("groupId") REFERENCES "UserGroup"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
