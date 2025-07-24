@@ -206,11 +206,6 @@ export function createUserRouter(
    *     responses:
    *       200:
    *         description: Current user profile
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *                 $ref: '#/components/schemas/User'
    */
   router.get('/users/me', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users/me', getContext());
