@@ -28,6 +28,8 @@ model User {
   roles              UserRole[]
   permissions        UserPermission[]
   managedDepartments Department[] @relation("DepartmentManager")
+  groups            UserGroupMember[]
+  responsibleGroups UserGroup[] @relation("Responsible")
 }
 
 model Role {
@@ -101,4 +103,22 @@ model Site {
   label       String
   users       User[]
   departments Department[]
+}
+
+model UserGroup {
+  id               String   @id @default(uuid())
+  name             String
+  description      String?
+  responsibleUser  User     @relation("Responsible", fields: [responsibleUserId], references: [id])
+  responsibleUserId String
+  members          UserGroupMember[]
+}
+
+model UserGroupMember {
+  user     User      @relation(fields: [userId], references: [id])
+  userId   String
+  group    UserGroup @relation(fields: [groupId], references: [id])
+  groupId  String
+
+  @@id([userId, groupId])
 }
