@@ -122,3 +122,15 @@ model UserGroupMember {
 
   @@id([userId, groupId])
 }
+
+model Invitation {
+  id        String   @id @default(uuid())
+  email     String
+  token     String   @unique
+  firstName String?
+  lastName  String?
+  role      String?
+  status    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
