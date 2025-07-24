@@ -33,8 +33,8 @@ async function bootstrap(): Promise<void> {
     withContext({ requestId: randomUUID() }, () => next());
   });
 
-  app.use('/api', createUserRouter(authService, userRepository, logger));
   setupSwagger(app);
+  app.use('/api', createUserRouter(authService, userRepository, logger));
   
   const httpServer = http.createServer(app);
   const io = new SocketIOServer(httpServer);
