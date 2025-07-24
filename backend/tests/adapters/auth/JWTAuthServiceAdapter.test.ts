@@ -50,11 +50,36 @@ describe('JWTAuthServiceAdapter', () => {
     await expect(adapter.authenticate('bad', 'p')).rejects.toThrow('Invalid credentials');
   });
 
+  it('should reject suspended or archived users when authenticating', async () => {
+    user.status = 'suspended';
+    repo.findByEmail.mockResolvedValue(user);
+    await expect(adapter.authenticate('john@example.com', 'p')).rejects.toThrow(
+      'User account is suspended or archived',
+    );
+    user.status = 'archived';
+    await expect(adapter.authenticate('john@example.com', 'p')).rejects.toThrow(
+      'User account is suspended or archived',
+    );
+  });
+
   it('should throw on missing user', async () => {
     const token = jwt.sign({}, secret, { subject: 'u' });
     repo.findById.mockResolvedValue(null);
 
     await expect(adapter.verifyToken(token)).rejects.toThrow('Invalid token');
+  });
+
+  it('should reject suspended or archived users when verifying token', async () => {
+    const token = jwt.sign({}, secret, { subject: 'u' });
+    repo.findById.mockResolvedValue(user);
+    user.status = 'suspended';
+    await expect(adapter.verifyToken(token)).rejects.toThrow(
+      'User account is suspended or archived',
+    );
+    user.status = 'archived';
+    await expect(adapter.verifyToken(token)).rejects.toThrow(
+      'User account is suspended or archived',
+    );
   });
 
   it('should reject unsupported operations', async () => {

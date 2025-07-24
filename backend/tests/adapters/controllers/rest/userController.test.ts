@@ -124,6 +124,19 @@ describe('User REST controller', () => {
     expect(res.status).toBe(401);
   });
 
+  it('should return 403 when user account is suspended', async () => {
+    auth.authenticate.mockRejectedValue(
+      new Error('User account is suspended or archived'),
+    );
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'john@example.com', password: 'secret' });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe('User account is suspended or archived');
+  });
+
   it('should authenticate with provider', async () => {
     const res = await request(app)
       .post('/api/auth/provider')
@@ -141,6 +154,19 @@ describe('User REST controller', () => {
       .send({ provider: 'oidc', token: 'bad' });
 
     expect(res.status).toBe(401);
+  });
+
+  it('should return 403 when provider account is suspended', async () => {
+    auth.authenticateWithProvider.mockRejectedValue(
+      new Error('User account is suspended or archived'),
+    );
+
+    const res = await request(app)
+      .post('/api/auth/provider')
+      .send({ provider: 'oidc', token: 'bad' });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe('User account is suspended or archived');
   });
 
   it('should request password reset', async () => {
