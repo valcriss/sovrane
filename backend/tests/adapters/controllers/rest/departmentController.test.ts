@@ -64,6 +64,55 @@ describe('Department REST controller', () => {
     expect(deptRepo.findById).toHaveBeenCalledWith('d');
   });
 
+  it('should list child departments', async () => {
+    deptRepo.findAll.mockResolvedValue([department]);
+    const res = await request(app).get('/api/departments/d/children?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(deptRepo.findAll).toHaveBeenCalled();
+  });
+
+  it('should get department manager', async () => {
+    deptRepo.findById.mockResolvedValue(new Department('d','Dept',null,'u',site));
+    userRepo.findById.mockResolvedValue(user);
+    const res = await request(app).get('/api/departments/d/manager');
+    expect(res.status).toBe(200);
+    expect(userRepo.findById).toHaveBeenCalledWith('u');
+  });
+
+  it('should get department parent', async () => {
+    const child = new Department('d','Dept','p',null,site);
+    deptRepo.findById
+      .mockResolvedValueOnce(child)
+      .mockResolvedValueOnce(department);
+    const res = await request(app).get('/api/departments/d/parent');
+    expect(res.status).toBe(200);
+  });
+
+  it('should return 404 when manager missing', async () => {
+    deptRepo.findById.mockResolvedValue(department);
+    const res = await request(app).get('/api/departments/d/manager');
+    expect(res.status).toBe(404);
+  });
+
+  it('should return 404 when parent missing', async () => {
+    deptRepo.findById.mockResolvedValue(department);
+    const res = await request(app).get('/api/departments/d/parent');
+    expect(res.status).toBe(404);
+  });
+
+  it('should list department permissions', async () => {
+    deptRepo.findById.mockResolvedValue(department);
+    const res = await request(app).get('/api/departments/d/permissions?page=1&limit=20');
+    expect(res.status).toBe(200);
+  });
+
+  it('should list department users', async () => {
+    userRepo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
+    const res = await request(app).get('/api/departments/d/users?page=1&limit=20');
+    expect(res.status).toBe(200);
+    expect(userRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { departmentId: 'd', search: undefined, status: undefined, siteId: undefined, roleId: undefined } });
+  });
+
   it('should create a department', async () => {
     const res = await request(app)
       .post('/api/departments')
