@@ -4,6 +4,7 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { createUserRouter } from '../../../../adapters/controllers/rest/userController';
 import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
+import { AvatarServicePort } from '../../../../domain/ports/AvatarServicePort';
 
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
@@ -15,6 +16,7 @@ describe('User REST controller', () => {
   let app: express.Express;
   let auth: DeepMockProxy<AuthServicePort>;
   let repo: DeepMockProxy<UserRepositoryPort>;
+  let avatar: DeepMockProxy<AvatarServicePort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let user: User;
   let role: Role;
@@ -24,6 +26,7 @@ describe('User REST controller', () => {
   beforeEach(() => {
     auth = mockDeep<AuthServicePort>();
     repo = mockDeep<UserRepositoryPort>();
+    avatar = mockDeep<AvatarServicePort>();
     logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
@@ -40,7 +43,7 @@ describe('User REST controller', () => {
     auth.resetPassword.mockResolvedValue();
     app = express();
     app.use(express.json());
-    app.use('/api', createUserRouter(auth, repo, logger));
+    app.use('/api', createUserRouter(auth, repo, avatar, logger));
   });
 
   it('should return current user profile', async () => {
@@ -260,6 +263,25 @@ describe('User REST controller', () => {
 
     expect(res.status).toBe(204);
     expect(repo.delete).toHaveBeenCalledWith('u');
+  });
+
+  it('should upload user avatar', async () => {
+    const res = await request(app)
+      .post('/api/users/u/picture')
+      .set('Authorization', 'Bearer token')
+      .attach('file', Buffer.from('img'), 'avatar.png');
+
+    expect(res.status).toBe(204);
+    expect(avatar.setUserAvatar).toHaveBeenCalled();
+  });
+
+  it('should delete user avatar', async () => {
+    const res = await request(app)
+      .delete('/api/users/u/picture')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(204);
+    expect(avatar.removeUserAvatar).toHaveBeenCalledWith('u');
   });
   it('should list users with default pagination', async () => {
     const res = await request(app)
