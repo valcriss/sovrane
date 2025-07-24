@@ -19,6 +19,103 @@ import { Site } from '../../../domain/entities/Site';
 import { Permission } from '../../../domain/entities/Permission';
 
 /**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Site:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         label:
+ *           type: string
+ *       required:
+ *         - id
+ *         - label
+ *     Department:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         label:
+ *           type: string
+ *         parentDepartmentId:
+ *           type: string
+ *           nullable: true
+ *         managerUserId:
+ *           type: string
+ *           nullable: true
+ *         site:
+ *           $ref: '#/components/schemas/Site'
+ *       required:
+ *         - id
+ *         - label
+ *         - site
+ *     Permission:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         permissionKey:
+ *           type: string
+ *         description:
+ *           type: string
+ *       required:
+ *         - id
+ *         - permissionKey
+ *         - description
+ *     Role:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         label:
+ *           type: string
+ *         permissions:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Permission'
+ *       required:
+ *         - id
+ *         - label
+ *     User:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         firstName:
+ *           type: string
+ *         lastName:
+ *           type: string
+ *         email:
+ *           type: string
+ *         roles:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Role'
+ *         status:
+ *           type: string
+ *           enum: [active, suspended, archived]
+ *         department:
+ *           $ref: '#/components/schemas/Department'
+ *         site:
+ *           $ref: '#/components/schemas/Site'
+ *         picture:
+ *           type: string
+ *         permissions:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Permission'
+ *       required:
+ *         - id
+ *         - firstName
+ *         - lastName
+ *         - email
+ *         - department
+ *         - site
+ */
+
+/**
  * Create an Express router exposing user-related routes.
  *
  * @param authService - Service used to authenticate requests.
@@ -99,12 +196,24 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /users:
-   *   post:
-   *     summary: Register a new user.
+  * /users:
+  *   post:
+  *     summary: Register a new user.
+   *     tags:
+   *       - User
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/User'
    *     responses:
    *       201:
    *         description: User created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
    */
   router.post('/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /users', getContext());
@@ -116,12 +225,32 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /auth/login:
-   *   post:
-   *     summary: Authenticate a user with email and password.
+  * /auth/login:
+  *   post:
+  *     summary: Authenticate a user with email and password.
+   *     tags:
+   *       - User
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *             required:
+   *               - email
+   *               - password
    *     responses:
    *       200:
    *         description: Authenticated user
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
    */
   router.post('/auth/login', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/login', getContext());
@@ -139,12 +268,32 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /auth/provider:
-   *   post:
-   *     summary: Authenticate a user with an external provider.
+  * /auth/provider:
+  *   post:
+  *     summary: Authenticate a user with an external provider.
+   *     tags:
+   *       - User
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               provider:
+   *                 type: string
+   *               token:
+   *                 type: string
+   *             required:
+   *               - provider
+   *               - token
    *     responses:
    *       200:
    *         description: Authenticated user
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
    */
   router.post('/auth/provider', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/provider', getContext());
@@ -162,9 +311,22 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /auth/request-reset:
-   *   post:
-   *     summary: Request a password reset email.
+  * /auth/request-reset:
+  *   post:
+  *     summary: Request a password reset email.
+   *     tags:
+   *       - User
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *             required:
+   *               - email
    *     responses:
    *       204:
    *         description: Request accepted
@@ -180,9 +342,25 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /auth/reset:
-   *   post:
-   *     summary: Reset a user password.
+  * /auth/reset:
+  *   post:
+  *     summary: Reset a user password.
+   *     tags:
+   *       - User
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               token:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *             required:
+   *               - token
+   *               - password
    *     responses:
    *       204:
    *         description: Password reset
@@ -200,12 +378,20 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /users/me:
-   *   get:
-   *     summary: Returns the current user profile.
+  * /users/me:
+  *   get:
+  *     summary: Returns the current user profile.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Current user profile
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
    */
   router.get('/users/me', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users/me', getContext());
@@ -222,12 +408,26 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /users/{id}:
-   *   put:
-   *     summary: Update a user profile.
+  * /users/{id}:
+  *   put:
+  *     summary: Update a user profile.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/User'
    *     responses:
    *       200:
    *         description: Updated user
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
    */
   router.put('/users/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /users/:id', getContext());
@@ -240,12 +440,32 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /users/{id}/status:
-   *   put:
-   *     summary: Change user status.
+  * /users/{id}/status:
+  *   put:
+  *     summary: Change user status.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               status:
+   *                 type: string
+   *                 enum: [active, suspended, archived]
+   *             required:
+   *               - status
    *     responses:
    *       200:
    *         description: Updated user status
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
    */
   router.put('/users/:id/status', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /users/:id/status', getContext());
@@ -263,9 +483,13 @@ export function createUserRouter(
 
   /**
    * @openapi
-   * /users/{id}:
-   *   delete:
-   *     summary: Remove a user.
+  * /users/{id}:
+  *   delete:
+  *     summary: Remove a user.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       204:
    *         description: User removed

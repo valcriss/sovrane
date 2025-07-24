@@ -20,6 +20,58 @@ import { RemoveChildDepartmentUseCase } from '../../../usecases/department/Remov
 import { AddDepartmentUserUseCase } from '../../../usecases/department/AddDepartmentUserUseCase';
 import { RemoveDepartmentUserUseCase } from '../../../usecases/department/RemoveDepartmentUserUseCase';
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Site:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         label:
+ *           type: string
+ *       required:
+ *         - id
+ *         - label
+ *     Permission:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         permissionKey:
+ *           type: string
+ *         description:
+ *           type: string
+ *       required:
+ *         - id
+ *         - permissionKey
+ *         - description
+ *     Department:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         label:
+ *           type: string
+ *         parentDepartmentId:
+ *           type: string
+ *           nullable: true
+ *         managerUserId:
+ *           type: string
+ *           nullable: true
+ *         site:
+ *           $ref: '#/components/schemas/Site'
+ *         permissions:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Permission'
+ *       required:
+ *         - id
+ *         - label
+ *         - site
+ */
+
 interface DepartmentPayload {
   id: string;
   label: string;
@@ -55,9 +107,23 @@ export function createDepartmentRouter(
    * /departments:
    *   post:
    *     summary: Create a department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Department'
    *     responses:
    *       201:
    *         description: Department created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.post('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments', getContext());
@@ -69,12 +135,26 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}:
-   *   put:
-   *     summary: Update a department.
+  * /departments/{id}:
+  *   put:
+  *     summary: Update a department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Department'
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.put('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id', getContext());
@@ -87,12 +167,20 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/children/{childId}:
-   *   post:
-   *     summary: Add a child department.
+  * /departments/{id}/children/{childId}:
+  *   post:
+  *     summary: Add a child department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.post('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/children/:childId', getContext());
@@ -109,12 +197,20 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/children/{childId}:
-   *   delete:
-   *     summary: Remove a child department.
+  * /departments/{id}/children/{childId}:
+  *   delete:
+  *     summary: Remove a child department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.delete('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/children/:childId', getContext());
@@ -131,12 +227,31 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/manager:
-   *   put:
-   *     summary: Set department manager.
+  * /departments/{id}/manager:
+  *   put:
+  *     summary: Set department manager.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               userId:
+   *                 type: string
+   *             required:
+   *               - userId
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.put('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/manager', getContext());
@@ -153,12 +268,20 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/manager:
-   *   delete:
-   *     summary: Remove department manager.
+  * /departments/{id}/manager:
+  *   delete:
+  *     summary: Remove department manager.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.delete('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/manager', getContext());
@@ -175,12 +298,31 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/parent:
-   *   put:
-   *     summary: Set parent department.
+  * /departments/{id}/parent:
+  *   put:
+  *     summary: Set parent department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               parentId:
+   *                 type: string
+   *             required:
+   *               - parentId
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.put('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/parent', getContext());
@@ -197,12 +339,20 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/parent:
-   *   delete:
-   *     summary: Remove parent department.
+  * /departments/{id}/parent:
+  *   delete:
+  *     summary: Remove parent department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.delete('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/parent', getContext());
@@ -219,12 +369,26 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/permissions:
-   *   put:
-   *     summary: Add permission to department.
+  * /departments/{id}/permissions:
+  *   put:
+  *     summary: Add permission to department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Permission'
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.put('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/permissions', getContext());
@@ -242,12 +406,20 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/permissions/{permissionId}:
-   *   delete:
-   *     summary: Remove a permission from department.
+  * /departments/{id}/permissions/{permissionId}:
+  *   delete:
+  *     summary: Remove a permission from department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.delete('/departments/:id/permissions/:permissionId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/permissions/:permissionId', getContext());
@@ -264,12 +436,20 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/users/{userId}:
-   *   put:
-   *     summary: Attach user to department.
+  * /departments/{id}/users/{userId}:
+  *   put:
+  *     summary: Attach user to department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.put('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/users/:userId', getContext());
@@ -286,12 +466,20 @@ export function createDepartmentRouter(
 
   /**
    * @openapi
-   * /departments/{id}/users/{userId}:
-   *   delete:
-   *     summary: Detach user from department.
+  * /departments/{id}/users/{userId}:
+  *   delete:
+  *     summary: Detach user from department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       200:
    *         description: Updated department
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
    */
   router.delete('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/users/:userId', getContext());
@@ -309,11 +497,17 @@ export function createDepartmentRouter(
   /**
    * @openapi
    * /departments/{id}:
-   *   delete:
-   *     summary: Remove a department.
+  *   delete:
+  *     summary: Remove a department.
+   *     tags:
+   *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       204:
    *         description: Department deleted
+   *       400:
+   *         description: Operation failed
    */
   router.delete('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id', getContext());

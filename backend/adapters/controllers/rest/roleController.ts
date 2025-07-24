@@ -9,6 +9,39 @@ import { CreateRoleUseCase } from '../../../usecases/role/CreateRoleUseCase';
 import { UpdateRoleUseCase } from '../../../usecases/role/UpdateRoleUseCase';
 import { RemoveRoleUseCase } from '../../../usecases/role/RemoveRoleUseCase';
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Permission:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         permissionKey:
+ *           type: string
+ *         description:
+ *           type: string
+ *       required:
+ *         - id
+ *         - permissionKey
+ *         - description
+ *     Role:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         label:
+ *           type: string
+ *         permissions:
+ *           type: array
+ *           items:
+ *             $ref: '#/components/schemas/Permission'
+ *       required:
+ *         - id
+ *         - label
+ */
+
 interface RolePayload {
   id: string;
   label: string;
@@ -35,12 +68,26 @@ export function createRoleRouter(
 
   /**
    * @openapi
-   * /roles:
-   *   post:
-   *     summary: Create a role.
+  * /roles:
+  *   post:
+  *     summary: Create a role.
+   *     tags:
+   *       - Role
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Role'
    *     responses:
    *       201:
    *         description: Role created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Role'
    */
   router.post('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /roles', getContext());
@@ -52,12 +99,26 @@ export function createRoleRouter(
 
   /**
    * @openapi
-   * /roles/{id}:
-   *   put:
-   *     summary: Update a role.
+  * /roles/{id}:
+  *   put:
+  *     summary: Update a role.
+   *     tags:
+   *       - Role
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Role'
    *     responses:
    *       200:
    *         description: Updated role
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Role'
    */
   router.put('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /roles/:id', getContext());
@@ -70,12 +131,18 @@ export function createRoleRouter(
 
   /**
    * @openapi
-   * /roles/{id}:
-   *   delete:
-   *     summary: Remove a role.
+  * /roles/{id}:
+  *   delete:
+  *     summary: Remove a role.
+   *     tags:
+   *       - Role
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       204:
    *         description: Role deleted
+   *       400:
+   *         description: Operation failed
    */
   router.delete('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /roles/:id', getContext());
