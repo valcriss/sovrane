@@ -229,6 +229,58 @@ export function createGroupRouter(
     res.json(group);
   });
 
+  /**
+   * @openapi
+   * /groups/{id}/users:
+   *   get:
+   *     summary: List users of a group.
+   *     description: Returns the paginated members of the specified group.
+   *     tags: [UserGroup]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Group identifier.
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of users per page.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Search term on the user name.
+   *     responses:
+   *       200:
+   *         description: Paginated list of group members.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/User'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+   */
   router.get('/groups/:id/users', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/users', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -242,6 +294,58 @@ export function createGroupRouter(
     res.json(result);
   });
 
+  /**
+   * @openapi
+   * /groups/{id}/responsibles:
+   *   get:
+   *     summary: List responsible users of a group.
+   *     description: Returns the paginated list of responsible users managing the group.
+   *     tags: [UserGroup]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Group identifier.
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of users per page.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Search term on the user name.
+   *     responses:
+   *       200:
+   *         description: Paginated list of responsible users.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/User'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+   */
   router.get('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/responsibles', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -412,6 +516,44 @@ export function createGroupRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /groups/{id}/responsibles:
+   *   post:
+   *     summary: Add responsible user to group.
+   *     description: Adds a user as responsible for the group. Only an existing responsible user can manage responsibles.
+   *     tags: [UserGroup]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Group identifier.
+   *     requestBody:
+   *       description: User identifier to add as responsible.
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               userId:
+   *                 type: string
+   *                 description: Identifier of the user.
+   *             required: [userId]
+   *     responses:
+   *       200:
+   *         description: Updated group.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/UserGroup'
+   *       403:
+   *         description: Forbidden.
+   */
   router.post('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('POST /groups/:id/responsibles', getContext());
     const group = await groupRepository.findById(req.params.id);
@@ -492,6 +634,44 @@ export function createGroupRouter(
     res.json(updated);
   });
 
+  /**
+   * @openapi
+   * /groups/{id}/responsibles:
+   *   delete:
+   *     summary: Remove responsible user from group.
+   *     description: Removes a responsible user from the group. Only an existing responsible user can manage responsibles.
+   *     tags: [UserGroup]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Group identifier.
+   *     requestBody:
+   *       description: User identifier to remove from responsible users.
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               userId:
+   *                 type: string
+   *                 description: Identifier of the user.
+   *             required: [userId]
+   *     responses:
+   *       200:
+   *         description: Updated group.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/UserGroup'
+   *       403:
+   *         description: Forbidden.
+   */
   router.delete('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('DELETE /groups/:id/responsibles', getContext());
     const group = await groupRepository.findById(req.params.id);
