@@ -8,8 +8,25 @@ import { getContext } from '../../infrastructure/loggerContext';
 export class ConsoleEmailServiceAdapter implements EmailServicePort {
   constructor(private readonly logger: LoggerPort) {}
 
-  async sendMail(to: string, subject: string, body: string): Promise<void> {
+  async sendMail(options: {
+    to: string;
+    subject: string;
+    template?: string;
+    variables?: Record<string, unknown>;
+    text?: string;
+    html?: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    attachments?: any[];
+  }): Promise<void> {
+    const { to, subject, template, text, html } = options;
     this.logger.info(`Sending email to ${to} subject: ${subject}`, getContext());
-    this.logger.debug(body, getContext());
+    if (template) {
+      this.logger.debug(`Using template ${template}`, getContext());
+    }
+    if (html) {
+      this.logger.debug(html, getContext());
+    } else if (text) {
+      this.logger.debug(text, getContext());
+    }
   }
 }

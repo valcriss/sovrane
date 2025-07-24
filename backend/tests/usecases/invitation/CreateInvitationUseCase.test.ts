@@ -39,11 +39,11 @@ describe('CreateInvitationUseCase', () => {
 
     expect(result.email).toBe('new@test.com');
     expect(invitationRepo.create).toHaveBeenCalled();
-    expect(email.sendMail).toHaveBeenCalledWith(
-      'new@test.com',
-      'Account invitation',
-      expect.stringContaining(result.token),
-    );
+    expect(email.sendMail).toHaveBeenCalledWith({
+      to: 'new@test.com',
+      subject: 'Account invitation',
+      text: expect.stringContaining(result.token),
+    });
   });
 
   it('should throw when user exists', async () => {

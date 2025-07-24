@@ -39,7 +39,7 @@ describe('Invitation REST controller', () => {
     invitationRepo.create.mockImplementation(async (i) => i);
 
     const res = await request(app)
-      .post('/api/users/invite')
+      .post('/api/invitations/invite')
       .set('Authorization', 'Bearer token')
       .send({ email: 'new@test.com' });
 
@@ -54,7 +54,7 @@ describe('Invitation REST controller', () => {
     );
 
     const res = await request(app)
-      .post('/api/users/invite')
+      .post('/api/invitations/invite')
       .set('Authorization', 'Bearer token')
       .send({ email: 'a' });
 
@@ -66,7 +66,7 @@ describe('Invitation REST controller', () => {
       new Invitation('a', 't', 'pending', new Date(Date.now() + 1000)),
     );
 
-    const res = await request(app).get('/api/users/invite/t');
+    const res = await request(app).get('/api/invitations/invite/t');
 
     expect(res.status).toBe(200);
     expect(res.body.email).toBe('a');
@@ -75,7 +75,7 @@ describe('Invitation REST controller', () => {
   it('should return 404 when invitation not found', async () => {
     invitationRepo.findByToken.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/users/invite/none');
+    const res = await request(app).get('/api/invitations/invite/none');
 
     expect(res.status).toBe(404);
   });
