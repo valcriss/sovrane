@@ -20,12 +20,12 @@ export function createInvitationRouter(
 
   /**
    * @openapi
-   * /users/invite/{token}:
+   * /invitations/invite/{token}:
    *   get:
    *     summary: Get invitation information by token
    *     description: >
    *       Retrieves the invitation details linked to the provided token. Used to validate the invitation and pre-fill onboarding fields.
-   *     tags: [User]
+   *     tags: [Invitation]
    *     parameters:
    *       - in: path
    *         name: token
@@ -55,8 +55,8 @@ export function createInvitationRouter(
    *       400:
    *         description: Invalid token parameter.
    */
-  router.get('/users/invite/:token', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('GET /users/invite/:token', getContext());
+  router.get('/invitations/invite/:token', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /invitations/invite/:token', getContext());
     const { token } = req.params;
     if (!token) {
       res.status(400).end();
@@ -97,12 +97,12 @@ export function createInvitationRouter(
 
   /**
    * @openapi
-   * /users/invite:
+   * /invitations/invite:
    *   post:
    *     summary: Invite a new user by email
    *     description: >
    *       Sends an invitation email with an activation link to a new user. Only administrators can invite users.
-   *     tags: [User]
+   *     tags: [Invitation]
    *     security:
    *       - bearerAuth: []
    *     requestBody:
@@ -135,8 +135,8 @@ export function createInvitationRouter(
    *       400:
    *         description: Invalid request.
    */
-  router.post('/users/invite', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('POST /users/invite', getContext());
+  router.post('/invitations/invite', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('POST /invitations/invite', getContext());
     const { email, firstName, lastName, role } = req.body as {
       email?: string;
       firstName?: string;
