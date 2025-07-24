@@ -239,6 +239,8 @@ export function createDepartmentRouter(
    *       Retrieves a paginated list of departments that have the given department as parent.
    *     tags:
    *       - Department
+   *     security:
+   *     - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -310,6 +312,8 @@ export function createDepartmentRouter(
    *     description: Returns the user managing the department.
    *     tags:
    *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -348,6 +352,8 @@ export function createDepartmentRouter(
    *     description: Returns the parent department if any.
    *     tags:
    *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -386,6 +392,8 @@ export function createDepartmentRouter(
    *     description: Returns a paginated list of permissions attached to the department.
    *     tags:
    *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
@@ -449,6 +457,8 @@ export function createDepartmentRouter(
    *     description: Returns a paginated list of users belonging to the department.
    *     tags:
    *       - Department
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: id
