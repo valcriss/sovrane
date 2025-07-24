@@ -14,12 +14,15 @@ import { getContext } from '../../../infrastructure/loggerContext';
  * components:
  *   schemas:
  *     Site:
+ *       description: Physical office or facility managed by the organization.
  *       type: object
  *       properties:
  *         id:
  *           type: string
+ *           description: Unique identifier of the site.
  *         label:
  *           type: string
+ *           description: Human readable name of the site.
  *       required:
  *         - id
  *         - label
@@ -43,21 +46,25 @@ export function createSiteRouter(
   /**
    * @openapi
   * /sites:
-  *   post:
-  *     summary: Create a site.
-   *     tags:
-   *       - Site
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   post:
+ *     summary: Create a site.
+ *     description: |
+ *       Adds a new physical site to the system. Authentication is required and
+ *       the caller must have administrator privileges.
+ *     tags:
+ *       - Site
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: Site information to create.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Site'
    *     responses:
-   *       201:
-   *         description: Site created
+ *       201:
+ *         description: Newly created site
    *         content:
    *           application/json:
    *             schema:
@@ -75,21 +82,31 @@ export function createSiteRouter(
   /**
    * @openapi
   * /sites/{id}:
-  *   put:
-  *     summary: Update a site.
-   *     tags:
-   *       - Site
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   put:
+ *     summary: Update a site.
+ *     description: Modify the label of an existing site. Requires
+ *       administrator privileges.
+ *     tags:
+ *       - Site
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the site to update.
+ *     requestBody:
+ *       description: New site data.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Site'
    *     responses:
-   *       200:
-   *         description: Updated site
+ *       200:
+ *         description: Site after update
    *         content:
    *           application/json:
    *             schema:
@@ -108,17 +125,27 @@ export function createSiteRouter(
   /**
    * @openapi
   * /sites/{id}:
-  *   delete:
-  *     summary: Remove a site.
-   *     tags:
-   *       - Site
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       204:
-   *         description: Site deleted
-   *       400:
-   *         description: Operation failed
+ *   delete:
+ *     summary: Remove a site.
+ *     description: |
+ *       Deletes a site. The operation fails when users or departments are still
+ *       attached to it. Requires administrator privileges.
+ *     tags:
+ *       - Site
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the site to delete.
+ *     responses:
+ *       204:
+ *         description: Site successfully deleted
+ *       400:
+ *         description: Operation failed due to existing attachments
    */
   router.delete('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /sites/:id', getContext());

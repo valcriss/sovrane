@@ -25,45 +25,59 @@ import { RemoveDepartmentUserUseCase } from '../../../usecases/department/Remove
  * components:
  *   schemas:
  *     Site:
+ *       description: Location that hosts departments within the organization.
  *       type: object
  *       properties:
  *         id:
  *           type: string
+ *           description: Unique identifier of the site.
  *         label:
  *           type: string
+ *           description: Human readable name of the site.
  *       required:
  *         - id
  *         - label
  *     Permission:
+ *       description: Capability that can be granted to a department.
  *       type: object
  *       properties:
  *         id:
  *           type: string
+ *           description: Unique identifier of the permission.
  *         permissionKey:
  *           type: string
+ *           description: Machine readable key used to check access.
  *         description:
  *           type: string
+ *           description: Human readable explanation of the permission.
  *       required:
  *         - id
  *         - permissionKey
  *         - description
  *     Department:
+ *       description: Organizational division containing users and permissions.
  *       type: object
  *       properties:
  *         id:
  *           type: string
+ *           description: Unique identifier of the department.
  *         label:
  *           type: string
+ *           description: Department name.
  *         parentDepartmentId:
  *           type: string
  *           nullable: true
+ *           description: Identifier of the parent department when nested.
  *         managerUserId:
  *           type: string
  *           nullable: true
+ *           description: User responsible for the department.
  *         site:
  *           $ref: '#/components/schemas/Site'
+ *           description: Site where the department is located.
  *         permissions:
  *           type: array
+ *           description: Permissions granted to the department.
  *           items:
  *             $ref: '#/components/schemas/Permission'
  *       required:
@@ -105,21 +119,25 @@ export function createDepartmentRouter(
   /**
    * @openapi
    * /departments:
-   *   post:
-   *     summary: Create a department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   post:
+ *     summary: Create a department.
+ *     description: |
+ *       Creates a new department within a site. Authentication with
+ *       administrator privileges is required.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: Department information to create.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Department'
    *     responses:
-   *       201:
-   *         description: Department created
+ *       201:
+ *         description: Newly created department
    *         content:
    *           application/json:
    *             schema:
@@ -136,21 +154,30 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}:
-  *   put:
-  *     summary: Update a department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   put:
+ *     summary: Update a department.
+ *     description: Modify a department's label, parent, manager or permissions.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department to update.
+ *     requestBody:
+ *       description: Updated department information.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Department'
    *     responses:
-   *       200:
-   *         description: Updated department
+ *       200:
+ *         description: Department after update
    *         content:
    *           application/json:
    *             schema:
@@ -168,15 +195,31 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/children/{childId}:
-  *   post:
-  *     summary: Add a child department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: Updated department
+ *   post:
+ *     summary: Add a child department.
+ *     description: |
+ *       Attaches an existing department as a child of another department.
+ *       Requires authentication with administrative rights.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the parent department.
+ *       - in: path
+ *         name: childId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the child department to attach.
+ *     responses:
+ *       200:
+ *         description: Department with new child attached
    *         content:
    *           application/json:
    *             schema:
@@ -198,15 +241,31 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/children/{childId}:
-  *   delete:
-  *     summary: Remove a child department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: Updated department
+ *   delete:
+ *     summary: Remove a child department.
+ *     description: |
+ *       Detaches a child department from its parent. Authentication and
+ *       administrative privileges are required.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the parent department.
+ *       - in: path
+ *         name: childId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the child department to detach.
+ *     responses:
+ *       200:
+ *         description: Department without the removed child
    *         content:
    *           application/json:
    *             schema:
@@ -228,14 +287,25 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/manager:
-  *   put:
-  *     summary: Set department manager.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   put:
+ *     summary: Set department manager.
+ *     description: |
+ *       Assigns a user as the manager of the department. Requires
+ *       administrator privileges.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department.
+ *     requestBody:
+ *       description: User identifier to set as manager.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
@@ -246,8 +316,8 @@ export function createDepartmentRouter(
    *             required:
    *               - userId
    *     responses:
-   *       200:
-   *         description: Updated department
+ *       200:
+ *         description: Department with manager assigned
    *         content:
    *           application/json:
    *             schema:
@@ -269,15 +339,25 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/manager:
-  *   delete:
-  *     summary: Remove department manager.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: Updated department
+ *   delete:
+ *     summary: Remove department manager.
+ *     description: |
+ *       Clears the manager of the department. The caller must be authenticated
+ *       as an administrator.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department.
+ *     responses:
+ *       200:
+ *         description: Department without manager
    *         content:
    *           application/json:
    *             schema:
@@ -299,14 +379,25 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/parent:
-  *   put:
-  *     summary: Set parent department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   put:
+ *     summary: Set parent department.
+ *     description: |
+ *       Defines the parent department for hierarchical organization. Requires
+ *       administrator privileges.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department to update.
+ *     requestBody:
+ *       description: Identifier of the new parent department.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
@@ -317,8 +408,8 @@ export function createDepartmentRouter(
    *             required:
    *               - parentId
    *     responses:
-   *       200:
-   *         description: Updated department
+ *       200:
+ *         description: Department with updated parent
    *         content:
    *           application/json:
    *             schema:
@@ -340,15 +431,25 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/parent:
-  *   delete:
-  *     summary: Remove parent department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: Updated department
+ *   delete:
+ *     summary: Remove parent department.
+ *     description: |
+ *       Detaches the department from its current parent. Administrator
+ *       authentication is required.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department.
+ *     responses:
+ *       200:
+ *         description: Department without parent
    *         content:
    *           application/json:
    *             schema:
@@ -370,21 +471,32 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/permissions:
-  *   put:
-  *     summary: Add permission to department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   put:
+ *     summary: Add permission to department.
+ *     description: |
+ *       Grants a specific permission to the department. Administrator
+ *       authentication is required.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department to update.
+ *     requestBody:
+ *       description: Permission data to add.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Permission'
    *     responses:
-   *       200:
-   *         description: Updated department
+ *       200:
+ *         description: Department with new permission
    *         content:
    *           application/json:
    *             schema:
@@ -407,15 +519,31 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/permissions/{permissionId}:
-  *   delete:
-  *     summary: Remove a permission from department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: Updated department
+ *   delete:
+ *     summary: Remove a permission from department.
+ *     description: |
+ *       Revokes a previously granted permission from the department.
+ *       Administrator authentication is required.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department.
+ *       - in: path
+ *         name: permissionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the permission to remove.
+ *     responses:
+ *       200:
+ *         description: Department after permission removal
    *         content:
    *           application/json:
    *             schema:
@@ -437,15 +565,31 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/users/{userId}:
-  *   put:
-  *     summary: Attach user to department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: Updated department
+ *   put:
+ *     summary: Attach user to department.
+ *     description: |
+ *       Adds an existing user to the specified department. Requires
+ *       administrative privileges.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the target department.
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the user to attach.
+ *     responses:
+ *       200:
+ *         description: Department with user attached
    *         content:
    *           application/json:
    *             schema:
@@ -467,15 +611,31 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/users/{userId}:
-  *   delete:
-  *     summary: Detach user from department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: Updated department
+ *   delete:
+ *     summary: Detach user from department.
+ *     description: |
+ *       Removes the association between a user and a department. Requires
+ *       administrator authentication.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department.
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the user to detach.
+ *     responses:
+ *       200:
+ *         description: Department after user removal
    *         content:
    *           application/json:
    *             schema:
@@ -497,17 +657,27 @@ export function createDepartmentRouter(
   /**
    * @openapi
    * /departments/{id}:
-  *   delete:
-  *     summary: Remove a department.
-   *     tags:
-   *       - Department
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       204:
-   *         description: Department deleted
-   *       400:
-   *         description: Operation failed
+ *   delete:
+ *     summary: Remove a department.
+ *     description: |
+ *       Permanently deletes a department. The operation fails if users are
+ *       still attached. Requires administrator privileges.
+ *     tags:
+ *       - Department
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the department to delete.
+ *     responses:
+ *       204:
+ *         description: Department successfully deleted
+ *       400:
+ *         description: Operation failed
    */
   router.delete('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id', getContext());

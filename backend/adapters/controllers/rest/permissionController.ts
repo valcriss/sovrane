@@ -12,14 +12,18 @@ import { RemovePermissionUseCase } from '../../../usecases/permission/RemovePerm
  * components:
  *   schemas:
  *     Permission:
+ *       description: Individual capability that can be granted to roles or users.
  *       type: object
  *       properties:
  *         id:
  *           type: string
+ *           description: Unique identifier of the permission.
  *         permissionKey:
  *           type: string
+ *           description: Machine readable key used in access checks.
  *         description:
  *           type: string
+ *           description: Human readable explanation of the permission.
  *       required:
  *         - id
  *         - permissionKey
@@ -46,21 +50,25 @@ export function createPermissionRouter(
   /**
    * @openapi
   * /permissions:
-  *   post:
-  *     summary: Create a permission.
-   *     tags:
-   *       - Permission
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   post:
+ *     summary: Create a permission.
+ *     description: |
+ *       Registers a new permission in the system. Only authenticated
+ *       administrators should use this endpoint.
+ *     tags:
+ *       - Permission
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: Permission details to create.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Permission'
    *     responses:
-   *       201:
-   *         description: Permission created
+ *       201:
+ *         description: Newly created permission
    *         content:
    *           application/json:
    *             schema:
@@ -77,21 +85,30 @@ export function createPermissionRouter(
   /**
    * @openapi
   * /permissions/{id}:
-  *   put:
-  *     summary: Update a permission.
-   *     tags:
-   *       - Permission
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   put:
+ *     summary: Update a permission.
+ *     description: Modify the key or description of an existing permission.
+ *     tags:
+ *       - Permission
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the permission to update.
+ *     requestBody:
+ *       description: Updated permission information.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Permission'
    *     responses:
-   *       200:
-   *         description: Updated permission
+ *       200:
+ *         description: Permission after update
    *         content:
    *           application/json:
    *             schema:
@@ -109,15 +126,24 @@ export function createPermissionRouter(
   /**
    * @openapi
   * /permissions/{id}:
-  *   delete:
-  *     summary: Remove a permission.
-   *     tags:
-   *       - Permission
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       204:
-   *         description: Permission removed
+ *   delete:
+ *     summary: Remove a permission.
+ *     description: Deletes an existing permission. It should no longer be
+ *       referenced by any role before calling this endpoint.
+ *     tags:
+ *       - Permission
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the permission to delete.
+ *     responses:
+ *       204:
+ *         description: Permission successfully removed
    */
   router.delete('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /permissions/:id', getContext());
