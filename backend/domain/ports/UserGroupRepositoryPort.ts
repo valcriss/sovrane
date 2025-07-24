@@ -1,5 +1,7 @@
 import { UserGroup } from '../entities/UserGroup';
+import { User } from '../entities/User';
 import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
+import { UserFilters } from './UserRepositoryPort';
 
 /**
  * Filters for listing user groups.
@@ -76,4 +78,46 @@ export interface UserGroupRepositoryPort {
    * @returns The updated {@link UserGroup} or `null` if not found.
    */
   removeUser(groupId: string, userId: string): Promise<UserGroup | null>;
+
+  /**
+   * Add a responsible user to the group.
+   *
+   * @param groupId - Identifier of the group.
+   * @param userId - Identifier of the user to add as responsible.
+   * @returns The updated {@link UserGroup} or `null` if not found.
+   */
+  addResponsible(groupId: string, userId: string): Promise<UserGroup | null>;
+
+  /**
+   * Remove a responsible user from the group.
+   *
+   * @param groupId - Identifier of the group.
+   * @param userId - Identifier of the user to remove from responsibles.
+   * @returns The updated {@link UserGroup} or `null` if not found.
+   */
+  removeResponsible(groupId: string, userId: string): Promise<UserGroup | null>;
+
+  /**
+   * Retrieve members of the group with optional filters.
+   *
+   * @param groupId - Identifier of the group.
+   * @param params - Pagination and user filters.
+   * @returns Paginated list of {@link User}.
+   */
+  listMembers(
+    groupId: string,
+    params: ListParams & { filters?: UserFilters },
+  ): Promise<PaginatedResult<User>>;
+
+  /**
+   * Retrieve responsible users of the group with optional filters.
+   *
+   * @param groupId - Identifier of the group.
+   * @param params - Pagination and user filters.
+   * @returns Paginated list of responsible {@link User}.
+   */
+  listResponsibles(
+    groupId: string,
+    params: ListParams & { filters?: UserFilters },
+  ): Promise<PaginatedResult<User>>;
 }

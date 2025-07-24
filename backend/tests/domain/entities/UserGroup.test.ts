@@ -16,14 +16,14 @@ describe('UserGroup Entity', () => {
     department = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role');
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
-    group = new UserGroup('g', 'Group', user, [user], 'desc');
+    group = new UserGroup('g', 'Group', [user], [user], 'desc');
   });
 
   it('should construct a group with all properties', () => {
     expect(group.id).toBe('g');
     expect(group.name).toBe('Group');
     expect(group.description).toBe('desc');
-    expect(group.responsibleUser).toBe(user);
+    expect(group.responsibleUsers).toEqual([user]);
     expect(group.members).toEqual([user]);
   });
 
@@ -38,8 +38,9 @@ describe('UserGroup Entity', () => {
   });
 
   it('should use defaults when optional params omitted', () => {
-    const g = new UserGroup('id', 'label', user);
+    const g = new UserGroup('id', 'label');
     expect(g.members).toEqual([]);
+    expect(g.responsibleUsers).toEqual([]);
     expect(g.description).toBeUndefined();
   });
 });

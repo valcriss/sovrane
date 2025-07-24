@@ -26,7 +26,7 @@ describe('PrismaUserGroupRepository', () => {
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
-    group = new UserGroup('g', 'Group', user, [user]);
+    group = new UserGroup('g', 'Group', [user], [user]);
   });
 
   it('should create a group', async () => {
@@ -34,8 +34,7 @@ describe('PrismaUserGroupRepository', () => {
       id: 'g',
       name: 'Group',
       description: null,
-      responsibleUserId: 'u',
-      responsibleUser: {
+      responsibles: [{ user: {
         id: 'u',
         firstname: 'John',
         lastname: 'Doe',
@@ -45,7 +44,7 @@ describe('PrismaUserGroupRepository', () => {
         department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, siteId: 's', site: { id: 's', label: 'Site' } },
         site: { id: 's', label: 'Site' },
         permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
-      },
+      }}],
       members: [] as any,
     } as any);
 
@@ -59,7 +58,7 @@ describe('PrismaUserGroupRepository', () => {
         id: 'g',
         name: 'Group',
         description: null,
-        responsibleUser: {
+        responsibles: [{ user: {
           id: 'u',
           firstname: 'John',
           lastname: 'Doe',
@@ -69,7 +68,7 @@ describe('PrismaUserGroupRepository', () => {
           department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
           site: { id: 's', label: 'Site' },
           permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
-        },
+        }}],
         members: [] as any,
       },
     ] as any);
@@ -82,7 +81,7 @@ describe('PrismaUserGroupRepository', () => {
       id: 'g',
       name: 'Group',
       description: null,
-      responsibleUser: {
+      responsibles: [{ user: {
         id: 'u',
         firstname: 'John',
         lastname: 'Doe',
@@ -92,7 +91,7 @@ describe('PrismaUserGroupRepository', () => {
         department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
         site: { id: 's', label: 'Site' },
         permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
-      },
+      }}],
       members: [{ user: { id: 'u', firstname: 'John', lastname: 'Doe', email: 'john@example.com', roles: [{ role: { id: 'r', label: 'Role' } }], status: 'active', department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' }, permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }] } }],
     } as any);
 
@@ -115,7 +114,7 @@ describe('PrismaUserGroupRepository', () => {
       id: 'g',
       name: 'New',
       description: null,
-      responsibleUser: {
+      responsibles: [{ user: {
         id: 'u',
         firstname: 'John',
         lastname: 'Doe',
@@ -125,7 +124,7 @@ describe('PrismaUserGroupRepository', () => {
         department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
         site: { id: 's', label: 'Site' },
         permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
-      },
+      }}],
       members: [] as any,
     } as any);
 
@@ -160,6 +159,42 @@ describe('PrismaUserGroupRepository', () => {
 
     expect(result).toBe(group);
     expect((prisma as any).userGroupMember.delete).toHaveBeenCalledWith({ where: { userId_groupId: { userId: 'u', groupId: 'g' } } });
+  });
+
+  it('should add responsible to group', async () => {
+    (prisma as any).userGroupResponsible.create.mockResolvedValue({});
+    jest.spyOn(repo, 'findById').mockResolvedValue(group);
+
+    const result = await repo.addResponsible('g', 'u');
+
+    expect(result).toBe(group);
+    expect((prisma as any).userGroupResponsible.create).toHaveBeenCalledWith({ data: { groupId: 'g', userId: 'u' } });
+  });
+
+  it('should remove responsible from group', async () => {
+    (prisma as any).userGroupResponsible.delete.mockResolvedValue({});
+    jest.spyOn(repo, 'findById').mockResolvedValue(group);
+
+    const result = await repo.removeResponsible('g', 'u');
+
+    expect(result).toBe(group);
+    expect((prisma as any).userGroupResponsible.delete).toHaveBeenCalledWith({ where: { userId_groupId: { userId: 'u', groupId: 'g' } } });
+  });
+
+  it('should list members', async () => {
+    (prisma as any).user.findMany.mockResolvedValue([]);
+    (prisma as any).user.count.mockResolvedValue(0);
+    const result = await repo.listMembers('g', { page: 1, limit: 5 });
+    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect((prisma as any).user.findMany).toHaveBeenCalled();
+  });
+
+  it('should list responsibles', async () => {
+    (prisma as any).user.findMany.mockResolvedValue([]);
+    (prisma as any).user.count.mockResolvedValue(0);
+    const result = await repo.listResponsibles('g', { page: 1, limit: 5 });
+    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect((prisma as any).user.findMany).toHaveBeenCalled();
   });
 
   it('should paginate groups', async () => {

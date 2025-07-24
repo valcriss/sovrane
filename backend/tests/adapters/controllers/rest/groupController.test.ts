@@ -30,7 +30,7 @@ describe('Group REST controller', () => {
     dept = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role');
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
-    group = new UserGroup('g', 'Group', user, [user]);
+    group = new UserGroup('g', 'Group', [user], [user]);
     groupRepo.create.mockResolvedValue(group);
     groupRepo.findAll.mockResolvedValue([group]);
     groupRepo.findById.mockResolvedValue(group);
@@ -45,7 +45,7 @@ describe('Group REST controller', () => {
     const res = await request(app)
       .post('/api/groups')
       .set('Authorization', 'Bearer u')
-      .send({ id: 'g', name: 'Group' });
+      .send({ id: 'g', name: 'Group', responsibleIds: ['u'] });
     expect(res.status).toBe(201);
     expect(groupRepo.create).toHaveBeenCalled();
   });
