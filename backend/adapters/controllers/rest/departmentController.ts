@@ -31,6 +31,11 @@ import { GetDepartmentUsersUseCase } from '../../../usecases/department/GetDepar
 /**
  * @openapi
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Site:
  *       description: Location that hosts departments within the organization.

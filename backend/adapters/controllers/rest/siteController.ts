@@ -15,6 +15,11 @@ import { getContext } from '../../../infrastructure/loggerContext';
 /**
  * @openapi
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Site:
  *       description: Physical office or facility managed by the organization.

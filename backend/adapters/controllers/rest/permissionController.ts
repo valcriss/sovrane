@@ -13,6 +13,11 @@ import { GetPermissionUseCase } from '../../../usecases/permission/GetPermission
 /**
  * @openapi
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Permission:
  *       description: Individual capability that can be granted to roles or users.

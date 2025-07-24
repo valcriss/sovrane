@@ -9,6 +9,16 @@ import { GetInvitationUseCase } from '../../../usecases/invitation/GetInvitation
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { getContext } from '../../../infrastructure/loggerContext';
 
+/**
+ * @openapi
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ **/
+
 export function createInvitationRouter(
   authService: AuthServicePort,
   userRepository: UserRepositoryPort,

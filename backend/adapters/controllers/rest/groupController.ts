@@ -20,6 +20,11 @@ import { GetGroupResponsiblesUseCase } from '../../../usecases/userGroup/GetGrou
 /**
  * @openapi
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     UserGroup:
  *       description: A group of users with a responsible user and members.

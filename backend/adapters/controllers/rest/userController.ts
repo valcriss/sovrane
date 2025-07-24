@@ -27,6 +27,11 @@ import { Permission } from '../../../domain/entities/Permission';
 /**
  * @openapi
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Site:
  *       description: Physical location where users and departments operate.

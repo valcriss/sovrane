@@ -15,6 +15,11 @@ import { GetRoleUseCase } from '../../../usecases/role/GetRoleUseCase';
 /**
  * @openapi
  * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
  *   schemas:
  *     Permission:
  *       description: Individual capability that can be assigned to a role.
