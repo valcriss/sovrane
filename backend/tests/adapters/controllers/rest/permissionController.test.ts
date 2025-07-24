@@ -24,6 +24,26 @@ describe('Permission REST controller', () => {
     app.use('/api', createPermissionRouter(repo, logger));
   });
 
+  it('should list permissions', async () => {
+    repo.findAll.mockResolvedValue([permission]);
+
+    const res = await request(app).get('/api/permissions');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ id: 'p', permissionKey: 'KEY', description: 'desc' }]);
+    expect(repo.findAll).toHaveBeenCalled();
+  });
+
+  it('should get permission by id', async () => {
+    repo.findById.mockResolvedValue(permission);
+
+    const res = await request(app).get('/api/permissions/p');
+
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe('p');
+    expect(repo.findById).toHaveBeenCalledWith('p');
+  });
+
   it('should create a permission', async () => {
     const res = await request(app)
       .post('/api/permissions')

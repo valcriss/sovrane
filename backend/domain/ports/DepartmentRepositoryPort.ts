@@ -13,6 +13,13 @@ export interface DepartmentRepositoryPort {
   findById(id: string): Promise<Department | null>;
 
   /**
+   * Retrieve all departments.
+   *
+   * @returns Array of all {@link Department} instances.
+   */
+  findAll(): Promise<Department[]>;
+
+  /**
    * Retrieve a department by its label.
    *
    * @param label - Label of the department to search for.

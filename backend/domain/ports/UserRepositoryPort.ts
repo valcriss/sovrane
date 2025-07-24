@@ -13,6 +13,13 @@ export interface UserRepositoryPort {
   findById(id: string): Promise<User | null>;
 
   /**
+   * Retrieve all users.
+   *
+   * @returns Array of every stored {@link User}.
+   */
+  findAll(): Promise<User[]>;
+
+  /**
    * Retrieve a user by their email address.
    *
    * @param email - Email to search for.

@@ -23,6 +23,12 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
     return record ? this.mapRecord(record) : null;
   }
 
+  async findAll(): Promise<Role[]> {
+    this.logger.debug('Role findAll', getContext());
+    const records = await this.prisma.role.findMany();
+    return records.map(r => this.mapRecord(r));
+  }
+
   async findByLabel(label: string): Promise<Role | null> {
     this.logger.debug('Role findByLabel', getContext());
     const record = await this.prisma.role.findFirst({ where: { label } });

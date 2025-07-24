@@ -14,6 +14,10 @@ class MockPermissionRepository implements PermissionRepositoryPort {
     return id ? this.permissions.get(id) || null : null;
   }
 
+  async findAll(): Promise<Permission[]> {
+    return Array.from(this.permissions.values());
+  }
+
   async create(permission: Permission): Promise<Permission> {
     this.permissions.set(permission.id, permission);
     this.keyIndex.set(permission.permissionKey, permission.id);
@@ -62,6 +66,7 @@ describe('PermissionRepositoryPort Interface', () => {
     await repo.create(perm);
     expect(await repo.findById('perm-1')).toEqual(perm);
     expect(await repo.findByKey('READ')).toEqual(perm);
+    expect(await repo.findAll()).toEqual([perm]);
   });
 
   it('should update an existing permission', async () => {
@@ -77,5 +82,12 @@ describe('PermissionRepositoryPort Interface', () => {
     await repo.create(perm);
     await repo.delete('perm-1');
     expect(await repo.findById('perm-1')).toBeNull();
+  });
+
+  it('should list all permissions', async () => {
+    await repo.create(perm);
+    const perm2 = new Permission('perm-2', 'WRITE', 'Write');
+    await repo.create(perm2);
+    expect(await repo.findAll()).toEqual([perm, perm2]);
   });
 });

@@ -13,6 +13,13 @@ export interface PermissionRepositoryPort {
   findById(id: string): Promise<Permission | null>;
 
   /**
+   * Retrieve all permissions.
+   *
+   * @returns Array of all available {@link Permission} instances.
+   */
+  findAll(): Promise<Permission[]>;
+
+  /**
    * Retrieve a permission by its key.
    *
    * @param permissionKey - Key of the permission to search for.

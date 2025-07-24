@@ -15,6 +15,10 @@ class MockDepartmentRepository implements DepartmentRepositoryPort {
     return id ? this.depts.get(id) || null : null;
   }
 
+  async findAll(): Promise<Department[]> {
+    return Array.from(this.depts.values());
+  }
+
   async create(dept: Department): Promise<Department> {
     this.depts.set(dept.id, dept);
     this.labelIndex.set(dept.label, dept.id);
@@ -76,6 +80,7 @@ describe('DepartmentRepositoryPort Interface', () => {
     expect(await repo.findById('dept-1')).toEqual(dept);
     expect(await repo.findByLabel('IT')).toEqual(dept);
     expect((await repo.findById('dept-1'))?.site).toBe(site);
+    expect(await repo.findAll()).toEqual([dept]);
   });
 
   it('should update an existing department', async () => {
@@ -95,6 +100,13 @@ describe('DepartmentRepositoryPort Interface', () => {
 
     const result = await repo.findBySiteId('site-1');
     expect(result).toEqual([dept]);
+  });
+
+  it('should list all departments', async () => {
+    await repo.create(dept);
+    const dept2 = new Department('dept-2', 'HR', null, null, site);
+    await repo.create(dept2);
+    expect(await repo.findAll()).toEqual([dept, dept2]);
   });
 
   it('should delete a department', async () => {

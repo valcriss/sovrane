@@ -30,6 +30,12 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
     return record ? this.mapRecord(record) : null;
   }
 
+  async findAll(): Promise<Department[]> {
+    this.logger.debug('Department findAll', getContext());
+    const records = await this.prisma.department.findMany({ include: { site: true } });
+    return records.map(r => this.mapRecord(r));
+  }
+
   async findByLabel(label: string): Promise<Department | null> {
     this.logger.debug('Department findByLabel', getContext());
     const record = await this.prisma.department.findFirst({ where: { label }, include: { site: true } });

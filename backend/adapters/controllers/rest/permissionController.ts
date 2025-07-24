@@ -6,6 +6,8 @@ import { Permission } from '../../../domain/entities/Permission';
 import { CreatePermissionUseCase } from '../../../usecases/permission/CreatePermissionUseCase';
 import { UpdatePermissionUseCase } from '../../../usecases/permission/UpdatePermissionUseCase';
 import { RemovePermissionUseCase } from '../../../usecases/permission/RemovePermissionUseCase';
+import { GetPermissionsUseCase } from '../../../usecases/permission/GetPermissionsUseCase';
+import { GetPermissionUseCase } from '../../../usecases/permission/GetPermissionUseCase';
 
 /**
  * @openapi
@@ -46,6 +48,74 @@ export function createPermissionRouter(
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
+
+  /**
+   * @openapi
+   * /permissions:
+   *   get:
+   *     summary: Get all permissions
+   *     description: Returns the list of all permissions.
+   *     tags:
+   *       - Permission
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Array of permission objects.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Permission'
+   */
+  router.get('/permissions', async (_req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /permissions', getContext());
+    const useCase = new GetPermissionsUseCase(repository);
+    const permissions = await useCase.execute();
+    logger.debug('Permissions retrieved', getContext());
+    res.json(permissions);
+  });
+
+  /**
+   * @openapi
+   * /permissions/{id}:
+   *   get:
+   *     summary: Get permission by ID
+   *     description: Returns detailed information about a specific permission.
+   *     tags:
+   *       - Permission
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Unique identifier of the permission.
+   *     responses:
+   *       200:
+   *         description: Permission details.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Permission'
+   *       404:
+   *         description: Permission not found.
+   */
+  router.get('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /permissions/:id', getContext());
+    const useCase = new GetPermissionUseCase(repository);
+    const permission = await useCase.execute(req.params.id);
+    if (!permission) {
+      logger.warn('Permission not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('Permission retrieved', getContext());
+    res.json(permission);
+  });
 
   /**
    * @openapi

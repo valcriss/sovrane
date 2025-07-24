@@ -8,6 +8,8 @@ import { Permission } from '../../../domain/entities/Permission';
 import { CreateRoleUseCase } from '../../../usecases/role/CreateRoleUseCase';
 import { UpdateRoleUseCase } from '../../../usecases/role/UpdateRoleUseCase';
 import { RemoveRoleUseCase } from '../../../usecases/role/RemoveRoleUseCase';
+import { GetRolesUseCase } from '../../../usecases/role/GetRolesUseCase';
+import { GetRoleUseCase } from '../../../usecases/role/GetRoleUseCase';
 
 /**
  * @openapi
@@ -73,6 +75,74 @@ export function createRoleRouter(
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
+
+  /**
+   * @openapi
+   * /roles:
+   *   get:
+   *     summary: Get all roles
+   *     description: Returns the list of all roles.
+   *     tags:
+   *       - Role
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Array of role objects.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Role'
+   */
+  router.get('/roles', async (_req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /roles', getContext());
+    const useCase = new GetRolesUseCase(roleRepository);
+    const roles = await useCase.execute();
+    logger.debug('Roles retrieved', getContext());
+    res.json(roles);
+  });
+
+  /**
+   * @openapi
+   * /roles/{id}:
+   *   get:
+   *     summary: Get role by ID
+   *     description: Returns detailed information about a specific role.
+   *     tags:
+   *       - Role
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Unique identifier of the role.
+   *     responses:
+   *       200:
+   *         description: Role details.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Role'
+   *       404:
+   *         description: Role not found.
+   */
+  router.get('/roles/:id', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /roles/:id', getContext());
+    const useCase = new GetRoleUseCase(roleRepository);
+    const role = await useCase.execute(req.params.id);
+    if (!role) {
+      logger.warn('Role not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('Role retrieved', getContext());
+    res.json(role);
+  });
 
   /**
    * @openapi

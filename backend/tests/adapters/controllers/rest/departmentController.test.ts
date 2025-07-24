@@ -44,6 +44,26 @@ describe('Department REST controller', () => {
     app.use('/api', createDepartmentRouter(deptRepo, userRepo, logger));
   });
 
+  it('should list departments', async () => {
+    deptRepo.findAll.mockResolvedValue([department]);
+
+    const res = await request(app).get('/api/departments');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([{ id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' }, permissions: [] }]);
+    expect(deptRepo.findAll).toHaveBeenCalled();
+  });
+
+  it('should get department by id', async () => {
+    deptRepo.findById.mockResolvedValue(department);
+
+    const res = await request(app).get('/api/departments/d');
+
+    expect(res.status).toBe(200);
+    expect(res.body.id).toBe('d');
+    expect(deptRepo.findById).toHaveBeenCalledWith('d');
+  });
+
   it('should create a department', async () => {
     const res = await request(app)
       .post('/api/departments')

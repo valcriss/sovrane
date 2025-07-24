@@ -13,6 +13,13 @@ export interface SiteRepositoryPort {
   findById(id: string): Promise<Site | null>;
 
   /**
+   * Retrieve all sites.
+   *
+   * @returns Array of registered {@link Site} instances.
+   */
+  findAll(): Promise<Site[]>;
+
+  /**
    * Retrieve a site by its label.
    *
    * @param label - Label of the site to search for.

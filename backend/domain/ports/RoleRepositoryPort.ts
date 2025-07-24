@@ -13,6 +13,13 @@ export interface RoleRepositoryPort {
   findById(id: string): Promise<Role | null>;
 
   /**
+   * Retrieve all roles.
+   *
+   * @returns Array of available {@link Role} instances.
+   */
+  findAll(): Promise<Role[]>;
+
+  /**
    * Retrieve a role by its label.
    *
    * @param label - Label of the role to search for.

@@ -5,6 +5,8 @@ import { DepartmentRepositoryPort } from '../../../domain/ports/DepartmentReposi
 import { CreateSiteUseCase } from '../../../usecases/site/CreateSiteUseCase';
 import { UpdateSiteUseCase } from '../../../usecases/site/UpdateSiteUseCase';
 import { RemoveSiteUseCase } from '../../../usecases/site/RemoveSiteUseCase';
+import { GetSitesUseCase } from '../../../usecases/site/GetSitesUseCase';
+import { GetSiteUseCase } from '../../../usecases/site/GetSiteUseCase';
 import { Site } from '../../../domain/entities/Site';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { getContext } from '../../../infrastructure/loggerContext';
@@ -42,6 +44,74 @@ export function createSiteRouter(
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
+
+  /**
+   * @openapi
+   * /sites:
+   *   get:
+   *     summary: Get all sites
+   *     description: Returns the list of all sites.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Array of site objects.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 $ref: '#/components/schemas/Site'
+   */
+  router.get('/sites', async (_req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /sites', getContext());
+    const useCase = new GetSitesUseCase(siteRepository);
+    const sites = await useCase.execute();
+    logger.debug('Sites retrieved', getContext());
+    res.json(sites);
+  });
+
+  /**
+   * @openapi
+   * /sites/{id}:
+   *   get:
+   *     summary: Get site by ID
+   *     description: Returns detailed information about a specific site.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Unique identifier of the site.
+   *     responses:
+   *       200:
+   *         description: Site details.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Site'
+   *       404:
+   *         description: Site not found.
+   */
+  router.get('/sites/:id', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /sites/:id', getContext());
+    const useCase = new GetSiteUseCase(siteRepository);
+    const site = await useCase.execute(req.params.id);
+    if (!site) {
+      logger.warn('Site not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('Site retrieved', getContext());
+    res.json(site);
+  });
 
   /**
    * @openapi
