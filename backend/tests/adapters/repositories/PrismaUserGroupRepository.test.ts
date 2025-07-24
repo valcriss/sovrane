@@ -40,11 +40,11 @@ describe('PrismaUserGroupRepository', () => {
         firstname: 'John',
         lastname: 'Doe',
         email: 'john@example.com',
-        roles: [],
+        roles: [{ role: { id: 'r', label: 'Role' } }],
         status: 'active',
         department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, siteId: 's', site: { id: 's', label: 'Site' } },
         site: { id: 's', label: 'Site' },
-        permissions: [],
+        permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
       },
       members: [] as any,
     } as any);
@@ -54,8 +54,111 @@ describe('PrismaUserGroupRepository', () => {
   });
 
   it('should return all groups', async () => {
-    (prisma as any).userGroup.findMany.mockResolvedValue([] as any);
+    (prisma as any).userGroup.findMany.mockResolvedValue([
+      {
+        id: 'g',
+        name: 'Group',
+        description: null,
+        responsibleUser: {
+          id: 'u',
+          firstname: 'John',
+          lastname: 'Doe',
+          email: 'john@example.com',
+          roles: [{ role: { id: 'r', label: 'Role' } }],
+          status: 'active',
+          department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
+          site: { id: 's', label: 'Site' },
+          permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
+        },
+        members: [] as any,
+      },
+    ] as any);
     await repo.findAll();
     expect((prisma as any).userGroup.findMany).toHaveBeenCalled();
+  });
+
+  it('should find group by id', async () => {
+    (prisma as any).userGroup.findUnique.mockResolvedValue({
+      id: 'g',
+      name: 'Group',
+      description: null,
+      responsibleUser: {
+        id: 'u',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john@example.com',
+        roles: [{ role: { id: 'r', label: 'Role' } }],
+        status: 'active',
+        department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
+        site: { id: 's', label: 'Site' },
+        permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
+      },
+      members: [{ user: { id: 'u', firstname: 'John', lastname: 'Doe', email: 'john@example.com', roles: [{ role: { id: 'r', label: 'Role' } }], status: 'active', department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' }, permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }] } }],
+    } as any);
+
+    const result = await repo.findById('g');
+
+    expect(result?.id).toBe('g');
+    expect((prisma as any).userGroup.findUnique).toHaveBeenCalled();
+  });
+
+  it('should return null when group not found', async () => {
+    (prisma as any).userGroup.findUnique.mockResolvedValue(null);
+
+    const result = await repo.findById('missing');
+
+    expect(result).toBeNull();
+  });
+
+  it('should update a group', async () => {
+    (prisma as any).userGroup.update.mockResolvedValue({
+      id: 'g',
+      name: 'New',
+      description: null,
+      responsibleUser: {
+        id: 'u',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john@example.com',
+        roles: [{ role: { id: 'r', label: 'Role' } }],
+        status: 'active',
+        department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
+        site: { id: 's', label: 'Site' },
+        permissions: [{ permission: { id: 'p', permissionKey: 'KEY', description: 'desc' } }],
+      },
+      members: [] as any,
+    } as any);
+
+    await repo.update(group);
+
+    expect((prisma as any).userGroup.update).toHaveBeenCalled();
+  });
+
+  it('should delete a group', async () => {
+    (prisma as any).userGroup.delete.mockResolvedValue(undefined as any);
+
+    await repo.delete('g');
+
+    expect((prisma as any).userGroup.delete).toHaveBeenCalledWith({ where: { id: 'g' } });
+  });
+
+  it('should add user to group', async () => {
+    (prisma as any).userGroupMember.create.mockResolvedValue({});
+    jest.spyOn(repo, 'findById').mockResolvedValue(group);
+
+    const result = await repo.addUser('g', 'u');
+
+    expect(result).toBe(group);
+    expect((prisma as any).userGroupMember.create).toHaveBeenCalledWith({ data: { groupId: 'g', userId: 'u' } });
+  });
+
+  it('should remove user from group', async () => {
+    (prisma as any).userGroupMember.delete.mockResolvedValue({});
+    jest.spyOn(repo, 'findById').mockResolvedValue(group);
+
+    const result = await repo.removeUser('g', 'u');
+
+    expect(result).toBe(group);
+    expect((prisma as any).userGroupMember.delete).toHaveBeenCalledWith({ where: { userId_groupId: { userId: 'u', groupId: 'g' } } });
   });
 });
