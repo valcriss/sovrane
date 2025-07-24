@@ -231,7 +231,7 @@ describe('Department REST controller', () => {
 
   it('should add permission', async () => {
     const res = await request(app)
-      .put('/api/departments/d/permissions')
+      .post('/api/departments/d/permissions')
       .send({ id: 'p', permissionKey: 'P', description: 'desc' });
 
     expect(res.status).toBe(200);
@@ -242,7 +242,7 @@ describe('Department REST controller', () => {
     deptRepo.findById.mockResolvedValueOnce(null);
 
     const res = await request(app)
-      .put('/api/departments/d/permissions')
+      .post('/api/departments/d/permissions')
       .send({ id: 'p', permissionKey: 'P', description: 'desc' });
 
     expect(res.status).toBe(404);
@@ -264,7 +264,7 @@ describe('Department REST controller', () => {
   });
 
   it('should add user to department', async () => {
-    const res = await request(app).put('/api/departments/d/users/u');
+    const res = await request(app).post('/api/departments/d/users/u');
 
     expect(res.status).toBe(200);
     expect(userRepo.update).toHaveBeenCalled();
@@ -273,7 +273,7 @@ describe('Department REST controller', () => {
   it('should return 404 when department missing for user add', async () => {
     deptRepo.findById.mockResolvedValueOnce(null);
 
-    const res = await request(app).put('/api/departments/d/users/u');
+    const res = await request(app).post('/api/departments/d/users/u');
 
     expect(res.status).toBe(404);
   });
@@ -281,7 +281,7 @@ describe('Department REST controller', () => {
   it('should return 404 when user missing for add', async () => {
     userRepo.findById.mockResolvedValueOnce(null);
 
-    const res = await request(app).put('/api/departments/d/users/u');
+    const res = await request(app).post('/api/departments/d/users/u');
 
     expect(res.status).toBe(404);
   });

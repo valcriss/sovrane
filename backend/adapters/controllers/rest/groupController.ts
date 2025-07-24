@@ -362,7 +362,7 @@ export function createGroupRouter(
   /**
    * @openapi
    * /groups/{id}:
-   *   patch:
+   *   put:
    *     summary: Update a group.
    *     description: Updates group information. Only the responsible user can modify it.
    *     tags: [UserGroup]
@@ -399,8 +399,8 @@ export function createGroupRouter(
    *       403:
    *         description: Forbidden.
    */
-  router.patch('/groups/:id', async (req, res): Promise<void> => {
-    logger.debug('PATCH /groups/:id', getContext());
+  router.put('/groups/:id', async (req, res): Promise<void> => {
+    logger.debug('PUT /groups/:id', getContext());
     const group = await groupRepository.findById(req.params.id);
     if (!group) {
       res.status(404).end();

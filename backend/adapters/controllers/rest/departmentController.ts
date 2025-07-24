@@ -555,7 +555,7 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}:
- *   put:
+ *   post:
  *     summary: Update a department.
  *     description: Modify a department's label, parent, manager or permissions.
  *     tags:
@@ -688,7 +688,7 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/manager:
- *   put:
+ *   post:
  *     summary: Set department manager.
  *     description: |
  *       Assigns a user as the manager of the department. Requires
@@ -780,7 +780,7 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/parent:
- *   put:
+ *   post:
  *     summary: Set parent department.
  *     description: |
  *       Defines the parent department for hierarchical organization. Requires
@@ -872,7 +872,7 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/permissions:
- *   put:
+ *   post:
  *     summary: Add permission to department.
  *     description: |
  *       Grants a specific permission to the department. Administrator
@@ -903,8 +903,8 @@ export function createDepartmentRouter(
    *             schema:
    *               $ref: '#/components/schemas/Department'
    */
-  router.put('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('PUT /departments/:id/permissions', getContext());
+  router.post('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('POST /departments/:id/permissions', getContext());
     const useCase = new SetDepartmentPermissionUseCase(departmentRepository);
     const permission = new Permission(req.body.id, req.body.permissionKey, req.body.description);
     const updated = await useCase.execute(req.params.id, permission);
@@ -966,7 +966,7 @@ export function createDepartmentRouter(
   /**
    * @openapi
   * /departments/{id}/users/{userId}:
- *   put:
+ *   post:
  *     summary: Attach user to department.
  *     description: |
  *       Adds an existing user to the specified department. Requires
@@ -996,8 +996,8 @@ export function createDepartmentRouter(
    *             schema:
    *               $ref: '#/components/schemas/Department'
    */
-  router.put('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('PUT /departments/:id/users/:userId', getContext());
+  router.post('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('POST /departments/:id/users/:userId', getContext());
     const useCase = new AddDepartmentUserUseCase(userRepository, departmentRepository);
     const updated = await useCase.execute(req.params.userId, req.params.id);
     if (!updated) {

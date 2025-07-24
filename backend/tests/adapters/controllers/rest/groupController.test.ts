@@ -65,7 +65,7 @@ describe('Group REST controller', () => {
     const other = new User('x', 'Jane', 'Doe', 'jane@example.com', [role], 'active', dept, site);
     userRepo.findById.mockResolvedValueOnce(other);
     const res = await request(app)
-      .patch('/api/groups/g')
+      .put('/api/groups/g')
       .set('Authorization', 'Bearer x')
       .send({ name: 'New' });
     expect(res.status).toBe(403);
