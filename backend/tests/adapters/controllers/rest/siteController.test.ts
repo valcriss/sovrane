@@ -90,4 +90,17 @@ describe('Site REST controller', () => {
     expect(res.status).toBe(400);
     expect(siteRepo.delete).not.toHaveBeenCalled();
   });
+  it('should list sites with default pagination', async () => {
+    siteRepo.findPage.mockResolvedValue({ items: [site], page: 1, limit: 20, total: 1 });
+    const res = await request(app).get('/api/sites');
+    expect(res.status).toBe(200);
+    expect(siteRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
+  });
+
+  it('should return 404 when site not found', async () => {
+    siteRepo.findById.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/sites/unknown');
+    expect(res.status).toBe(404);
+  });
+
 });

@@ -82,4 +82,13 @@ describe('PrismaSiteRepository', () => {
     expect(prisma.site.findMany).toHaveBeenCalled();
     expect(prisma.site.count).toHaveBeenCalled();
   });
+
+  it('should return all sites', async () => {
+    prisma.site.findMany.mockResolvedValue([
+      { id: 'site-1', label: 'HQ' } as any,
+    ]);
+    const result = await repo.findAll();
+    expect(result).toEqual([site]);
+    expect(prisma.site.findMany).toHaveBeenCalledWith();
+  });
 });

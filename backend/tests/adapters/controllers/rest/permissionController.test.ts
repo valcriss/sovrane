@@ -68,4 +68,17 @@ describe('Permission REST controller', () => {
     expect(res.status).toBe(204);
     expect(repo.delete).toHaveBeenCalledWith('p');
   });
+  it('should list permissions with default pagination', async () => {
+    repo.findPage.mockResolvedValue({ items: [permission], page: 1, limit: 20, total: 1 });
+    const res = await request(app).get('/api/permissions');
+    expect(res.status).toBe(200);
+    expect(repo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
+  });
+
+  it('should return 404 when permission not found', async () => {
+    repo.findById.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/permissions/unknown');
+    expect(res.status).toBe(404);
+  });
+
 });

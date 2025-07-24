@@ -830,4 +830,42 @@ describe('PrismaUserRepository', () => {
     expect(prismaClient.user.findMany).toHaveBeenCalled();
     expect(prismaClient.user.count).toHaveBeenCalled();
   });
+
+  it('should return all users', async () => {
+    prismaClient.user.findMany.mockResolvedValue([
+      {
+        id: 'u',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john@example.com',
+        status: 'active',
+        departmentId: 'dept-1',
+        siteId: 'site-1',
+        department: {
+          id: 'dept-1',
+          label: 'IT',
+          parentDepartmentId: null,
+          managerUserId: null,
+          siteId: 'site-1',
+          site: { id: 'site-1', label: 'HQ' },
+        },
+        site: { id: 'site-1', label: 'HQ' },
+        picture: null,
+        permissions: [],
+        roles: [],
+      },
+    ] as any);
+
+    const result = await repository.findAll();
+
+    expect(result).toHaveLength(1);
+    expect(prismaClient.user.findMany).toHaveBeenCalledWith({
+      include: {
+        roles: { include: { role: true } },
+        department: { include: { site: true } },
+        site: true,
+        permissions: { include: { permission: true } },
+      },
+    });
+  });
 });

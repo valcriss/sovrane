@@ -102,4 +102,13 @@ describe('PrismaRoleRepository', () => {
     expect(prisma.role.findMany).toHaveBeenCalled();
     expect(prisma.role.count).toHaveBeenCalled();
   });
+
+  it('should return all roles', async () => {
+    prisma.role.findMany.mockResolvedValue([
+      { id: 'role-1', label: 'Admin', permissions: [] } as any,
+    ]);
+    const result = await repository.findAll();
+    expect(result).toEqual([role]);
+    expect(prisma.role.findMany).toHaveBeenCalledWith();
+  });
 });

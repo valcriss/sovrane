@@ -153,4 +153,22 @@ describe('PrismaDepartmentRepository', () => {
     expect(prisma.department.findMany).toHaveBeenCalled();
     expect(prisma.department.count).toHaveBeenCalled();
   });
+
+  it('should return all departments', async () => {
+    prisma.department.findMany.mockResolvedValue([
+      {
+        id: 'dept-1',
+        label: 'IT',
+        parentDepartmentId: null,
+        managerUserId: 'user-1',
+        siteId: 'site-1',
+        site: { id: 'site-1', label: 'HQ' },
+      } as any,
+    ]);
+
+    const result = await repo.findAll();
+
+    expect(result).toEqual([dept]);
+    expect(prisma.department.findMany).toHaveBeenCalledWith({ include: { site: true } });
+  });
 });

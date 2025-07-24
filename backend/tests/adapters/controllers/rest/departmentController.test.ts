@@ -267,4 +267,17 @@ describe('Department REST controller', () => {
     expect(res.status).toBe(400);
     expect(deptRepo.delete).not.toHaveBeenCalled();
   });
+  it('should list departments with default pagination', async () => {
+    deptRepo.findPage.mockResolvedValue({ items: [department], page: 1, limit: 20, total: 1 });
+    const res = await request(app).get('/api/departments');
+    expect(res.status).toBe(200);
+    expect(deptRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { siteId: undefined } });
+  });
+
+  it('should return 404 when department not found by id', async () => {
+    deptRepo.findById.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/departments/unknown');
+    expect(res.status).toBe(404);
+  });
+
 });
