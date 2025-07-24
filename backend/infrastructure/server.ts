@@ -4,6 +4,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { randomUUID } from 'crypto';
 
 import { createUserRouter } from '../adapters/controllers/rest/userController';
+import { createInvitationRouter } from '../adapters/controllers/rest/invitationController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -38,7 +39,24 @@ async function bootstrap(): Promise<void> {
   });
 
   setupSwagger(app);
-  app.use('/api', createUserRouter(authService, userRepository, invitationRepository, emailService, logger));
+  app.use(
+    '/api',
+    createInvitationRouter(
+      authService,
+      userRepository,
+      invitationRepository,
+      emailService,
+      logger,
+    ),
+  );
+  app.use(
+    '/api',
+    createUserRouter(
+      authService,
+      userRepository,
+      logger,
+    ),
+  );
   
   const httpServer = http.createServer(app);
   const io = new SocketIOServer(httpServer);
