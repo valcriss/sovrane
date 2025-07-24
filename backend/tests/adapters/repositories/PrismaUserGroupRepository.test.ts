@@ -182,18 +182,58 @@ describe('PrismaUserGroupRepository', () => {
   });
 
   it('should list members', async () => {
-    (prisma as any).user.findMany.mockResolvedValue([]);
-    (prisma as any).user.count.mockResolvedValue(0);
+    (prisma as any).user.findMany.mockResolvedValue([{}]);
+    (prisma as any).user.count.mockResolvedValue(1);
+    jest.spyOn(repo as any, 'mapUser').mockReturnValue(user);
     const result = await repo.listMembers('g', { page: 1, limit: 5 });
-    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect(result).toEqual({ items: [user], page: 1, limit: 5, total: 1 });
+    expect((prisma as any).user.findMany).toHaveBeenCalled();
+  });
+
+  it('should list members with filters', async () => {
+    (prisma as any).user.findMany.mockResolvedValue([{}]);
+    (prisma as any).user.count.mockResolvedValue(1);
+    jest.spyOn(repo as any, 'mapUser').mockReturnValue(user);
+    const result = await repo.listMembers('g', {
+      page: 1,
+      limit: 5,
+      filters: {
+        search: 'john',
+        status: 'active',
+        departmentId: 'd',
+        siteId: 's',
+        roleId: 'r',
+      },
+    });
+    expect(result).toEqual({ items: [user], page: 1, limit: 5, total: 1 });
     expect((prisma as any).user.findMany).toHaveBeenCalled();
   });
 
   it('should list responsibles', async () => {
-    (prisma as any).user.findMany.mockResolvedValue([]);
-    (prisma as any).user.count.mockResolvedValue(0);
+    (prisma as any).user.findMany.mockResolvedValue([{}]);
+    (prisma as any).user.count.mockResolvedValue(1);
+    jest.spyOn(repo as any, 'mapUser').mockReturnValue(user);
     const result = await repo.listResponsibles('g', { page: 1, limit: 5 });
-    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect(result).toEqual({ items: [user], page: 1, limit: 5, total: 1 });
+    expect((prisma as any).user.findMany).toHaveBeenCalled();
+  });
+
+  it('should list responsibles with filters', async () => {
+    (prisma as any).user.findMany.mockResolvedValue([{}]);
+    (prisma as any).user.count.mockResolvedValue(1);
+    jest.spyOn(repo as any, 'mapUser').mockReturnValue(user);
+    const result = await repo.listResponsibles('g', {
+      page: 1,
+      limit: 5,
+      filters: {
+        search: 'john',
+        status: 'active',
+        departmentId: 'd',
+        siteId: 's',
+        roleId: 'r',
+      },
+    });
+    expect(result).toEqual({ items: [user], page: 1, limit: 5, total: 1 });
     expect((prisma as any).user.findMany).toHaveBeenCalled();
   });
 

@@ -225,6 +225,61 @@ export function createDepartmentRouter(
     res.json(department);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/children:
+   *   get:
+   *     summary: List child departments
+   *     description: >
+   *       Retrieves a paginated list of departments that have the given department as parent.
+   *     tags:
+   *       - Department
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the parent department.
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *       - in: query
+   *         name: siteId
+   *         schema:
+   *           type: string
+   *         description: Filter children by site.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Filter by label.
+   *     responses:
+   *       200:
+   *         description: Paginated list of child departments.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Department'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+   */
   router.get('/departments/:id/children', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/children', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -242,6 +297,31 @@ export function createDepartmentRouter(
     res.json(result);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/manager:
+   *   get:
+   *     summary: Get department manager
+   *     description: Returns the user managing the department.
+   *     tags:
+   *       - Department
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the department.
+   *     responses:
+   *       200:
+   *         description: Manager information.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/User'
+   *       404:
+   *         description: Manager not found.
+   */
   router.get('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/manager', getContext());
     const useCase = new GetDepartmentManagerUseCase(departmentRepository, userRepository);
@@ -255,6 +335,31 @@ export function createDepartmentRouter(
     res.json(manager);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/parent:
+   *   get:
+   *     summary: Get parent department
+   *     description: Returns the parent department if any.
+   *     tags:
+   *       - Department
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the department.
+   *     responses:
+   *       200:
+   *         description: Parent department information.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Department'
+   *       404:
+   *         description: Parent department not found.
+   */
   router.get('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/parent', getContext());
     const useCase = new GetDepartmentParentUseCase(departmentRepository);
@@ -268,6 +373,55 @@ export function createDepartmentRouter(
     res.json(parent);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/permissions:
+   *   get:
+   *     summary: List department permissions
+   *     description: Returns a paginated list of permissions attached to the department.
+   *     tags:
+   *       - Department
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the department.
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Filter permissions by key or description.
+   *     responses:
+   *       200:
+   *         description: Paginated permissions list.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Permission'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+   */
   router.get('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/permissions', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -282,6 +436,68 @@ export function createDepartmentRouter(
     res.json(result);
   });
 
+  /**
+   * @openapi
+   * /departments/{id}/users:
+   *   get:
+   *     summary: List department users
+   *     description: Returns a paginated list of users belonging to the department.
+   *     tags:
+   *       - Department
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the department.
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Filter by user name or email.
+   *       - in: query
+   *         name: status
+   *         schema:
+   *           type: string
+   *           enum: [active, suspended, archived]
+   *       - in: query
+   *         name: siteId
+   *         schema:
+   *           type: string
+   *       - in: query
+   *         name: roleId
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Paginated users list.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/User'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+   */
   router.get('/departments/:id/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/users', getContext());
     const page = parseInt(req.query.page as string) || 1;
