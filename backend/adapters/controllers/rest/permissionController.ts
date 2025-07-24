@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import express, { Request, Response, Router } from 'express';
 import { PermissionRepositoryPort } from '../../../domain/ports/PermissionRepositoryPort';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';

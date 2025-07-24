@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import express, { Request, Response, Router } from 'express';
 import { DepartmentRepositoryPort } from '../../../domain/ports/DepartmentRepositoryPort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';

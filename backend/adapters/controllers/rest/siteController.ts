@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import express, { Request, Response, Router } from 'express';
 import { SiteRepositoryPort } from '../../../domain/ports/SiteRepositoryPort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';

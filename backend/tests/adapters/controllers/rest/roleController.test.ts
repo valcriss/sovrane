@@ -92,4 +92,17 @@ describe('Role REST controller', () => {
     expect(res.status).toBe(400);
     expect(roleRepo.delete).not.toHaveBeenCalled();
   });
+  it('should list roles with default pagination', async () => {
+    roleRepo.findPage.mockResolvedValue({ items: [role], page: 1, limit: 20, total: 1 });
+    const res = await request(app).get('/api/roles');
+    expect(res.status).toBe(200);
+    expect(roleRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
+  });
+
+  it('should return 404 when role not found', async () => {
+    roleRepo.findById.mockResolvedValueOnce(null);
+    const res = await request(app).get('/api/roles/unknown');
+    expect(res.status).toBe(404);
+  });
+
 });

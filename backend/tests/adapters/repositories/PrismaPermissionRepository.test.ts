@@ -105,4 +105,10 @@ describe('PrismaPermissionRepository', () => {
     expect(prismaAny.permission.findMany).toHaveBeenCalled();
     expect(prismaAny.permission.count).toHaveBeenCalled();
   });
+  it('should return all permissions', async () => {
+    prismaAny.permission.findMany.mockResolvedValue([{ id: 'perm-1', permissionKey: 'READ', description: 'Read access' }] as any);
+    const result = await repository.findAll();
+    expect(result).toEqual([perm]);
+    expect(prismaAny.permission.findMany).toHaveBeenCalledWith();
+  });
 });

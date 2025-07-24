@@ -234,4 +234,29 @@ describe('User REST controller', () => {
     expect(res.status).toBe(204);
     expect(repo.delete).toHaveBeenCalledWith('u');
   });
+  it('should list users with default pagination', async () => {
+    const res = await request(app)
+      .get('/api/users')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(200);
+    expect(repo.findPage).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      filters: {
+        search: undefined,
+        status: undefined,
+        departmentId: undefined,
+        siteId: undefined,
+        roleId: undefined,
+      },
+    });
+  });
+
+  it('should return 404 when user not found by id', async () => {
+    repo.findById.mockResolvedValueOnce(null);
+    const res = await request(app)
+      .get('/api/users/unknown')
+      .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+  });
 });
