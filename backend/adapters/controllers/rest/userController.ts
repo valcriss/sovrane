@@ -1,7 +1,10 @@
 /* istanbul ignore file */
 import express, { Request, Response, Router } from 'express';
+import type { Express } from 'express';
+import multer from 'multer';
 import { AuthServicePort } from '../../../domain/ports/AuthServicePort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
+import { AvatarServicePort } from '../../../domain/ports/AvatarServicePort';
 import { GetCurrentUserProfileUseCase } from '../../../usecases/user/GetCurrentUserProfileUseCase';
 import { RegisterUserUseCase } from '../../../usecases/user/RegisterUserUseCase';
 import { AuthenticateUserUseCase } from '../../../usecases/user/AuthenticateUserUseCase';
@@ -159,9 +162,11 @@ interface AuthedRequest extends Request {
 export function createUserRouter(
   authService: AuthServicePort,
   userRepository: UserRepositoryPort,
+  avatarService: AvatarServicePort,
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
+  const upload = multer();
 
   interface UserPayload {
     id: string;
@@ -695,6 +700,73 @@ export function createUserRouter(
     }
     logger.debug('User status changed', getContext());
     res.json(updated);
+  });
+
+  /**
+   * @openapi
+   * /users/{id}/picture:
+   *   post:
+   *     summary: Upload user avatar
+   *     description: |
+   *       Uploads an avatar image for the specified user. Requires authentication.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the user.
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         multipart/form-data:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               file:
+   *                 type: string
+   *                 format: binary
+   *             required:
+   *               - file
+   *     responses:
+   *       204:
+   *         description: Avatar updated
+   */
+  router.post('/users/:id/picture', upload.single('file'), async (req: Request, res: Response): Promise<void> => {
+    logger.debug('POST /users/:id/picture', getContext());
+    await avatarService.setUserAvatar(req.params.id, (req.file as Express.Multer.File).buffer, req.file!.originalname);
+    res.status(204).end();
+  });
+
+  /**
+   * @openapi
+   * /users/{id}/picture:
+   *   delete:
+   *     summary: Remove user avatar
+   *     description: Deletes the avatar of the specified user if present.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the user.
+   *     responses:
+   *       204:
+   *         description: Avatar removed
+   */
+  router.delete('/users/:id/picture', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('DELETE /users/:id/picture', getContext());
+    await avatarService.removeUserAvatar(req.params.id);
+    res.status(204).end();
   });
 
   /**
