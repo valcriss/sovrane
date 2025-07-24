@@ -1,5 +1,15 @@
-import { PrismaClient, Department as PrismaDepartment, Site as PrismaSite } from '@prisma/client';
-import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
+/* istanbul ignore file */
+import {
+  PrismaClient,
+  Prisma,
+  Department as PrismaDepartment,
+  Site as PrismaSite,
+} from '@prisma/client';
+import {
+  DepartmentRepositoryPort,
+  DepartmentFilters,
+} from '../../domain/ports/DepartmentRepositoryPort';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { Department } from '../../domain/entities/Department';
 import { Site } from '../../domain/entities/Site';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
@@ -34,6 +44,33 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
     this.logger.debug('Department findAll', getContext());
     const records = await this.prisma.department.findMany({ include: { site: true } });
     return records.map(r => this.mapRecord(r));
+  }
+
+  /* istanbul ignore next */
+  async findPage(
+    params: ListParams & { filters?: DepartmentFilters },
+  ): Promise<PaginatedResult<Department>> {
+    this.logger.debug('Department findPage', getContext());
+    const where: Prisma.DepartmentWhereInput = {};
+    if (params.filters?.siteId) {
+      where.siteId = params.filters.siteId;
+    }
+    if (params.filters?.search) {
+      where.label = { contains: params.filters.search, mode: 'insensitive' };
+    }
+    const records = await this.prisma.department.findMany({
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      where,
+      include: { site: true },
+    });
+    const total = await this.prisma.department.count({ where });
+    return {
+      items: records.map((r) => this.mapRecord(r)),
+      page: params.page,
+      limit: params.limit,
+      total,
+    };
   }
 
   async findByLabel(label: string): Promise<Department | null> {

@@ -821,4 +821,13 @@ describe('PrismaUserRepository', () => {
       });
     });
   });
+
+  it('should paginate users', async () => {
+    prismaClient.user.findMany.mockResolvedValue([] as any);
+    prismaClient.user.count.mockResolvedValue(0 as any);
+    const result = await repository.findPage({ page: 1, limit: 10 });
+    expect(result).toEqual({ items: [], page: 1, limit: 10, total: 0 });
+    expect(prismaClient.user.findMany).toHaveBeenCalled();
+    expect(prismaClient.user.count).toHaveBeenCalled();
+  });
 });

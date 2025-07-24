@@ -11,6 +11,7 @@ import { UpdateUserGroupUseCase } from '../../../usecases/userGroup/UpdateUserGr
 import { RemoveUserGroupUseCase } from '../../../usecases/userGroup/RemoveUserGroupUseCase';
 import { AddGroupUserUseCase } from '../../../usecases/userGroup/AddGroupUserUseCase';
 import { RemoveGroupUserUseCase } from '../../../usecases/userGroup/RemoveGroupUserUseCase';
+import { GetUserGroupsUseCase } from '../../../usecases/group/GetUserGroupsUseCase';
 
 /**
  * @openapi
@@ -126,23 +127,57 @@ export function createGroupRouter(
    *   get:
    *     summary: List all groups.
    *     description: Returns all user groups.
-   *     tags: [UserGroup]
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       200:
-   *         description: List of groups.
+  *     tags: [UserGroup]
+  *     security:
+  *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of groups per page.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Search term on the group name.
+  *     responses:
+  *       200:
+   *         description: Paginated group list.
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/UserGroup'
-   */
-  router.get('/groups', async (_req, res): Promise<void> => {
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/UserGroup'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+  */
+  router.get('/groups', async (req, res): Promise<void> => {
     logger.debug('GET /groups', getContext());
-    const groups = await groupRepository.findAll();
-    res.json(groups);
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const useCase = new GetUserGroupsUseCase(groupRepository);
+    const result = await useCase.execute({
+      page,
+      limit,
+      filters: { search: req.query.search as string | undefined },
+    });
+    res.json(result);
   });
 
   /**

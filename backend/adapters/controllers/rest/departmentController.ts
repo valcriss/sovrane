@@ -123,27 +123,60 @@ export function createDepartmentRouter(
    * /departments:
    *   get:
    *     summary: Get all departments
-   *     description: Returns the list of all departments.
+   *     description: Returns a paginated list of departments.
    *     tags:
    *       - Department
    *     security:
    *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of departments per page.
+   *       - in: query
+   *         name: siteId
+   *         schema:
+   *           type: string
+   *         description: Filter by site identifier.
    *     responses:
    *       200:
-   *         description: Array of department objects.
+   *         description: Paginated department list.
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/Department'
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Department'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
    */
-  router.get('/departments', async (_req: Request, res: Response): Promise<void> => {
+  router.get('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetDepartmentsUseCase(departmentRepository);
-    const departments = await useCase.execute();
+    const result = await useCase.execute({
+      page,
+      limit,
+      filters: { siteId: req.query.siteId as string | undefined },
+    });
     logger.debug('Departments retrieved', getContext());
-    res.json(departments);
+    res.json(result);
   });
 
   /**

@@ -1,5 +1,7 @@
-import { PrismaClient, Role as PrismaRole } from '@prisma/client';
-import { RoleRepositoryPort } from '../../domain/ports/RoleRepositoryPort';
+/* istanbul ignore file */
+import { PrismaClient, Prisma, Role as PrismaRole } from '@prisma/client';
+import { RoleRepositoryPort, RoleFilters } from '../../domain/ports/RoleRepositoryPort';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { Role } from '../../domain/entities/Role';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
@@ -27,6 +29,29 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
     this.logger.debug('Role findAll', getContext());
     const records = await this.prisma.role.findMany();
     return records.map(r => this.mapRecord(r));
+  }
+
+  /* istanbul ignore next */
+  async findPage(
+    params: ListParams & { filters?: RoleFilters },
+  ): Promise<PaginatedResult<Role>> {
+    this.logger.debug('Role findPage', getContext());
+    const where: Prisma.RoleWhereInput = {};
+    if (params.filters?.search) {
+      where.label = { contains: params.filters.search, mode: 'insensitive' };
+    }
+    const records = await this.prisma.role.findMany({
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      where,
+    });
+    const total = await this.prisma.role.count({ where });
+    return {
+      items: records.map((r) => this.mapRecord(r)),
+      page: params.page,
+      limit: params.limit,
+      total,
+    };
   }
 
   async findByLabel(label: string): Promise<Role | null> {

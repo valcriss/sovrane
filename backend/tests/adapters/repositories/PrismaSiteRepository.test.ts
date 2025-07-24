@@ -73,4 +73,13 @@ describe('PrismaSiteRepository', () => {
     await repo.delete('site-1');
     expect(prisma.site.delete).toHaveBeenCalledWith({ where: { id: 'site-1' } });
   });
+
+  it('should paginate sites', async () => {
+    prisma.site.findMany.mockResolvedValue([] as any);
+    prisma.site.count.mockResolvedValue(0 as any);
+    const result = await repo.findPage({ page: 1, limit: 5 });
+    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect(prisma.site.findMany).toHaveBeenCalled();
+    expect(prisma.site.count).toHaveBeenCalled();
+  });
 });

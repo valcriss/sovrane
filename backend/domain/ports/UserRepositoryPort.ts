@@ -1,4 +1,21 @@
 import { User } from '../entities/User';
+import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
+
+/**
+ * Available filters when querying users.
+ */
+export interface UserFilters {
+  /** Free text search across name and email. */
+  search?: string;
+  /** Filter by user status. */
+  status?: 'active' | 'suspended' | 'archived';
+  /** Restrict to a specific department. */
+  departmentId?: string;
+  /** Restrict to a specific site. */
+  siteId?: string;
+  /** Restrict to users having the given role. */
+  roleId?: string;
+}
 
 /**
  * Defines the contract for user persistence operations.
@@ -13,11 +30,19 @@ export interface UserRepositoryPort {
   findById(id: string): Promise<User | null>;
 
   /**
-   * Retrieve all users.
-   *
-   * @returns Array of every stored {@link User}.
-   */
+  * Retrieve all users.
+  *
+  * @returns Array of every stored {@link User}.
+  */
   findAll(): Promise<User[]>;
+
+  /**
+   * Retrieve users using pagination and optional filters.
+   *
+   * @param params - Pagination and filtering parameters.
+   * @returns Paginated list of {@link User} instances.
+   */
+  findPage(params: ListParams & { filters?: UserFilters }): Promise<PaginatedResult<User>>;
 
   /**
    * Retrieve a user by their email address.

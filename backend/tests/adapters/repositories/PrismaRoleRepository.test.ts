@@ -93,4 +93,13 @@ describe('PrismaRoleRepository', () => {
       expect(prisma.role.delete).toHaveBeenCalledWith({ where: { id: 'role-1' } });
     });
   });
+
+  it('should paginate roles', async () => {
+    prisma.role.findMany.mockResolvedValue([] as any);
+    prisma.role.count.mockResolvedValue(0 as any);
+    const result = await repository.findPage({ page: 1, limit: 5 });
+    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect(prisma.role.findMany).toHaveBeenCalled();
+    expect(prisma.role.count).toHaveBeenCalled();
+  });
 });

@@ -1,5 +1,6 @@
-import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
+import { SiteRepositoryPort, SiteFilters } from '../../domain/ports/SiteRepositoryPort';
 import { Site } from '../../domain/entities/Site';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 
 /**
  * Use case for listing all sites.
@@ -12,7 +13,9 @@ export class GetSitesUseCase {
    *
    * @returns Array of {@link Site} instances.
    */
-  async execute(): Promise<Site[]> {
-    return this.siteRepository.findAll();
+  async execute(
+    params: ListParams & { filters?: SiteFilters },
+  ): Promise<PaginatedResult<Site>> {
+    return this.siteRepository.findPage(params);
   }
 }

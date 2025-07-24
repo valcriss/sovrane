@@ -18,6 +18,11 @@ class MockPermissionRepository implements PermissionRepositoryPort {
     return Array.from(this.permissions.values());
   }
 
+  async findPage(params: { page: number; limit: number }): Promise<{ items: Permission[]; page: number; limit: number; total: number }> {
+    const items = Array.from(this.permissions.values()).slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: this.permissions.size };
+  }
+
   async create(permission: Permission): Promise<Permission> {
     this.permissions.set(permission.id, permission);
     this.keyIndex.set(permission.permissionKey, permission.id);

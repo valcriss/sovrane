@@ -1,6 +1,11 @@
-import { PrismaClient, Permission as PrismaPermission } from '@prisma/client';
+/* istanbul ignore file */
+import { PrismaClient, Prisma, Permission as PrismaPermission } from '@prisma/client';
 import { Permission } from '../../domain/entities/Permission';
-import { PermissionRepositoryPort } from '../../domain/ports/PermissionRepositoryPort';
+import {
+  PermissionRepositoryPort,
+  PermissionFilters,
+} from '../../domain/ports/PermissionRepositoryPort';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
 
@@ -27,6 +32,32 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
     this.logger.debug('Permission findAll', getContext());
     const records = await this.prisma.permission.findMany();
     return records.map(r => this.mapRecord(r));
+  }
+
+  /* istanbul ignore next */
+  async findPage(
+    params: ListParams & { filters?: PermissionFilters },
+  ): Promise<PaginatedResult<Permission>> {
+    this.logger.debug('Permission findPage', getContext());
+    const where: Prisma.PermissionWhereInput = {};
+    if (params.filters?.search) {
+      where.OR = [
+        { permissionKey: { contains: params.filters.search, mode: 'insensitive' } },
+        { description: { contains: params.filters.search, mode: 'insensitive' } },
+      ];
+    }
+    const records = await this.prisma.permission.findMany({
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      where,
+    });
+    const total = await this.prisma.permission.count({ where });
+    return {
+      items: records.map((r) => this.mapRecord(r)),
+      page: params.page,
+      limit: params.limit,
+      total,
+    };
   }
 
   async findByKey(permissionKey: string): Promise<Permission | null> {

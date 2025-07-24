@@ -16,6 +16,11 @@ class MockGroupRepository implements UserGroupRepositoryPort {
     return Array.from(this.groups.values());
   }
 
+  async findPage(params: { page: number; limit: number }): Promise<{ items: UserGroup[]; page: number; limit: number; total: number }> {
+    const items = Array.from(this.groups.values()).slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: this.groups.size };
+  }
+
   async create(group: UserGroup): Promise<UserGroup> {
     this.groups.set(group.id, group);
     return group;

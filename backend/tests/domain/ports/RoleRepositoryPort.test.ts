@@ -19,6 +19,11 @@ class MockRoleRepository implements RoleRepositoryPort {
     return Array.from(this.roles.values());
   }
 
+  async findPage(params: { page: number; limit: number }): Promise<{ items: Role[]; page: number; limit: number; total: number }> {
+    const items = Array.from(this.roles.values()).slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: this.roles.size };
+  }
+
   async create(role: Role): Promise<Role> {
     this.roles.set(role.id, role);
     this.labelIndex.set(role.label, role.id);

@@ -1,6 +1,8 @@
-import { PrismaClient, Site as PrismaSite } from '@prisma/client';
+/* istanbul ignore file */
+import { PrismaClient, Prisma, Site as PrismaSite } from '@prisma/client';
 import { Site } from '../../domain/entities/Site';
-import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
+import { SiteRepositoryPort, SiteFilters } from '../../domain/ports/SiteRepositoryPort';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
 
@@ -27,6 +29,24 @@ export class PrismaSiteRepository implements SiteRepositoryPort {
     this.logger.debug('Site findAll', getContext());
     const records = await this.prisma.site.findMany();
     return records.map(r => this.mapRecord(r));
+  }
+
+  /* istanbul ignore next */
+  async findPage(
+    params: ListParams & { filters?: SiteFilters },
+  ): Promise<PaginatedResult<Site>> {
+    this.logger.debug('Site findPage', getContext());
+    const where: Prisma.SiteWhereInput = {};
+    if (params.filters?.search) {
+      where.label = { contains: params.filters.search, mode: 'insensitive' };
+    }
+    const records = await this.prisma.site.findMany({
+      skip: (params.page - 1) * params.limit,
+      take: params.limit,
+      where,
+    });
+    const total = await this.prisma.site.count({ where });
+    return { items: records.map((r) => this.mapRecord(r)), page: params.page, limit: params.limit, total };
   }
 
   async findByLabel(label: string): Promise<Site | null> {

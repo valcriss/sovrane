@@ -19,6 +19,11 @@ class MockDepartmentRepository implements DepartmentRepositoryPort {
     return Array.from(this.depts.values());
   }
 
+  async findPage(params: { page: number; limit: number }): Promise<{ items: Department[]; page: number; limit: number; total: number }> {
+    const items = Array.from(this.depts.values()).slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: this.depts.size };
+  }
+
   async create(dept: Department): Promise<Department> {
     this.depts.set(dept.id, dept);
     this.labelIndex.set(dept.label, dept.id);

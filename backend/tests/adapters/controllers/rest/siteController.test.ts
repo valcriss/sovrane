@@ -31,13 +31,13 @@ describe('Site REST controller', () => {
   });
 
   it('should list sites', async () => {
-    siteRepo.findAll.mockResolvedValue([site]);
+    siteRepo.findPage.mockResolvedValue({ items: [site], page: 1, limit: 20, total: 1 });
 
-    const res = await request(app).get('/api/sites');
+    const res = await request(app).get('/api/sites?page=1&limit=20');
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual([{ id: 's', label: 'Site' }]);
-    expect(siteRepo.findAll).toHaveBeenCalled();
+    expect(res.body.items[0].id).toBe('s');
+    expect(siteRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
   it('should get site by id', async () => {

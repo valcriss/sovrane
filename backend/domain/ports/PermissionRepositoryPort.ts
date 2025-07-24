@@ -1,4 +1,13 @@
 import { Permission } from '../entities/Permission';
+import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
+
+/**
+ * Filters applicable when listing permissions.
+ */
+export interface PermissionFilters {
+  /** Free text search on key or description. */
+  search?: string;
+}
 
 /**
  * Defines the contract for permission persistence operations.
@@ -13,11 +22,19 @@ export interface PermissionRepositoryPort {
   findById(id: string): Promise<Permission | null>;
 
   /**
-   * Retrieve all permissions.
-   *
-   * @returns Array of all available {@link Permission} instances.
-   */
+  * Retrieve all permissions.
+  *
+  * @returns Array of all available {@link Permission} instances.
+  */
   findAll(): Promise<Permission[]>;
+
+  /**
+   * Retrieve permissions with pagination and optional search.
+   *
+   * @param params - Pagination and filtering parameters.
+   * @returns Paginated list of permissions.
+   */
+  findPage(params: ListParams & { filters?: PermissionFilters }): Promise<PaginatedResult<Permission>>;
 
   /**
    * Retrieve a permission by its key.

@@ -18,6 +18,11 @@ class MockUserRepository implements UserRepositoryPort {
     return Array.from(this.users.values());
   }
 
+  async findPage(params: { page: number; limit: number }): Promise<{ items: User[]; page: number; limit: number; total: number }> {
+    const items = Array.from(this.users.values()).slice((params.page - 1) * params.limit, params.page * params.limit);
+    return { items, page: params.page, limit: params.limit, total: this.users.size };
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     const userId = this.emailIndex.get(email);
     return userId ? this.users.get(userId) || null : null;

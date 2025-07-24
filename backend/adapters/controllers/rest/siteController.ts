@@ -57,20 +57,53 @@ export function createSiteRouter(
    *       - bearerAuth: []
    *     responses:
    *       200:
-   *         description: Array of site objects.
+   *         description: Paginated site list.
+   *         parameters:
+   *           - in: query
+   *             name: page
+   *             schema:
+   *               type: integer
+   *               default: 1
+   *             description: Page number (starts at 1).
+   *           - in: query
+   *             name: limit
+   *             schema:
+   *               type: integer
+   *               default: 20
+   *             description: Number of sites per page.
+   *           - in: query
+   *             name: search
+   *             schema:
+   *               type: string
+   *             description: Search term on the site label.
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/Site'
-   */
-  router.get('/sites', async (_req: Request, res: Response): Promise<void> => {
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Site'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+  */
+  router.get('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /sites', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetSitesUseCase(siteRepository);
-    const sites = await useCase.execute();
+    const result = await useCase.execute({
+      page,
+      limit,
+      filters: { search: req.query.search as string | undefined },
+    });
     logger.debug('Sites retrieved', getContext());
-    res.json(sites);
+    res.json(result);
   });
 
   /**

@@ -81,27 +81,60 @@ export function createRoleRouter(
    * /roles:
    *   get:
    *     summary: Get all roles
-   *     description: Returns the list of all roles.
+   *     description: Returns a paginated list of roles.
    *     tags:
    *       - Role
    *     security:
    *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of roles per page.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Search term on the role label.
    *     responses:
    *       200:
    *         description: Array of role objects.
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/Role'
-   */
-  router.get('/roles', async (_req: Request, res: Response): Promise<void> => {
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Role'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+  */
+  router.get('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetRolesUseCase(roleRepository);
-    const roles = await useCase.execute();
+    const result = await useCase.execute({
+      page,
+      limit,
+      filters: { search: req.query.search as string | undefined },
+    });
     logger.debug('Roles retrieved', getContext());
-    res.json(roles);
+    res.json(result);
   });
 
   /**

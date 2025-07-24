@@ -33,13 +33,13 @@ describe('Role REST controller', () => {
   });
 
   it('should list roles', async () => {
-    roleRepo.findAll.mockResolvedValue([role]);
+    roleRepo.findPage.mockResolvedValue({ items: [role], page: 1, limit: 20, total: 1 });
 
-    const res = await request(app).get('/api/roles');
+    const res = await request(app).get('/api/roles?page=1&limit=20');
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual([{ id: 'r', label: 'Role', permissions: [{ id: 'p', permissionKey: 'P', description: 'desc' }] }]);
-    expect(roleRepo.findAll).toHaveBeenCalled();
+    expect(res.body.items[0].id).toBe('r');
+    expect(roleRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
   it('should get role by id', async () => {

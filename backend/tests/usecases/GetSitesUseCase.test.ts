@@ -15,11 +15,11 @@ describe('GetSitesUseCase', () => {
   });
 
   it('should return sites from repository', async () => {
-    repository.findAll.mockResolvedValue([site]);
+    repository.findPage.mockResolvedValue({ items: [site], page: 1, limit: 20, total: 1 });
 
-    const result = await useCase.execute();
+    const result = await useCase.execute({ page: 1, limit: 20 });
 
-    expect(result).toEqual([site]);
-    expect(repository.findAll).toHaveBeenCalled();
+    expect(result.items).toEqual([site]);
+    expect(repository.findPage).toHaveBeenCalledWith({ page: 1, limit: 20 });
   });
 });

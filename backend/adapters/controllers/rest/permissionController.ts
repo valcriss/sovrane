@@ -59,22 +59,55 @@ export function createPermissionRouter(
    *       - Permission
    *     security:
    *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of permissions per page.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Search term on key or description.
    *     responses:
    *       200:
-   *         description: Array of permission objects.
+   *         description: Paginated permission list.
    *         content:
    *           application/json:
    *             schema:
-   *               type: array
-   *               items:
-   *                 $ref: '#/components/schemas/Permission'
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Permission'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
    */
-  router.get('/permissions', async (_req: Request, res: Response): Promise<void> => {
+  router.get('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions', getContext());
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetPermissionsUseCase(repository);
-    const permissions = await useCase.execute();
+    const result = await useCase.execute({
+      page,
+      limit,
+      filters: { search: req.query.search as string | undefined },
+    });
     logger.debug('Permissions retrieved', getContext());
-    res.json(permissions);
+    res.json(result);
   });
 
   /**

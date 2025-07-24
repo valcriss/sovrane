@@ -1,5 +1,6 @@
-import { RoleRepositoryPort } from '../../domain/ports/RoleRepositoryPort';
+import { RoleRepositoryPort, RoleFilters } from '../../domain/ports/RoleRepositoryPort';
 import { Role } from '../../domain/entities/Role';
+import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 
 /**
  * Use case for retrieving all roles.
@@ -12,7 +13,9 @@ export class GetRolesUseCase {
    *
    * @returns Array of {@link Role} instances.
    */
-  async execute(): Promise<Role[]> {
-    return this.roleRepository.findAll();
+  async execute(
+    params: ListParams & { filters?: RoleFilters },
+  ): Promise<PaginatedResult<Role>> {
+    return this.roleRepository.findPage(params);
   }
 }

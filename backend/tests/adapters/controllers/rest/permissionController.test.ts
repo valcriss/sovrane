@@ -25,13 +25,13 @@ describe('Permission REST controller', () => {
   });
 
   it('should list permissions', async () => {
-    repo.findAll.mockResolvedValue([permission]);
+    repo.findPage.mockResolvedValue({ items: [permission], page: 1, limit: 20, total: 1 });
 
-    const res = await request(app).get('/api/permissions');
+    const res = await request(app).get('/api/permissions?page=1&limit=20');
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual([{ id: 'p', permissionKey: 'KEY', description: 'desc' }]);
-    expect(repo.findAll).toHaveBeenCalled();
+    expect(res.body.items[0].id).toBe('p');
+    expect(repo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
   it('should get permission by id', async () => {

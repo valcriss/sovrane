@@ -161,4 +161,13 @@ describe('PrismaUserGroupRepository', () => {
     expect(result).toBe(group);
     expect((prisma as any).userGroupMember.delete).toHaveBeenCalledWith({ where: { userId_groupId: { userId: 'u', groupId: 'g' } } });
   });
+
+  it('should paginate groups', async () => {
+    (prisma as any).userGroup.findMany.mockResolvedValue([]);
+    (prisma as any).userGroup.count.mockResolvedValue(0);
+    const result = await repo.findPage({ page: 1, limit: 5 });
+    expect(result).toEqual({ items: [], page: 1, limit: 5, total: 0 });
+    expect((prisma as any).userGroup.findMany).toHaveBeenCalled();
+    expect((prisma as any).userGroup.count).toHaveBeenCalled();
+  });
 });
