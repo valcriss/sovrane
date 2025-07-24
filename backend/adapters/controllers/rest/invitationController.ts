@@ -17,7 +17,7 @@ import { getContext } from '../../../infrastructure/loggerContext';
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
- **/
+ */
 
 export function createInvitationRouter(
   authService: AuthServicePort,
