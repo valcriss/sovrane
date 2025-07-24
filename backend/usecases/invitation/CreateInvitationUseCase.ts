@@ -47,11 +47,11 @@ export class CreateInvitationUseCase {
     );
 
     await this.invitationRepository.create(invitation);
-    await this.emailService.sendMail(
-      data.email,
-      'Account invitation',
-      `https://your-app.com/activate?token=${token}`,
-    );
+    await this.emailService.sendMail({
+      to: data.email,
+      subject: 'Account invitation',
+      text: `https://your-app.com/activate?token=${token}`,
+    });
     return invitation;
   }
 }
