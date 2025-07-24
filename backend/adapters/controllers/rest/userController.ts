@@ -284,12 +284,14 @@ export function createUserRouter(
    *               - email
    *               - password
    *     responses:
- *       200:
- *         description: User successfully authenticated
+   *       200:
+   *         description: User successfully authenticated
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/User'
+   *       403:
+   *         description: User account is suspended or archived
    */
   router.post('/auth/login', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/login', getContext());
@@ -301,7 +303,10 @@ export function createUserRouter(
       res.json(user);
     } catch (err) {
       logger.warn('Authentication failed', { ...getContext(), error: err });
-      res.status(401).json({ error: (err as Error).message });
+      const message = (err as Error).message;
+      const status =
+        message === 'User account is suspended or archived' ? 403 : 401;
+      res.status(status).json({ error: message });
     }
   });
 
@@ -331,12 +336,14 @@ export function createUserRouter(
    *               - provider
    *               - token
    *     responses:
- *       200:
- *         description: User successfully authenticated with the provider
+   *       200:
+   *         description: User successfully authenticated with the provider
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/User'
+   *       403:
+   *         description: User account is suspended or archived
    */
   router.post('/auth/provider', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /auth/provider', getContext());
@@ -348,7 +355,10 @@ export function createUserRouter(
       res.json(user);
     } catch (err) {
       logger.warn('Provider auth failed', { ...getContext(), error: err });
-      res.status(401).json({ error: (err as Error).message });
+      const message = (err as Error).message;
+      const status =
+        message === 'User account is suspended or archived' ? 403 : 401;
+      res.status(status).json({ error: message });
     }
   });
 

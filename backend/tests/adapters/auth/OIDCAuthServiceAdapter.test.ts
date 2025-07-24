@@ -50,6 +50,19 @@ describe('OIDCAuthServiceAdapter', () => {
     await expect(adapter.verifyToken(token)).rejects.toThrow('Invalid token');
   });
 
+  it('should reject suspended or archived users', async () => {
+    const token = jwt.sign({}, secret, { algorithm: 'HS256', issuer: 'issuer', subject: 'u' });
+    repo.findById.mockResolvedValue(user);
+    user.status = 'suspended';
+    await expect(adapter.verifyToken(token)).rejects.toThrow(
+      'User account is suspended or archived',
+    );
+    user.status = 'archived';
+    await expect(adapter.verifyToken(token)).rejects.toThrow(
+      'User account is suspended or archived',
+    );
+  });
+
   it('should delegate authenticateWithProvider', async () => {
     const token = jwt.sign({}, secret, { algorithm: 'HS256', issuer: 'issuer', subject: 'u' });
     repo.findById.mockResolvedValue(user);

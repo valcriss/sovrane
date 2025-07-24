@@ -59,6 +59,9 @@ export class OIDCAuthServiceAdapter implements AuthServicePort {
     if (!user) {
       throw new Error('Invalid token');
     }
+    if (user.status === 'archived' || user.status === 'suspended') {
+      throw new Error('User account is suspended or archived');
+    }
     return user;
   }
 }
