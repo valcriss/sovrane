@@ -10,6 +10,22 @@ import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { getContext } from '../../../infrastructure/loggerContext';
 
 /**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Site:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         label:
+ *           type: string
+ *       required:
+ *         - id
+ *         - label
+ */
+
+/**
  * Create an Express router exposing site management routes.
  *
  * @param siteRepository - Repository used to persist sites.
@@ -26,12 +42,26 @@ export function createSiteRouter(
 
   /**
    * @openapi
-   * /sites:
-   *   post:
-   *     summary: Create a site.
+  * /sites:
+  *   post:
+  *     summary: Create a site.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Site'
    *     responses:
    *       201:
    *         description: Site created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Site'
    */
   router.post('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /sites', getContext());
@@ -44,12 +74,26 @@ export function createSiteRouter(
 
   /**
    * @openapi
-   * /sites/{id}:
-   *   put:
-   *     summary: Update a site.
+  * /sites/{id}:
+  *   put:
+  *     summary: Update a site.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Site'
    *     responses:
    *       200:
    *         description: Updated site
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Site'
    */
   router.put('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /sites/:id', getContext());
@@ -63,12 +107,18 @@ export function createSiteRouter(
 
   /**
    * @openapi
-   * /sites/{id}:
-   *   delete:
-   *     summary: Remove a site.
+  * /sites/{id}:
+  *   delete:
+  *     summary: Remove a site.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       204:
    *         description: Site deleted
+   *       400:
+   *         description: Operation failed
    */
   router.delete('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /sites/:id', getContext());

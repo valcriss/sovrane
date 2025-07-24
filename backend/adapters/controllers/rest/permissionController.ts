@@ -7,6 +7,25 @@ import { CreatePermissionUseCase } from '../../../usecases/permission/CreatePerm
 import { UpdatePermissionUseCase } from '../../../usecases/permission/UpdatePermissionUseCase';
 import { RemovePermissionUseCase } from '../../../usecases/permission/RemovePermissionUseCase';
 
+/**
+ * @openapi
+ * components:
+ *   schemas:
+ *     Permission:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *         permissionKey:
+ *           type: string
+ *         description:
+ *           type: string
+ *       required:
+ *         - id
+ *         - permissionKey
+ *         - description
+ */
+
 interface PermissionPayload {
   id: string;
   permissionKey: string;
@@ -26,12 +45,26 @@ export function createPermissionRouter(
 
   /**
    * @openapi
-   * /permissions:
-   *   post:
-   *     summary: Create a permission.
+  * /permissions:
+  *   post:
+  *     summary: Create a permission.
+   *     tags:
+   *       - Permission
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Permission'
    *     responses:
    *       201:
    *         description: Permission created
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Permission'
    */
   router.post('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /permissions', getContext());
@@ -43,12 +76,26 @@ export function createPermissionRouter(
 
   /**
    * @openapi
-   * /permissions/{id}:
-   *   put:
-   *     summary: Update a permission.
+  * /permissions/{id}:
+  *   put:
+  *     summary: Update a permission.
+   *     tags:
+   *       - Permission
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Permission'
    *     responses:
    *       200:
    *         description: Updated permission
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Permission'
    */
   router.put('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /permissions/:id', getContext());
@@ -61,9 +108,13 @@ export function createPermissionRouter(
 
   /**
    * @openapi
-   * /permissions/{id}:
-   *   delete:
-   *     summary: Remove a permission.
+  * /permissions/{id}:
+  *   delete:
+  *     summary: Remove a permission.
+   *     tags:
+   *       - Permission
+   *     security:
+   *       - bearerAuth: []
    *     responses:
    *       204:
    *         description: Permission removed
