@@ -2,6 +2,8 @@
 import express, { Request, Response, Router } from 'express';
 import { AuthServicePort } from '../../../domain/ports/AuthServicePort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
+import { InvitationRepositoryPort } from '../../../domain/ports/InvitationRepositoryPort';
+import { EmailServicePort } from '../../../domain/ports/EmailServicePort';
 import { GetCurrentUserProfileUseCase } from '../../../usecases/user/GetCurrentUserProfileUseCase';
 import { RegisterUserUseCase } from '../../../usecases/user/RegisterUserUseCase';
 import { AuthenticateUserUseCase } from '../../../usecases/user/AuthenticateUserUseCase';
@@ -13,6 +15,8 @@ import { ChangeUserStatusUseCase } from '../../../usecases/user/ChangeUserStatus
 import { RemoveUserUseCase } from '../../../usecases/user/RemoveUserUseCase';
 import { GetUsersUseCase } from '../../../usecases/user/GetUsersUseCase';
 import { GetUserUseCase } from '../../../usecases/user/GetUserUseCase';
+import { CreateInvitationUseCase } from '../../../usecases/invitation/CreateInvitationUseCase';
+import { GetInvitationUseCase } from '../../../usecases/invitation/GetInvitationUseCase';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { getContext } from '../../../infrastructure/loggerContext';
 import { User } from '../../../domain/entities/User';
@@ -159,6 +163,8 @@ interface AuthedRequest extends Request {
 export function createUserRouter(
   authService: AuthServicePort,
   userRepository: UserRepositoryPort,
+  invitationRepository: InvitationRepositoryPort,
+  emailService: EmailServicePort,
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
@@ -433,7 +439,119 @@ export function createUserRouter(
     res.status(204).end();
   });
 
+  /**
+   * @openapi
+   * /users/invite/{token}:
+   *   get:
+   *     summary: Get invitation information by token
+   *     description: |
+   *       Retrieves the invitation details linked to the provided token. Used to validate the invitation and pre-fill onboarding fields.
+   *     tags:
+   *       - User
+   *     parameters:
+   *       - in: path
+   *         name: token
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: The invitation token from the activation link.
+   *     responses:
+   *       200:
+   *         description: Invitation details and onboarding info.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 email:
+   *                   type: string
+   *                 firstName:
+   *                   type: string
+   *                 lastName:
+   *                   type: string
+   *                 role:
+   *                   type: string
+   *               required: [email]
+   *       404:
+   *         description: Invalid or expired invitation token.
+   */
+  router.get('/users/invite/:token', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('GET /users/invite/:token', getContext());
+    const useCase = new GetInvitationUseCase(invitationRepository);
+    const invitation = await useCase.execute(req.params.token);
+    if (!invitation) {
+      logger.warn('Invitation not found', getContext());
+      res.status(404).end();
+      return;
+    }
+    logger.debug('Invitation retrieved', getContext());
+    res.json({
+      email: invitation.email,
+      firstName: invitation.firstName,
+      lastName: invitation.lastName,
+      role: invitation.role,
+    });
+  });
+
   router.use(authMiddleware);
+
+  /**
+   * @openapi
+   * /users/invite:
+   *   post:
+   *     summary: Invite a new user by email
+   *     description: |
+   *       Sends an invitation email with an activation link to a new user. Only administrators can invite users.
+   *     tags:
+   *       - User
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       description: Email and optional details for the invited user.
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 description: Email address of the invitee.
+   *               firstName:
+   *                 type: string
+   *                 description: First name (optional).
+   *               lastName:
+   *                 type: string
+   *                 description: Last name (optional).
+   *               role:
+   *                 type: string
+   *                 description: Role to assign after activation (optional).
+   *             required:
+   *               - email
+   *     responses:
+   *       201:
+   *         description: Invitation sent successfully.
+   *       409:
+   *         description: User already exists or invitation already sent.
+   *       400:
+   *         description: Invalid request.
+   */
+  router.post('/users/invite', async (req: Request, res: Response): Promise<void> => {
+    logger.debug('POST /users/invite', getContext());
+    const useCase = new CreateInvitationUseCase(
+      userRepository,
+      invitationRepository,
+      emailService,
+    );
+    try {
+      const invitation = await useCase.execute(req.body);
+      logger.debug('Invitation created', getContext());
+      res.status(201).json({ token: invitation.token });
+    } catch (err) {
+      logger.warn('Invitation creation failed', { ...getContext(), error: err });
+      res.status(409).end();
+    }
+  });
 
   /**
    * @openapi

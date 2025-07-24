@@ -6,8 +6,10 @@ import { randomUUID } from 'crypto';
 import { createUserRouter } from '../adapters/controllers/rest/userController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
+import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
 import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
+import { ConsoleEmailServiceAdapter } from '../adapters/email/ConsoleEmailServiceAdapter';
 import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
@@ -20,6 +22,8 @@ async function bootstrap(): Promise<void> {
   logger.info('Database connected');
 
   const userRepository = new PrismaUserRepository(prisma, logger);
+  const invitationRepository = new PrismaInvitationRepository(prisma, logger);
+  const emailService = new ConsoleEmailServiceAdapter(logger);
 
   const authService = new JWTAuthServiceAdapter(
     process.env.JWT_SECRET ?? 'secret',
@@ -34,7 +38,7 @@ async function bootstrap(): Promise<void> {
   });
 
   setupSwagger(app);
-  app.use('/api', createUserRouter(authService, userRepository, logger));
+  app.use('/api', createUserRouter(authService, userRepository, invitationRepository, emailService, logger));
   
   const httpServer = http.createServer(app);
   const io = new SocketIOServer(httpServer);

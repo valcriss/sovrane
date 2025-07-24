@@ -4,16 +4,21 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { createUserRouter } from '../../../../adapters/controllers/rest/userController';
 import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
+import { InvitationRepositoryPort } from '../../../../domain/ports/InvitationRepositoryPort';
+import { EmailServicePort } from '../../../../domain/ports/EmailServicePort';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
+import { Invitation } from '../../../../domain/entities/Invitation';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 
 describe('User REST controller', () => {
   let app: express.Express;
   let auth: DeepMockProxy<AuthServicePort>;
   let repo: DeepMockProxy<UserRepositoryPort>;
+  let invitationRepo: DeepMockProxy<InvitationRepositoryPort>;
+  let email: DeepMockProxy<EmailServicePort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let user: User;
   let role: Role;
@@ -23,6 +28,8 @@ describe('User REST controller', () => {
   beforeEach(() => {
     auth = mockDeep<AuthServicePort>();
     repo = mockDeep<UserRepositoryPort>();
+    invitationRepo = mockDeep<InvitationRepositoryPort>();
+    email = mockDeep<EmailServicePort>();
     logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
@@ -39,7 +46,7 @@ describe('User REST controller', () => {
     auth.resetPassword.mockResolvedValue();
     app = express();
     app.use(express.json());
-    app.use('/api', createUserRouter(auth, repo, logger));
+    app.use('/api', createUserRouter(auth, repo, invitationRepo, email, logger));
   });
 
   it('should return current user profile', async () => {
@@ -283,6 +290,49 @@ describe('User REST controller', () => {
     const res = await request(app)
       .get('/api/users/unknown')
       .set('Authorization', 'Bearer token');
+    expect(res.status).toBe(404);
+  });
+
+  it('should create invitation', async () => {
+    invitationRepo.findByEmail.mockResolvedValue(null);
+    repo.findByEmail.mockResolvedValue(null as any);
+    invitationRepo.create.mockImplementation(async i => i);
+
+    const res = await request(app)
+      .post('/api/users/invite')
+      .set('Authorization', 'Bearer token')
+      .send({ email: 'new@test.com' });
+
+    expect(res.status).toBe(201);
+    expect(invitationRepo.create).toHaveBeenCalled();
+    expect(email.sendMail).toHaveBeenCalled();
+  });
+
+  it('should return 409 when invitation exists', async () => {
+    invitationRepo.findByEmail.mockResolvedValue(new Invitation('a','t','pending', new Date()));
+
+    const res = await request(app)
+      .post('/api/users/invite')
+      .set('Authorization', 'Bearer token')
+      .send({ email: 'a' });
+
+    expect(res.status).toBe(409);
+  });
+
+  it('should get invitation info', async () => {
+    invitationRepo.findByToken.mockResolvedValue(new Invitation('a','t','pending', new Date(Date.now()+1000)));
+
+    const res = await request(app).get('/api/users/invite/t');
+
+    expect(res.status).toBe(200);
+    expect(res.body.email).toBe('a');
+  });
+
+  it('should return 404 when invitation not found', async () => {
+    invitationRepo.findByToken.mockResolvedValue(null);
+
+    const res = await request(app).get('/api/users/invite/none');
+
     expect(res.status).toBe(404);
   });
 });
