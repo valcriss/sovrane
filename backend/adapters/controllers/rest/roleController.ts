@@ -14,27 +14,35 @@ import { RemoveRoleUseCase } from '../../../usecases/role/RemoveRoleUseCase';
  * components:
  *   schemas:
  *     Permission:
+ *       description: Individual capability that can be assigned to a role.
  *       type: object
  *       properties:
  *         id:
  *           type: string
+ *           description: Unique identifier of the permission.
  *         permissionKey:
  *           type: string
+ *           description: Machine readable key used in permission checks.
  *         description:
  *           type: string
+ *           description: Human readable explanation of the permission.
  *       required:
  *         - id
  *         - permissionKey
  *         - description
  *     Role:
+ *       description: Set of permissions granted to users assigned this role.
  *       type: object
  *       properties:
  *         id:
  *           type: string
+ *           description: Unique identifier of the role.
  *         label:
  *           type: string
+ *           description: Human readable role name.
  *         permissions:
  *           type: array
+ *           description: Permissions attached to the role.
  *           items:
  *             $ref: '#/components/schemas/Permission'
  *       required:
@@ -69,21 +77,25 @@ export function createRoleRouter(
   /**
    * @openapi
   * /roles:
-  *   post:
-  *     summary: Create a role.
-   *     tags:
-   *       - Role
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   post:
+ *     summary: Create a role.
+ *     description: |
+ *       Registers a new role grouping a set of permissions. Requires
+ *       authentication and administrative rights.
+ *     tags:
+ *       - Role
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       description: Role information to store.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Role'
    *     responses:
-   *       201:
-   *         description: Role created
+ *       201:
+ *         description: Newly created role
    *         content:
    *           application/json:
    *             schema:
@@ -100,21 +112,30 @@ export function createRoleRouter(
   /**
    * @openapi
   * /roles/{id}:
-  *   put:
-  *     summary: Update a role.
-   *     tags:
-   *       - Role
-   *     security:
-   *       - bearerAuth: []
-   *     requestBody:
-   *       required: true
+ *   put:
+ *     summary: Update a role.
+ *     description: Modify the label or permissions of an existing role.
+ *     tags:
+ *       - Role
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the role to update.
+ *     requestBody:
+ *       description: Updated role data.
+ *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             $ref: '#/components/schemas/Role'
    *     responses:
-   *       200:
-   *         description: Updated role
+ *       200:
+ *         description: Role after update
    *         content:
    *           application/json:
    *             schema:
@@ -132,17 +153,27 @@ export function createRoleRouter(
   /**
    * @openapi
   * /roles/{id}:
-  *   delete:
-  *     summary: Remove a role.
-   *     tags:
-   *       - Role
-   *     security:
-   *       - bearerAuth: []
-   *     responses:
-   *       204:
-   *         description: Role deleted
-   *       400:
-   *         description: Operation failed
+ *   delete:
+ *     summary: Remove a role.
+ *     description: |
+ *       Deletes a role. The operation fails if users are still associated with
+ *       it. Requires administrative privileges.
+ *     tags:
+ *       - Role
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Identifier of the role to delete.
+ *     responses:
+ *       204:
+ *         description: Role successfully deleted
+ *       400:
+ *         description: Deletion failed because the role is still in use
    */
   router.delete('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /roles/:id', getContext());
