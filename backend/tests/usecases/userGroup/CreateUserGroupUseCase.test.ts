@@ -1,11 +1,11 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { CreateUserGroupUseCase } from '../../usecases/userGroup/CreateUserGroupUseCase';
-import { UserGroupRepositoryPort } from '../../domain/ports/UserGroupRepositoryPort';
-import { UserGroup } from '../../domain/entities/UserGroup';
-import { User } from '../../domain/entities/User';
-import { Role } from '../../domain/entities/Role';
-import { Department } from '../../domain/entities/Department';
-import { Site } from '../../domain/entities/Site';
+import { CreateUserGroupUseCase } from '../../../usecases/userGroup/CreateUserGroupUseCase';
+import { UserGroupRepositoryPort } from '../../../domain/ports/UserGroupRepositoryPort';
+import { UserGroup } from '../../../domain/entities/UserGroup';
+import { User } from '../../../domain/entities/User';
+import { Role } from '../../../domain/entities/Role';
+import { Department } from '../../../domain/entities/Department';
+import { Site } from '../../../domain/entities/Site';
 
 describe('CreateUserGroupUseCase', () => {
   let repo: DeepMockProxy<UserGroupRepositoryPort>;

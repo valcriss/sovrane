@@ -1,7 +1,7 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { CreateRoleUseCase } from '../../usecases/role/CreateRoleUseCase';
-import { RoleRepositoryPort } from '../../domain/ports/RoleRepositoryPort';
-import { Role } from '../../domain/entities/Role';
+import { CreateRoleUseCase } from '../../../usecases/role/CreateRoleUseCase';
+import { RoleRepositoryPort } from '../../../domain/ports/RoleRepositoryPort';
+import { Role } from '../../../domain/entities/Role';
 
 describe('CreateRoleUseCase', () => {
   let repository: DeepMockProxy<RoleRepositoryPort>;
