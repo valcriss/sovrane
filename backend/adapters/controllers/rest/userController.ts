@@ -519,7 +519,6 @@ export function createUserRouter(
      *         description: Invalid or expired authentication token.
      *       403:
      *         description: User lacks required permission.
-     *     description: Requires read-users permission.
      */
     router.get('/users', async (req: Request, res: Response): Promise<void> => {
       logger.debug('GET /users', getContext());
@@ -589,7 +588,6 @@ export function createUserRouter(
      *         description: Invalid or expired authentication token.
      *       403:
      *         description: User lacks required permission.
-     *     description: Requires read-user permission.
      */
     router.get('/users/:id', async (req: Request, res: Response): Promise<void> => {
       logger.debug('GET /users/:id', getContext());
@@ -637,7 +635,6 @@ export function createUserRouter(
      *         description: Invalid or expired authentication token.
      *       403:
      *         description: User lacks required permission.
-     *     description: Requires read-user permission.
      */
     router.get('/users/me', async (req: Request, res: Response): Promise<void> => {
       logger.debug('GET /users/me', getContext());
@@ -699,7 +696,6 @@ export function createUserRouter(
      *         description: Invalid or expired authentication token.
      *       403:
      *         description: User lacks required permission.
-     *     description: Requires update-user permission.
      */
     router.put('/users/:id', async (req: Request, res: Response): Promise<void> => {
       logger.debug('PUT /users/:id', getContext());
@@ -763,7 +759,6 @@ export function createUserRouter(
      *         description: Invalid or expired authentication token.
      *       403:
      *         description: User lacks required permission.
-     *     description: Requires update-user permission.
      */
     router.put('/users/:id/status', async (req: Request, res: Response): Promise<void> => {
       logger.debug('PUT /users/:id/status', getContext());
@@ -886,7 +881,6 @@ export function createUserRouter(
      *         description: Invalid or expired authentication token.
      *       403:
      *         description: User lacks required permission.
-     *     description: Requires delete-user permission.
      */
     router.delete('/users/:id', async (req: Request, res: Response): Promise<void> => {
       logger.debug('DELETE /users/:id', getContext());
