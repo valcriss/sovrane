@@ -23,6 +23,7 @@ import {Role} from '../../../domain/entities/Role';
 import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
 import {Permission} from '../../../domain/entities/Permission';
+import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 
 /**
  * @openapi
@@ -516,33 +517,46 @@ export function createUserRouter(
      *         description: No content.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     *     description: Requires read-users permission.
      */
     router.get('/users', async (req: Request, res: Response): Promise<void> => {
       logger.debug('GET /users', getContext());
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
-      const useCase = new GetUsersUseCase(userRepository);
-      const result = await useCase.execute({
-        page,
-        limit,
-        filters: {
-          search: req.query.search as string | undefined,
-          status: req.query.status as
-                    | 'active'
-                    | 'suspended'
-                    | 'archived'
-                    | undefined,
-          departmentId: req.query.departmentId as string | undefined,
-          siteId: req.query.siteId as string | undefined,
-          roleId: req.query.roleId as string | undefined,
-        },
-      });
-      logger.debug('Users retrieved', getContext());
-      if (result.items.length === 0) {
-        res.status(204).end();
-        return;
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new GetUsersUseCase(userRepository, checker);
+      try {
+        const result = await useCase.execute({
+          page,
+          limit,
+          filters: {
+            search: req.query.search as string | undefined,
+            status: req.query.status as
+                      | 'active'
+                      | 'suspended'
+                      | 'archived'
+                      | undefined,
+            departmentId: req.query.departmentId as string | undefined,
+            siteId: req.query.siteId as string | undefined,
+            roleId: req.query.roleId as string | undefined,
+          },
+        });
+        logger.debug('Users retrieved', getContext());
+        if (result.items.length === 0) {
+          res.status(204).end();
+          return;
+        }
+        res.json(result);
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied listing users', {...getContext(), error: err});
+          res.status(403).json({error: 'Forbidden'});
+          return;
+        }
+        throw err;
       }
-      res.json(result);
     });
 
     /**
