@@ -6,10 +6,14 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { UserGroup } from '../../../domain/entities/UserGroup';
+import { Permission } from '../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 
 describe('GetGroupResponsiblesUseCase', () => {
   let repository: DeepMockProxy<UserGroupRepositoryPort>;
   let useCase: GetGroupResponsiblesUseCase;
+  let checker: PermissionChecker;
   let site: Site;
   let dept: Department;
   let role: Role;
@@ -18,10 +22,23 @@ describe('GetGroupResponsiblesUseCase', () => {
 
   beforeEach(() => {
     repository = mockDeep<UserGroupRepositoryPort>();
-    useCase = new GetGroupResponsiblesUseCase(repository);
-    role = new Role('r', 'Role');
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
+    role = new Role('r', 'Role');
+    const actor = new User(
+      'actor',
+      'Act',
+      'Or',
+      'a@b.c',
+      [role],
+      'active',
+      dept,
+      site,
+      undefined,
+      [new Permission('p', PermissionKeys.READ_GROUP, '')],
+    );
+    checker = new PermissionChecker(actor);
+    useCase = new GetGroupResponsiblesUseCase(repository, checker);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
     group = new UserGroup('g', 'Group', [user], [user]);
   });

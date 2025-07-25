@@ -10,6 +10,8 @@ import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
+import { Permission } from '../../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Group REST controller', () => {
   let app: express.Express;
@@ -29,7 +31,18 @@ describe('Group REST controller', () => {
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role');
-    user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
+    user = new User(
+      'u',
+      'John',
+      'Doe',
+      'john@example.com',
+      [role],
+      'active',
+      dept,
+      site,
+      undefined,
+      [new Permission('p', PermissionKeys.ROOT, '')],
+    );
     group = new UserGroup('g', 'Group', [user], [user]);
     groupRepo.create.mockResolvedValue(group);
     groupRepo.findAll.mockResolvedValue([group]);
