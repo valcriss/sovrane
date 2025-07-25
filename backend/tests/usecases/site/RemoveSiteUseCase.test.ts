@@ -1,12 +1,12 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { RemoveSiteUseCase } from '../../usecases/site/RemoveSiteUseCase';
-import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
-import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
-import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
-import { Site } from '../../domain/entities/Site';
-import { User } from '../../domain/entities/User';
-import { Department } from '../../domain/entities/Department';
-import { Role } from '../../domain/entities/Role';
+import { RemoveSiteUseCase } from '../../../usecases/site/RemoveSiteUseCase';
+import { SiteRepositoryPort } from '../../../domain/ports/SiteRepositoryPort';
+import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
+import { DepartmentRepositoryPort } from '../../../domain/ports/DepartmentRepositoryPort';
+import { Site } from '../../../domain/entities/Site';
+import { User } from '../../../domain/entities/User';
+import { Department } from '../../../domain/entities/Department';
+import { Role } from '../../../domain/entities/Role';
 
 describe('RemoveSiteUseCase', () => {
   let siteRepo: DeepMockProxy<SiteRepositoryPort>;

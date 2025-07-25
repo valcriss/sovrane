@@ -1,13 +1,13 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { CreateDepartmentUseCase } from '../../usecases/department/CreateDepartmentUseCase';
-import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
-import { Department } from '../../domain/entities/Department';
-import { Site } from '../../domain/entities/Site';
-import { PermissionChecker } from '../../domain/services/PermissionChecker';
-import { User } from '../../domain/entities/User';
-import { Role } from '../../domain/entities/Role';
-import { Permission } from '../../domain/entities/Permission';
-import { PermissionKeys } from '../../domain/entities/PermissionKeys';
+import { CreateDepartmentUseCase } from '../../../usecases/department/CreateDepartmentUseCase';
+import { DepartmentRepositoryPort } from '../../../domain/ports/DepartmentRepositoryPort';
+import { Department } from '../../../domain/entities/Department';
+import { Site } from '../../../domain/entities/Site';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { User } from '../../../domain/entities/User';
+import { Role } from '../../../domain/entities/Role';
+import { Permission } from '../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('CreateDepartmentUseCase', () => {
   let repository: DeepMockProxy<DepartmentRepositoryPort>;

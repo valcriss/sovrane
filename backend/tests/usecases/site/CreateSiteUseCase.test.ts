@@ -1,7 +1,7 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { CreateSiteUseCase } from '../../usecases/site/CreateSiteUseCase';
-import { SiteRepositoryPort } from '../../domain/ports/SiteRepositoryPort';
-import { Site } from '../../domain/entities/Site';
+import { CreateSiteUseCase } from '../../../usecases/site/CreateSiteUseCase';
+import { SiteRepositoryPort } from '../../../domain/ports/SiteRepositoryPort';
+import { Site } from '../../../domain/entities/Site';
 
 describe('CreateSiteUseCase', () => {
   let repository: DeepMockProxy<SiteRepositoryPort>;
