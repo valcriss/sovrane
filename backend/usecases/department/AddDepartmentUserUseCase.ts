@@ -22,7 +22,7 @@ export class AddDepartmentUserUseCase {
    * @returns The updated {@link User} or `null` if the user or department is missing.
    */
   async execute(userId: string, departmentId: string): Promise<User | null> {
-    this.checker.check(PermissionKeys.UPDATE_USER);
+    this.checker.check(PermissionKeys.MANAGE_DEPARTMENT_USERS);
     const user = await this.userRepository.findById(userId);
     const department = await this.departmentRepository.findById(departmentId);
     if (!user || !department) {

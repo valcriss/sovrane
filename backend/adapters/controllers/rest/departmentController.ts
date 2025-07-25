@@ -192,7 +192,8 @@ export function createDepartmentRouter(
     logger.debug('GET /departments', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const useCase = new GetDepartmentsUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new GetDepartmentsUseCase(departmentRepository, checker);
     const result = await useCase.execute({
       page,
       limit,
@@ -237,7 +238,8 @@ export function createDepartmentRouter(
      */
   router.get('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id', getContext());
-    const useCase = new GetDepartmentUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new GetDepartmentUseCase(departmentRepository, checker);
     const department = await useCase.execute(req.params.id);
     if (!department) {
       logger.warn('Department not found', getContext());
@@ -313,7 +315,8 @@ export function createDepartmentRouter(
     logger.debug('GET /departments/:id/children', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const useCase = new GetDepartmentChildrenUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new GetDepartmentChildrenUseCase(departmentRepository, checker);
     const result = await useCase.execute(req.params.id, {
       page,
       limit,
@@ -361,7 +364,8 @@ export function createDepartmentRouter(
      */
   router.get('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/manager', getContext());
-    const useCase = new GetDepartmentManagerUseCase(departmentRepository, userRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new GetDepartmentManagerUseCase(departmentRepository, userRepository, checker);
     const manager = await useCase.execute(req.params.id);
     if (!manager) {
       logger.warn('Department manager not found', getContext());
@@ -403,7 +407,8 @@ export function createDepartmentRouter(
      */
   router.get('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/parent', getContext());
-    const useCase = new GetDepartmentParentUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new GetDepartmentParentUseCase(departmentRepository, checker);
     const parent = await useCase.execute(req.params.id);
     if (!parent) {
       logger.warn('Department parent not found', getContext());
@@ -473,7 +478,8 @@ export function createDepartmentRouter(
     logger.debug('GET /departments/:id/permissions', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const useCase = new GetDepartmentPermissionsUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new GetDepartmentPermissionsUseCase(departmentRepository, checker);
     const result = await useCase.execute(req.params.id, {
       page,
       limit,
@@ -559,7 +565,8 @@ export function createDepartmentRouter(
     logger.debug('GET /departments/:id/users', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const useCase = new GetDepartmentUsersUseCase(userRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new GetDepartmentUsersUseCase(userRepository, checker);
     const result = await useCase.execute(req.params.id, {
       page,
       limit,
@@ -609,7 +616,8 @@ export function createDepartmentRouter(
      */
   router.post('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments', getContext());
-    const useCase = new CreateDepartmentUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new CreateDepartmentUseCase(departmentRepository, checker);
     const department = await useCase.execute(parseDepartment(req.body));
     logger.debug('Department created', getContext());
     res.status(201).json(department);
@@ -652,7 +660,8 @@ export function createDepartmentRouter(
   router.put('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id', getContext());
     const department = parseDepartment({...req.body, id: req.params.id});
-    const useCase = new UpdateDepartmentUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new UpdateDepartmentUseCase(departmentRepository, checker);
     const updated = await useCase.execute(department);
     logger.debug('Department updated', getContext());
     res.json(updated);
@@ -753,7 +762,8 @@ export function createDepartmentRouter(
      */
   router.delete('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/children/:childId', getContext());
-    const useCase = new RemoveChildDepartmentUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new RemoveChildDepartmentUseCase(departmentRepository, checker);
     const updated = await useCase.execute(req.params.childId);
     if (!updated) {
       logger.warn('Child department not found', getContext());
@@ -807,7 +817,8 @@ export function createDepartmentRouter(
      */
   router.put('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/manager', getContext());
-    const useCase = new SetDepartmentManagerUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new SetDepartmentManagerUseCase(departmentRepository, checker);
     const updated = await useCase.execute(req.params.id, req.body.userId);
     if (!updated) {
       logger.warn('Department not found for manager set', getContext());
@@ -849,7 +860,8 @@ export function createDepartmentRouter(
      */
   router.delete('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/manager', getContext());
-    const useCase = new RemoveDepartmentManagerUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new RemoveDepartmentManagerUseCase(departmentRepository, checker);
     const updated = await useCase.execute(req.params.id);
     if (!updated) {
       logger.warn('Department not found for manager removal', getContext());
@@ -903,7 +915,8 @@ export function createDepartmentRouter(
      */
   router.put('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/parent', getContext());
-    const useCase = new SetDepartmentParentDepartmentUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new SetDepartmentParentDepartmentUseCase(departmentRepository, checker);
     const updated = await useCase.execute(req.params.id, req.body.parentId);
     if (!updated) {
       logger.warn('Department not found for parent set', getContext());
@@ -945,7 +958,8 @@ export function createDepartmentRouter(
      */
   router.delete('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/parent', getContext());
-    const useCase = new RemoveDepartmentParentDepartmentUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new RemoveDepartmentParentDepartmentUseCase(departmentRepository, checker);
     const updated = await useCase.execute(req.params.id);
     if (!updated) {
       logger.warn('Department not found for parent removal', getContext());
@@ -994,7 +1008,8 @@ export function createDepartmentRouter(
      */
   router.post('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/permissions', getContext());
-    const useCase = new SetDepartmentPermissionUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new SetDepartmentPermissionUseCase(departmentRepository, checker);
     const permission = new Permission(req.body.id, req.body.permissionKey, req.body.description);
     const updated = await useCase.execute(req.params.id, permission);
     if (!updated) {
@@ -1043,7 +1058,8 @@ export function createDepartmentRouter(
      */
   router.delete('/departments/:id/permissions/:permissionId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/permissions/:permissionId', getContext());
-    const useCase = new RemoveDepartmentPermissionUseCase(departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new RemoveDepartmentPermissionUseCase(departmentRepository, checker);
     const updated = await useCase.execute(req.params.id, req.params.permissionId);
     if (!updated) {
       logger.warn('Department not found for permission removal', getContext());
@@ -1140,7 +1156,8 @@ export function createDepartmentRouter(
      */
   router.delete('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/users/:userId', getContext());
-    const useCase = new RemoveDepartmentUserUseCase(userRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new RemoveDepartmentUserUseCase(userRepository, checker);
     const updated = await useCase.execute(req.params.userId);
     if (!updated) {
       logger.warn('User not found for removal', getContext());
@@ -1180,7 +1197,8 @@ export function createDepartmentRouter(
      */
   router.delete('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id', getContext());
-    const useCase = new RemoveDepartmentUseCase(departmentRepository, userRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new RemoveDepartmentUseCase(departmentRepository, userRepository, checker);
     try {
       await useCase.execute(req.params.id);
       logger.debug('Department deleted', getContext());

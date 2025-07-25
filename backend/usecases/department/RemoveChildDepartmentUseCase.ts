@@ -1,11 +1,16 @@
 import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
 import type { Department } from '../../domain/entities/Department';
+import { PermissionChecker } from '../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 
 /**
  * Use case for removing a child department from its parent.
  */
 export class RemoveChildDepartmentUseCase {
-  constructor(private readonly departmentRepository: DepartmentRepositoryPort) {}
+  constructor(
+    private readonly departmentRepository: DepartmentRepositoryPort,
+    private readonly checker: PermissionChecker,
+  ) {}
 
   /**
    * Execute the removal.
@@ -14,6 +19,7 @@ export class RemoveChildDepartmentUseCase {
    * @returns The updated child {@link Department} or `null` if not found.
    */
   async execute(childId: string): Promise<Department | null> {
+    this.checker.check(PermissionKeys.MANAGE_DEPARTMENT_HIERARCHY);
     const child = await this.departmentRepository.findById(childId);
     if (!child) {
       return null;

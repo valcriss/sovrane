@@ -20,7 +20,7 @@ export class AddChildDepartmentUseCase {
    * @returns The updated child {@link Department} or `null` if not found.
    */
   async execute(parentId: string, childId: string): Promise<Department | null> {
-    this.checker.check(PermissionKeys.UPDATE_DEPARTMENT);
+    this.checker.check(PermissionKeys.MANAGE_DEPARTMENT_HIERARCHY);
     const child = await this.departmentRepository.findById(childId);
     if (!child) {
       return null;

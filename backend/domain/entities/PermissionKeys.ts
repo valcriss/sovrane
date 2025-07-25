@@ -29,6 +29,27 @@ export class PermissionKeys {
   /** Allows setting a new account password. */
   static readonly UPDATE_PASSWORD = 'update-password';
 
+  /** Allows reading department information. */
+  static readonly READ_DEPARTMENT = 'read-department';
+
+  /** Allows listing departments. */
+  static readonly READ_DEPARTMENTS = 'read-departments';
+
+  /** Allows creating a department. */
+  static readonly CREATE_DEPARTMENT = 'create-department';
+
   /** Allows updating department information. */
   static readonly UPDATE_DEPARTMENT = 'update-department';
+
+  /** Allows deleting a department. */
+  static readonly DELETE_DEPARTMENT = 'delete-department';
+
+  /** Allows managing department users. */
+  static readonly MANAGE_DEPARTMENT_USERS = 'manage-department-users';
+
+  /** Allows managing department permissions. */
+  static readonly MANAGE_DEPARTMENT_PERMISSIONS = 'manage-department-permissions';
+
+  /** Allows managing department hierarchy. */
+  static readonly MANAGE_DEPARTMENT_HIERARCHY = 'manage-department-hierarchy';
 }

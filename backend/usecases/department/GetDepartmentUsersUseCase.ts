@@ -1,12 +1,17 @@
 import { UserRepositoryPort, UserFilters } from '../../domain/ports/UserRepositoryPort';
 import { User } from '../../domain/entities/User';
 import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
+import { PermissionChecker } from '../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 
 /**
  * Use case for listing users of a department.
  */
 export class GetDepartmentUsersUseCase {
-  constructor(private readonly userRepository: UserRepositoryPort) {}
+  constructor(
+    private readonly userRepository: UserRepositoryPort,
+    private readonly checker: PermissionChecker,
+  ) {}
 
   /**
    * Execute the retrieval.
@@ -19,6 +24,7 @@ export class GetDepartmentUsersUseCase {
     departmentId: string,
     params: ListParams & { filters?: UserFilters },
   ): Promise<PaginatedResult<User>> {
+    this.checker.check(PermissionKeys.READ_USERS);
     /* istanbul ignore next */
     const filters = { ...(params.filters || {}), departmentId };
     return this.userRepository.findPage({ ...params, filters });
