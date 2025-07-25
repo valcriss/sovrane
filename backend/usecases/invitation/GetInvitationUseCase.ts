@@ -1,7 +1,5 @@
 import { InvitationRepositoryPort } from '../../domain/ports/InvitationRepositoryPort';
 import { Invitation } from '../../domain/entities/Invitation';
-import { PermissionChecker } from '../../domain/services/PermissionChecker';
-import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 
 /**
  * Use case for retrieving an invitation by its token.
