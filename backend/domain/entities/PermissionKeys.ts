@@ -28,4 +28,7 @@ export class PermissionKeys {
 
   /** Allows setting a new account password. */
   static readonly UPDATE_PASSWORD = 'update-password';
+
+  /** Allows updating department information. */
+  static readonly UPDATE_DEPARTMENT = 'update-department';
 }

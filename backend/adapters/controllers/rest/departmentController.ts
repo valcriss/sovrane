@@ -29,6 +29,8 @@ import {GetDepartmentManagerUseCase} from '../../../usecases/department/GetDepar
 import {GetDepartmentParentUseCase} from '../../../usecases/department/GetDepartmentParentUseCase';
 import {GetDepartmentPermissionsUseCase} from '../../../usecases/department/GetDepartmentPermissionsUseCase';
 import {GetDepartmentUsersUseCase} from '../../../usecases/department/GetDepartmentUsersUseCase';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { User } from '../../../domain/entities/User';
 
 /**
  * @openapi
@@ -122,6 +124,10 @@ function parseDepartment(body: DepartmentPayload): Department {
       (p) => new Permission(p.id, p.permissionKey, p.description),
     ),
   );
+}
+
+interface AuthedRequest extends Request {
+  user: User;
 }
 
 export function createDepartmentRouter(
@@ -689,15 +695,25 @@ export function createDepartmentRouter(
      */
   router.post('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/children/:childId', getContext());
-    const useCase = new AddChildDepartmentUseCase(departmentRepository);
-    const updated = await useCase.execute(req.params.id, req.params.childId);
-    if (!updated) {
-      logger.warn('Child department not found', getContext());
-      res.status(404).end();
-      return;
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new AddChildDepartmentUseCase(departmentRepository, checker);
+    try {
+      const updated = await useCase.execute(req.params.id, req.params.childId);
+      if (!updated) {
+        logger.warn('Child department not found', getContext());
+        res.status(404).end();
+        return;
+      }
+      logger.debug('Child department added', getContext());
+      res.json(updated);
+    } catch (err) {
+      if ((err as Error).message === 'Forbidden') {
+        logger.warn('Permission denied adding child department', {...getContext(), error: err});
+        res.status(403).json({ error: 'Forbidden' });
+        return;
+      }
+      throw err;
     }
-    logger.debug('Child department added', getContext());
-    res.json(updated);
   });
 
   /**
