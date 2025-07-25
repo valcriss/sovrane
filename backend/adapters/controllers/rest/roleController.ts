@@ -130,6 +130,8 @@ export function createRoleRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles', getContext());
@@ -175,6 +177,8 @@ export function createRoleRouter(
    *               $ref: '#/components/schemas/Role'
    *       404:
    *         description: Role not found.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles/:id', getContext());
@@ -215,6 +219,8 @@ export function createRoleRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Role'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /roles', getContext());
@@ -255,6 +261,8 @@ export function createRoleRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Role'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.put('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /roles/:id', getContext());
@@ -289,6 +297,8 @@ export function createRoleRouter(
  *         description: Role successfully deleted
  *       400:
  *         description: Deletion failed because the role is still in use
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /roles/:id', getContext());
