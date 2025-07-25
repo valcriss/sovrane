@@ -125,6 +125,8 @@ export function createGroupRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/UserGroup'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/groups', async (req, res): Promise<void> => {
     logger.debug('POST /groups', getContext());
@@ -186,6 +188,8 @@ export function createGroupRouter(
    *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/groups', async (req, res): Promise<void> => {
     logger.debug('GET /groups', getContext());
@@ -229,6 +233,8 @@ export function createGroupRouter(
    *               $ref: '#/components/schemas/UserGroup'
    *       404:
    *         description: Group not found.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/groups/:id', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id', getContext());
@@ -293,6 +299,8 @@ export function createGroupRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/groups/:id/users', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/users', getContext());
@@ -364,6 +372,8 @@ export function createGroupRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/responsibles', getContext());
@@ -421,6 +431,8 @@ export function createGroupRouter(
    *               $ref: '#/components/schemas/UserGroup'
    *       403:
    *         description: Forbidden.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.put('/groups/:id', async (req, res): Promise<void> => {
     logger.debug('PUT /groups/:id', getContext());
@@ -462,6 +474,8 @@ export function createGroupRouter(
    *         description: Group deleted.
    *       403:
    *         description: Forbidden.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/groups/:id', async (req, res): Promise<void> => {
     logger.debug('DELETE /groups/:id', getContext());
@@ -517,6 +531,8 @@ export function createGroupRouter(
    *               $ref: '#/components/schemas/UserGroup'
    *       403:
    *         description: Forbidden.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/groups/:id/users', async (req, res): Promise<void> => {
     logger.debug('POST /groups/:id/users', getContext());
@@ -576,6 +592,8 @@ export function createGroupRouter(
    *               $ref: '#/components/schemas/UserGroup'
    *       403:
    *         description: Forbidden.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('POST /groups/:id/responsibles', getContext());
@@ -635,6 +653,8 @@ export function createGroupRouter(
    *               $ref: '#/components/schemas/UserGroup'
    *       403:
    *         description: Forbidden.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/groups/:id/users', async (req, res): Promise<void> => {
     logger.debug('DELETE /groups/:id/users', getContext());
@@ -694,6 +714,8 @@ export function createGroupRouter(
    *               $ref: '#/components/schemas/UserGroup'
    *       403:
    *         description: Forbidden.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('DELETE /groups/:id/responsibles', getContext());

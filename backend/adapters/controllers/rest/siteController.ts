@@ -99,6 +99,8 @@ export function createSiteRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /sites', getContext());
@@ -144,6 +146,8 @@ export function createSiteRouter(
    *               $ref: '#/components/schemas/Site'
    *       404:
    *         description: Site not found.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /sites/:id', getContext());
@@ -184,6 +188,8 @@ export function createSiteRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Site'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /sites', getContext());
@@ -226,6 +232,8 @@ export function createSiteRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Site'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.put('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /sites/:id', getContext());
@@ -261,6 +269,8 @@ export function createSiteRouter(
  *         description: Site successfully deleted
  *       400:
  *         description: Operation failed due to existing attachments
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /sites/:id', getContext());

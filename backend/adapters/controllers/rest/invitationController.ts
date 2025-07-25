@@ -144,6 +144,8 @@ export function createInvitationRouter(
    *         description: User already exists or invitation already sent.
    *       400:
    *         description: Invalid request.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/invitations/invite', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /invitations/invite', getContext());

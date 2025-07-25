@@ -103,6 +103,8 @@ export function createPermissionRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions', getContext());
@@ -148,6 +150,8 @@ export function createPermissionRouter(
    *               $ref: '#/components/schemas/Permission'
    *       404:
    *         description: Permission not found.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions/:id', getContext());
@@ -188,6 +192,8 @@ export function createPermissionRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Permission'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /permissions', getContext());
@@ -228,6 +234,8 @@ export function createPermissionRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Permission'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.put('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /permissions/:id', getContext());
@@ -259,6 +267,8 @@ export function createPermissionRouter(
  *     responses:
  *       204:
  *         description: Permission successfully removed
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /permissions/:id', getContext());

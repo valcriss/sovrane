@@ -177,6 +177,8 @@ export function createDepartmentRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments', getContext());
@@ -222,6 +224,8 @@ export function createDepartmentRouter(
    *               $ref: '#/components/schemas/Department'
    *       404:
    *         description: Department not found.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id', getContext());
@@ -294,6 +298,8 @@ export function createDepartmentRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/departments/:id/children', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/children', getContext());
@@ -342,6 +348,8 @@ export function createDepartmentRouter(
    *               $ref: '#/components/schemas/User'
    *       404:
    *         description: Manager not found.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/manager', getContext());
@@ -382,6 +390,8 @@ export function createDepartmentRouter(
    *               $ref: '#/components/schemas/Department'
    *       404:
    *         description: Parent department not found.
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.get('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/parent', getContext());
@@ -448,6 +458,8 @@ export function createDepartmentRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/permissions', getContext());
@@ -532,6 +544,8 @@ export function createDepartmentRouter(
   *                   type: integer
    *       204:
    *         description: No content.
+ *       401:
+ *         description: Invalid or expired authentication token.
   */
   router.get('/departments/:id/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/users', getContext());
@@ -582,6 +596,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments', getContext());
@@ -622,6 +638,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.put('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id', getContext());
@@ -664,6 +682,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/children/:childId', getContext());
@@ -710,6 +730,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/departments/:id/children/:childId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/children/:childId', getContext());
@@ -762,6 +784,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.put('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/manager', getContext());
@@ -802,6 +826,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/departments/:id/manager', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/manager', getContext());
@@ -854,6 +880,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.put('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id/parent', getContext());
@@ -894,6 +922,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/departments/:id/parent', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/parent', getContext());
@@ -941,6 +971,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/permissions', getContext());
@@ -988,6 +1020,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/departments/:id/permissions/:permissionId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/permissions/:permissionId', getContext());
@@ -1034,6 +1068,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.post('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/users/:userId', getContext());
@@ -1080,6 +1116,8 @@ export function createDepartmentRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Department'
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id/users/:userId', getContext());
@@ -1118,6 +1156,8 @@ export function createDepartmentRouter(
  *         description: Department successfully deleted
  *       400:
  *         description: Operation failed
+ *       401:
+ *         description: Invalid or expired authentication token.
    */
   router.delete('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id', getContext());
