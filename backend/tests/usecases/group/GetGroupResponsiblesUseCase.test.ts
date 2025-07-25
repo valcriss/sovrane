@@ -1,5 +1,5 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { GetGroupMembersUseCase } from '../../../usecases/userGroup/GetGroupMembersUseCase';
+import { GetGroupResponsiblesUseCase } from '../../../usecases/group/GetGroupResponsiblesUseCase';
 import { UserGroupRepositoryPort } from '../../../domain/ports/UserGroupRepositoryPort';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
@@ -10,9 +10,9 @@ import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 
-describe('GetGroupMembersUseCase', () => {
+describe('GetGroupResponsiblesUseCase', () => {
   let repository: DeepMockProxy<UserGroupRepositoryPort>;
-  let useCase: GetGroupMembersUseCase;
+  let useCase: GetGroupResponsiblesUseCase;
   let checker: PermissionChecker;
   let site: Site;
   let dept: Department;
@@ -38,17 +38,17 @@ describe('GetGroupMembersUseCase', () => {
       [new Permission('p', PermissionKeys.READ_GROUP, '')],
     );
     checker = new PermissionChecker(actor);
-    useCase = new GetGroupMembersUseCase(repository, checker);
+    useCase = new GetGroupResponsiblesUseCase(repository, checker);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
     group = new UserGroup('g', 'Group', [user], [user]);
   });
 
-  it('should return members from repository', async () => {
-    repository.listMembers.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
+  it('should return responsibles from repository', async () => {
+    repository.listResponsibles.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
 
     const result = await useCase.execute('g', { page: 1, limit: 20 });
 
     expect(result.items).toEqual([user]);
-    expect(repository.listMembers).toHaveBeenCalledWith('g', { page: 1, limit: 20 });
+    expect(repository.listResponsibles).toHaveBeenCalledWith('g', { page: 1, limit: 20 });
   });
 });

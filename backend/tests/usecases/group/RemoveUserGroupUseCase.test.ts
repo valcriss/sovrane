@@ -1,5 +1,5 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { RemoveUserGroupUseCase } from '../../../usecases/userGroup/RemoveUserGroupUseCase';
+import { RemoveUserGroupUseCase } from '../../../usecases/group/RemoveUserGroupUseCase';
 import { UserGroupRepositoryPort } from '../../../domain/ports/UserGroupRepositoryPort';
 import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
