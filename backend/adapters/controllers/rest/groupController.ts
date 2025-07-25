@@ -16,6 +16,7 @@ import {AddGroupResponsibleUseCase} from '../../../usecases/userGroup/AddGroupRe
 import {RemoveGroupResponsibleUseCase} from '../../../usecases/userGroup/RemoveGroupResponsibleUseCase';
 import {GetGroupMembersUseCase} from '../../../usecases/userGroup/GetGroupMembersUseCase';
 import {GetGroupResponsiblesUseCase} from '../../../usecases/userGroup/GetGroupResponsiblesUseCase';
+import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 
 /**
  * @openapi
@@ -60,6 +61,10 @@ function parseGroup(
   responsibles: User[],
 ): UserGroup {
   return new UserGroup(body.id, body.name, responsibles, [], body.description);
+}
+
+interface AuthedRequest extends express.Request {
+  user: User;
 }
 
 export function createGroupRouter(
@@ -136,7 +141,8 @@ export function createGroupRouter(
     );
     const validResponsibles = responsibles.filter((u): u is User => !!u);
     const group = parseGroup(body, validResponsibles);
-    const useCase = new CreateUserGroupUseCase(groupRepository);
+    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const useCase = new CreateUserGroupUseCase(groupRepository, checker);
     const created = await useCase.execute(group);
     res.status(201).json(created);
   });
@@ -195,7 +201,8 @@ export function createGroupRouter(
     logger.debug('GET /groups', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const useCase = new GetUserGroupsUseCase(groupRepository);
+    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const useCase = new GetUserGroupsUseCase(groupRepository, checker);
     const result = await useCase.execute({
       page,
       limit,
@@ -306,7 +313,8 @@ export function createGroupRouter(
     logger.debug('GET /groups/:id/users', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const useCase = new GetGroupMembersUseCase(groupRepository);
+    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const useCase = new GetGroupMembersUseCase(groupRepository, checker);
     const result = await useCase.execute(req.params.id, {
       page,
       limit,
@@ -379,7 +387,8 @@ export function createGroupRouter(
     logger.debug('GET /groups/:id/responsibles', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const useCase = new GetGroupResponsiblesUseCase(groupRepository);
+    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const useCase = new GetGroupResponsiblesUseCase(groupRepository, checker);
     const result = await useCase.execute(req.params.id, {
       page,
       limit,
@@ -448,7 +457,8 @@ export function createGroupRouter(
     }
     group.name = req.body.name ?? group.name;
     group.description = req.body.description ?? group.description;
-    const useCase = new UpdateUserGroupUseCase(groupRepository);
+    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const useCase = new UpdateUserGroupUseCase(groupRepository, checker);
     const updated = await useCase.execute(group);
     res.json(updated);
   });
@@ -489,7 +499,8 @@ export function createGroupRouter(
       res.status(403).end();
       return;
     }
-    const useCase = new RemoveUserGroupUseCase(groupRepository);
+    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const useCase = new RemoveUserGroupUseCase(groupRepository, checker);
     await useCase.execute(req.params.id);
     res.status(204).end();
   });
@@ -546,7 +557,8 @@ export function createGroupRouter(
       res.status(403).end();
       return;
     }
-    const useCase = new AddGroupUserUseCase(groupRepository, userRepository);
+    const checker = new PermissionChecker(user);
+    const useCase = new AddGroupUserUseCase(groupRepository, userRepository, checker);
     const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
     if (!updated) {
       res.status(404).end();
@@ -607,7 +619,8 @@ export function createGroupRouter(
       res.status(403).end();
       return;
     }
-    const useCase = new AddGroupResponsibleUseCase(groupRepository, userRepository);
+    const checker = new PermissionChecker(user);
+    const useCase = new AddGroupResponsibleUseCase(groupRepository, userRepository, checker);
     const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
     if (!updated) {
       res.status(404).end();
@@ -668,7 +681,8 @@ export function createGroupRouter(
       res.status(403).end();
       return;
     }
-    const useCase = new RemoveGroupUserUseCase(groupRepository, userRepository);
+    const checker = new PermissionChecker(user);
+    const useCase = new RemoveGroupUserUseCase(groupRepository, userRepository, checker);
     const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
     if (!updated) {
       res.status(404).end();
@@ -729,7 +743,8 @@ export function createGroupRouter(
       res.status(403).end();
       return;
     }
-    const useCase = new RemoveGroupResponsibleUseCase(groupRepository, userRepository);
+    const checker = new PermissionChecker(user);
+    const useCase = new RemoveGroupResponsibleUseCase(groupRepository, userRepository, checker);
     const updated = await useCase.execute(req.params.id, (req.body as { userId: string }).userId);
     if (!updated) {
       res.status(404).end();

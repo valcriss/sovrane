@@ -52,4 +52,25 @@ export class PermissionKeys {
 
   /** Allows managing department hierarchy. */
   static readonly MANAGE_DEPARTMENT_HIERARCHY = 'manage-department-hierarchy';
+
+  /** Allows reading user group information. */
+  static readonly READ_GROUP = 'read-group';
+
+  /** Allows listing user groups. */
+  static readonly READ_GROUPS = 'read-groups';
+
+  /** Allows creating a user group. */
+  static readonly CREATE_GROUP = 'create-group';
+
+  /** Allows updating user group information. */
+  static readonly UPDATE_GROUP = 'update-group';
+
+  /** Allows deleting a user group. */
+  static readonly DELETE_GROUP = 'delete-group';
+
+  /** Allows managing group members. */
+  static readonly MANAGE_GROUP_MEMBERS = 'manage-group-members';
+
+  /** Allows managing group responsibles. */
+  static readonly MANAGE_GROUP_RESPONSIBLES = 'manage-group-responsibles';
 }

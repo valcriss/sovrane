@@ -2,12 +2,17 @@ import { User } from '../../domain/entities/User';
 import { UserGroupRepositoryPort } from '../../domain/ports/UserGroupRepositoryPort';
 import { UserFilters } from '../../domain/ports/UserRepositoryPort';
 import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
+import { PermissionChecker } from '../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 
 /**
  * Use case for retrieving responsible users of a group.
  */
 export class GetGroupResponsiblesUseCase {
-  constructor(private readonly groupRepository: UserGroupRepositoryPort) {}
+  constructor(
+    private readonly groupRepository: UserGroupRepositoryPort,
+    private readonly checker: PermissionChecker,
+  ) {}
 
   /**
    * Execute the retrieval.
@@ -20,6 +25,7 @@ export class GetGroupResponsiblesUseCase {
     groupId: string,
     params: ListParams & { filters?: UserFilters },
   ): Promise<PaginatedResult<User>> {
+    this.checker.check(PermissionKeys.READ_GROUP);
     return this.groupRepository.listResponsibles(groupId, params);
   }
 }
