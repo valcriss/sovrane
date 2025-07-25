@@ -34,6 +34,14 @@ describe('Permission REST controller', () => {
     expect(repo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
+  it('should return 204 when no permissions found', async () => {
+    repo.findPage.mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });
+
+    const res = await request(app).get('/api/permissions?page=1&limit=20');
+
+    expect(res.status).toBe(204);
+  });
+
   it('should get permission by id', async () => {
     repo.findById.mockResolvedValue(permission);
 

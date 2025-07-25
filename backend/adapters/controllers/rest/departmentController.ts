@@ -173,9 +173,11 @@ export function createDepartmentRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
-   */
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
+  */
   router.get('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -187,6 +189,10 @@ export function createDepartmentRouter(
       filters: { siteId: req.query.siteId as string | undefined },
     });
     logger.debug('Departments retrieved', getContext());
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 
@@ -284,9 +290,11 @@ export function createDepartmentRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
-   */
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
+  */
   router.get('/departments/:id/children', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/children', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -301,6 +309,10 @@ export function createDepartmentRouter(
       },
     });
     logger.debug('Department children retrieved', getContext());
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 
@@ -432,9 +444,11 @@ export function createDepartmentRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
-   */
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
+  */
   router.get('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/permissions', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -446,6 +460,10 @@ export function createDepartmentRouter(
       filters: { search: req.query.search as string | undefined },
     });
     logger.debug('Department permissions retrieved', getContext());
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 
@@ -510,9 +528,11 @@ export function createDepartmentRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
-   */
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
+  */
   router.get('/departments/:id/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/users', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -529,6 +549,10 @@ export function createDepartmentRouter(
       },
     });
     logger.debug('Department users retrieved', getContext());
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 

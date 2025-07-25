@@ -512,6 +512,8 @@ export function createUserRouter(
    *                 page: 1
    *                 limit: 20
    *                 total: 0
+   *       204:
+   *         description: No content.
    */
   router.get('/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users', getContext());
@@ -534,6 +536,10 @@ export function createUserRouter(
       },
     });
     logger.debug('Users retrieved', getContext());
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 

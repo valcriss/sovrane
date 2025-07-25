@@ -40,6 +40,14 @@ describe('Site REST controller', () => {
     expect(siteRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
+  it('should return 204 when no sites found', async () => {
+    siteRepo.findPage.mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });
+
+    const res = await request(app).get('/api/sites?page=1&limit=20');
+
+    expect(res.status).toBe(204);
+  });
+
   it('should get site by id', async () => {
     siteRepo.findById.mockResolvedValue(site);
 

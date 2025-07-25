@@ -167,7 +167,7 @@ export function createGroupRouter(
    *           type: string
    *         description: Search term on the group name.
   *     responses:
-  *       200:
+   *       200:
    *         description: Paginated group list.
    *         content:
    *           application/json:
@@ -184,7 +184,9 @@ export function createGroupRouter(
    *                   type: integer
    *                 total:
    *                   type: integer
-  */
+   *       204:
+   *         description: No content.
+   */
   router.get('/groups', async (req, res): Promise<void> => {
     logger.debug('GET /groups', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -195,6 +197,10 @@ export function createGroupRouter(
       limit,
       filters: { search: req.query.search as string | undefined },
     });
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 
@@ -283,9 +289,11 @@ export function createGroupRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
-   */
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
+  */
   router.get('/groups/:id/users', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/users', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -296,6 +304,10 @@ export function createGroupRouter(
       limit,
       filters: { search: req.query.search as string | undefined },
     });
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 
@@ -348,9 +360,11 @@ export function createGroupRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
-   */
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
+  */
   router.get('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/responsibles', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -361,6 +375,10 @@ export function createGroupRouter(
       limit,
       filters: { search: req.query.search as string | undefined },
     });
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 
