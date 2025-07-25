@@ -30,7 +30,7 @@ describe('User REST controller', () => {
     repo = mockDeep<UserRepositoryPort>();
     avatar = mockDeep<AvatarServicePort>();
     logger = mockDeep<LoggerPort>();
-    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.READ_USERS, 'read users')]);
+    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, 'root')]);
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
@@ -233,6 +233,18 @@ describe('User REST controller', () => {
 
     const res = await request(app)
       .get('/api/users?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(403);
+  });
+
+  it('should return 403 for get user when permission missing', async () => {
+    auth.verifyToken.mockResolvedValue(
+      new User('u', 'John', 'Doe', 'john@example.com', [], 'active', department, site),
+    );
+
+    const res = await request(app)
+      .get('/api/users/u')
       .set('Authorization', 'Bearer token');
 
     expect(res.status).toBe(403);
