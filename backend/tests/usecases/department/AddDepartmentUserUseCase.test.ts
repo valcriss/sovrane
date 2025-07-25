@@ -30,7 +30,13 @@ describe('AddDepartmentUserUseCase', () => {
         'A',
         'B',
         'a@b.c',
-        [new Role('admin', 'Admin', [new Permission('p', PermissionKeys.UPDATE_USER, '')])],
+        [
+          new Role(
+            'admin',
+            'Admin',
+            [new Permission('p', PermissionKeys.MANAGE_DEPARTMENT_USERS, '')],
+          ),
+        ],
         'active',
         new Department('d', 'Dept', null, null, new Site('s', 'Site')),
         new Site('s', 'Site'),

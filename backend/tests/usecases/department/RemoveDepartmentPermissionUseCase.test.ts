@@ -4,6 +4,10 @@ import { DepartmentRepositoryPort } from '../../../domain/ports/DepartmentReposi
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
 import { Site } from '../../../domain/entities/Site';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { User } from '../../../domain/entities/User';
+import { Role } from '../../../domain/entities/Role';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('RemoveDepartmentPermissionUseCase', () => {
   let repository: DeepMockProxy<DepartmentRepositoryPort>;
@@ -11,10 +15,23 @@ describe('RemoveDepartmentPermissionUseCase', () => {
   let department: Department;
   let permission: Permission;
   let site: Site;
+  let checker: PermissionChecker;
 
   beforeEach(() => {
     repository = mockDeep<DepartmentRepositoryPort>();
-    useCase = new RemoveDepartmentPermissionUseCase(repository);
+    checker = new PermissionChecker(
+      new User(
+        'actor',
+        'A',
+        'B',
+        'a@b.c',
+        [new Role('admin', 'Admin', [new Permission('p', PermissionKeys.MANAGE_DEPARTMENT_PERMISSIONS, '')])],
+        'active',
+        new Department('d', 'Dept', null, null, new Site('s', 'Site')),
+        new Site('s', 'Site'),
+      ),
+    );
+    useCase = new RemoveDepartmentPermissionUseCase(repository, checker);
     site = new Site('site-1', 'HQ');
     permission = new Permission('perm-1', 'READ', 'read');
     department = new Department('dept-1', 'IT', null, null, site, [permission]);

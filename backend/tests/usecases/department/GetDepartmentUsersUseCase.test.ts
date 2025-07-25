@@ -5,6 +5,9 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { Permission } from '../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('GetDepartmentUsersUseCase', () => {
   let repo: DeepMockProxy<UserRepositoryPort>;
@@ -13,10 +16,23 @@ describe('GetDepartmentUsersUseCase', () => {
   let dept: Department;
   let role: Role;
   let user: User;
+  let checker: PermissionChecker;
 
   beforeEach(() => {
     repo = mockDeep<UserRepositoryPort>();
-    useCase = new GetDepartmentUsersUseCase(repo);
+    checker = new PermissionChecker(
+      new User(
+        'actor',
+        'A',
+        'B',
+        'a@b.c',
+        [new Role('admin', 'Admin', [new Permission('p', PermissionKeys.READ_USERS, '')])],
+        'active',
+        new Department('d', 'Dept', null, null, new Site('s', 'Site')),
+        new Site('s', 'Site'),
+      ),
+    );
+    useCase = new GetDepartmentUsersUseCase(repo, checker);
     site = new Site('s','Site');
     dept = new Department('d','Dept',null,null,site);
     role = new Role('r','Role');
