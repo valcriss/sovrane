@@ -23,6 +23,7 @@ import {Role} from '../../../domain/entities/Role';
 import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
 import {Permission} from '../../../domain/entities/Permission';
+import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 
 /**
  * @openapi
@@ -516,33 +517,46 @@ export function createUserRouter(
      *         description: No content.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     *     description: Requires read-users permission.
      */
     router.get('/users', async (req: Request, res: Response): Promise<void> => {
       logger.debug('GET /users', getContext());
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 20;
-      const useCase = new GetUsersUseCase(userRepository);
-      const result = await useCase.execute({
-        page,
-        limit,
-        filters: {
-          search: req.query.search as string | undefined,
-          status: req.query.status as
-                    | 'active'
-                    | 'suspended'
-                    | 'archived'
-                    | undefined,
-          departmentId: req.query.departmentId as string | undefined,
-          siteId: req.query.siteId as string | undefined,
-          roleId: req.query.roleId as string | undefined,
-        },
-      });
-      logger.debug('Users retrieved', getContext());
-      if (result.items.length === 0) {
-        res.status(204).end();
-        return;
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new GetUsersUseCase(userRepository, checker);
+      try {
+        const result = await useCase.execute({
+          page,
+          limit,
+          filters: {
+            search: req.query.search as string | undefined,
+            status: req.query.status as
+                      | 'active'
+                      | 'suspended'
+                      | 'archived'
+                      | undefined,
+            departmentId: req.query.departmentId as string | undefined,
+            siteId: req.query.siteId as string | undefined,
+            roleId: req.query.roleId as string | undefined,
+          },
+        });
+        logger.debug('Users retrieved', getContext());
+        if (result.items.length === 0) {
+          res.status(204).end();
+          return;
+        }
+        res.json(result);
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied listing users', {...getContext(), error: err});
+          res.status(403).json({error: 'Forbidden'});
+          return;
+        }
+        throw err;
       }
-      res.json(result);
     });
 
     /**
@@ -573,18 +587,31 @@ export function createUserRouter(
      *         description: User not found.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     *     description: Requires read-user permission.
      */
     router.get('/users/:id', async (req: Request, res: Response): Promise<void> => {
       logger.debug('GET /users/:id', getContext());
-      const useCase = new GetUserUseCase(userRepository);
-      const user = await useCase.execute(req.params.id);
-      if (!user) {
-        logger.warn('User not found', getContext());
-        res.status(404).end();
-        return;
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new GetUserUseCase(userRepository, checker);
+      try {
+        const user = await useCase.execute(req.params.id);
+        if (!user) {
+          logger.warn('User not found', getContext());
+          res.status(404).end();
+          return;
+        }
+        logger.debug('User retrieved', getContext());
+        res.json(user);
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied getting user', { ...getContext(), error: err });
+          res.status(403).json({ error: 'Forbidden' });
+          return;
+        }
+        throw err;
       }
-      logger.debug('User retrieved', getContext());
-      res.json(user);
     });
 
     /**
@@ -608,18 +635,31 @@ export function createUserRouter(
      *               $ref: '#/components/schemas/User'
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     *     description: Requires read-user permission.
      */
     router.get('/users/me', async (req: Request, res: Response): Promise<void> => {
       logger.debug('GET /users/me', getContext());
-      const useCase = new GetCurrentUserProfileUseCase(userRepository);
-      const user = await useCase.execute((req as AuthedRequest).user.id);
-      if (!user) {
-        logger.warn('Current user not found', getContext());
-        res.status(404).end();
-        return;
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new GetCurrentUserProfileUseCase(userRepository, checker);
+      try {
+        const user = await useCase.execute((req as AuthedRequest).user.id);
+        if (!user) {
+          logger.warn('Current user not found', getContext());
+          res.status(404).end();
+          return;
+        }
+        logger.debug('Current user returned', getContext());
+        res.json(user);
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied current profile', { ...getContext(), error: err });
+          res.status(403).json({ error: 'Forbidden' });
+          return;
+        }
+        throw err;
       }
-      logger.debug('Current user returned', getContext());
-      res.json(user);
     });
 
     /**
@@ -657,14 +697,27 @@ export function createUserRouter(
      *               $ref: '#/components/schemas/User'
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     *     description: Requires update-user permission.
      */
     router.put('/users/:id', async (req: Request, res: Response): Promise<void> => {
       logger.debug('PUT /users/:id', getContext());
-      const user = parseUser({...req.body, id: req.params.id});
-      const useCase = new UpdateUserProfileUseCase(userRepository);
-      const updated = await useCase.execute(user);
-      logger.debug('User profile updated', getContext());
-      res.json(updated);
+      const user = parseUser({ ...req.body, id: req.params.id });
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new UpdateUserProfileUseCase(userRepository, checker);
+      try {
+        const updated = await useCase.execute(user);
+        logger.debug('User profile updated', getContext());
+        res.json(updated);
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied updating user', { ...getContext(), error: err });
+          res.status(403).json({ error: 'Forbidden' });
+          return;
+        }
+        throw err;
+      }
     });
 
     /**
@@ -708,19 +761,32 @@ export function createUserRouter(
      *               $ref: '#/components/schemas/User'
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     *     description: Requires update-user permission.
      */
     router.put('/users/:id/status', async (req: Request, res: Response): Promise<void> => {
       logger.debug('PUT /users/:id/status', getContext());
-      const {status} = req.body;
-      const useCase = new ChangeUserStatusUseCase(userRepository);
-      const updated = await useCase.execute(req.params.id, status);
-      if (!updated) {
-        logger.warn('User not found for status change', getContext());
-        res.status(404).end();
-        return;
+      const { status } = req.body;
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new ChangeUserStatusUseCase(userRepository, checker);
+      try {
+        const updated = await useCase.execute(req.params.id, status);
+        if (!updated) {
+          logger.warn('User not found for status change', getContext());
+          res.status(404).end();
+          return;
+        }
+        logger.debug('User status changed', getContext());
+        res.json(updated);
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied changing status', { ...getContext(), error: err });
+          res.status(403).json({ error: 'Forbidden' });
+          return;
+        }
+        throw err;
       }
-      logger.debug('User status changed', getContext());
-      res.json(updated);
     });
 
     /**
@@ -818,13 +884,26 @@ export function createUserRouter(
      *         description: User successfully removed
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     *     description: Requires delete-user permission.
      */
     router.delete('/users/:id', async (req: Request, res: Response): Promise<void> => {
       logger.debug('DELETE /users/:id', getContext());
-      const useCase = new RemoveUserUseCase(userRepository);
-      await useCase.execute(req.params.id);
-      logger.debug('User removed', getContext());
-      res.status(204).end();
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new RemoveUserUseCase(userRepository, checker);
+      try {
+        await useCase.execute(req.params.id);
+        logger.debug('User removed', getContext());
+        res.status(204).end();
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied deleting user', { ...getContext(), error: err });
+          res.status(403).json({ error: 'Forbidden' });
+          return;
+        }
+        throw err;
+      }
     });
 
     return router;

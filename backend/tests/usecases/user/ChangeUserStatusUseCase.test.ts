@@ -5,18 +5,34 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { Permission } from '../../../domain/entities/Permission';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('ChangeUserStatusUseCase', () => {
   let repository: DeepMockProxy<UserRepositoryPort>;
   let useCase: ChangeUserStatusUseCase;
   let user: User;
   let role: Role;
+  let checker: PermissionChecker;
   let department: Department;
   let site: Site;
 
   beforeEach(() => {
     repository = mockDeep<UserRepositoryPort>();
-    useCase = new ChangeUserStatusUseCase(repository);
+    checker = new PermissionChecker(
+      new User(
+        'actor',
+        'A',
+        'B',
+        'a@b.c',
+        [new Role('admin', 'Admin', [new Permission('p', PermissionKeys.UPDATE_USER, '')])],
+        'active',
+        new Department('d', 'Dept', null, null, new Site('s', 'Site')),
+        new Site('s', 'Site'),
+      ),
+    );
+    useCase = new ChangeUserStatusUseCase(repository, checker);
     role = new Role('role-1', 'Admin');
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
@@ -33,6 +49,14 @@ describe('ChangeUserStatusUseCase', () => {
     expect(user.status).toBe('suspended');
     expect(repository.findById).toHaveBeenCalledWith('user-1');
     expect(repository.update).toHaveBeenCalledWith(user);
+  });
+
+  it('should throw when permission denied', async () => {
+    const denied = mockDeep<PermissionChecker>();
+    denied.check.mockImplementation(() => { throw new Error('Forbidden'); });
+    useCase = new ChangeUserStatusUseCase(repository, denied);
+    await expect(useCase.execute('user-1', 'suspended')).rejects.toThrow('Forbidden');
+    expect(repository.findById).not.toHaveBeenCalled();
   });
 
   it('should return null when user is not found', async () => {

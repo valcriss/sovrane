@@ -10,6 +10,8 @@ import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
+import { Permission } from '../../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 
 describe('User REST controller', () => {
@@ -28,7 +30,7 @@ describe('User REST controller', () => {
     repo = mockDeep<UserRepositoryPort>();
     avatar = mockDeep<AvatarServicePort>();
     logger = mockDeep<LoggerPort>();
-    role = new Role('r', 'Role');
+    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, 'root')]);
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
@@ -221,6 +223,31 @@ describe('User REST controller', () => {
       .set('Authorization', 'Bearer token');
 
     expect(res.status).toBe(204);
+  });
+
+  it('should return 403 when permission missing', async () => {
+    // user has no permissions assigned
+    auth.verifyToken.mockResolvedValue(
+      new User('u', 'John', 'Doe', 'john@example.com', [], 'active', department, site),
+    );
+
+    const res = await request(app)
+      .get('/api/users?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(403);
+  });
+
+  it('should return 403 for get user when permission missing', async () => {
+    auth.verifyToken.mockResolvedValue(
+      new User('u', 'John', 'Doe', 'john@example.com', [], 'active', department, site),
+    );
+
+    const res = await request(app)
+      .get('/api/users/u')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(403);
   });
 
   it('should get user by id', async () => {
