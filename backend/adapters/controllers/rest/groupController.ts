@@ -141,7 +141,7 @@ export function createGroupRouter(
     );
     const validResponsibles = responsibles.filter((u): u is User => !!u);
     const group = parseGroup(body, validResponsibles);
-    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const checker = new PermissionChecker((req as unknown as AuthedRequest).user);
     const useCase = new CreateUserGroupUseCase(groupRepository, checker);
     const created = await useCase.execute(group);
     res.status(201).json(created);
@@ -201,7 +201,7 @@ export function createGroupRouter(
     logger.debug('GET /groups', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const checker = new PermissionChecker((req as unknown as AuthedRequest).user);
     const useCase = new GetUserGroupsUseCase(groupRepository, checker);
     const result = await useCase.execute({
       page,
@@ -313,7 +313,7 @@ export function createGroupRouter(
     logger.debug('GET /groups/:id/users', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const checker = new PermissionChecker((req as unknown as AuthedRequest).user);
     const useCase = new GetGroupMembersUseCase(groupRepository, checker);
     const result = await useCase.execute(req.params.id, {
       page,
@@ -387,7 +387,7 @@ export function createGroupRouter(
     logger.debug('GET /groups/:id/responsibles', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
-    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const checker = new PermissionChecker((req as unknown as AuthedRequest).user);
     const useCase = new GetGroupResponsiblesUseCase(groupRepository, checker);
     const result = await useCase.execute(req.params.id, {
       page,
@@ -450,14 +450,14 @@ export function createGroupRouter(
       res.status(404).end();
       return;
     }
-    const user = (req as unknown as { user: User }).user;
+    const user = (req as unknown as AuthedRequest).user;
     if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
     }
     group.name = req.body.name ?? group.name;
     group.description = req.body.description ?? group.description;
-    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const checker = new PermissionChecker((req as unknown as AuthedRequest).user);
     const useCase = new UpdateUserGroupUseCase(groupRepository, checker);
     const updated = await useCase.execute(group);
     res.json(updated);
@@ -494,12 +494,12 @@ export function createGroupRouter(
       res.status(404).end();
       return;
     }
-    const user = (req as unknown as { user: User }).user;
+    const user = (req as unknown as AuthedRequest).user;
     if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
     }
-    const checker = new PermissionChecker((req as unknown as { user: User }).user);
+    const checker = new PermissionChecker((req as unknown as AuthedRequest).user);
     const useCase = new RemoveUserGroupUseCase(groupRepository, checker);
     await useCase.execute(req.params.id);
     res.status(204).end();
@@ -552,7 +552,7 @@ export function createGroupRouter(
       res.status(404).end();
       return;
     }
-    const user = (req as unknown as { user: User }).user;
+    const user = (req as unknown as AuthedRequest).user;
     if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
@@ -614,7 +614,7 @@ export function createGroupRouter(
       res.status(404).end();
       return;
     }
-    const user = (req as unknown as { user: User }).user;
+    const user = (req as unknown as AuthedRequest).user;
     if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
@@ -676,7 +676,7 @@ export function createGroupRouter(
       res.status(404).end();
       return;
     }
-    const user = (req as unknown as { user: User }).user;
+    const user = (req as unknown as AuthedRequest).user;
     if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
@@ -738,7 +738,7 @@ export function createGroupRouter(
       res.status(404).end();
       return;
     }
-    const user = (req as unknown as { user: User }).user;
+    const user = (req as unknown as AuthedRequest).user;
     if (!group.responsibleUsers.some(u => u.id === user.id)) {
       res.status(403).end();
       return;
