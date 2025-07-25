@@ -61,6 +61,15 @@ describe('Group REST controller', () => {
     expect(groupRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
+  it('should return 204 when no groups found', async () => {
+    groupRepo.findPage.mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });
+
+    const res = await request(app)
+      .get('/api/groups?page=1&limit=20')
+      .set('Authorization', 'Bearer u');
+    expect(res.status).toBe(204);
+  });
+
   it('should forbid update when not responsible', async () => {
     const other = new User('x', 'Jane', 'Doe', 'jane@example.com', [role], 'active', dept, site);
     userRepo.findById.mockResolvedValueOnce(other);

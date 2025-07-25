@@ -126,8 +126,10 @@ export function createRoleRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
   */
   router.get('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles', getContext());
@@ -140,6 +142,10 @@ export function createRoleRouter(
       filters: { search: req.query.search as string | undefined },
     });
     logger.debug('Roles retrieved', getContext());
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 

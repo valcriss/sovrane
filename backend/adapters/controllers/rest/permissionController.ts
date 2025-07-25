@@ -99,9 +99,11 @@ export function createPermissionRouter(
    *                   type: integer
    *                 limit:
    *                   type: integer
-   *                 total:
-   *                   type: integer
-   */
+  *                 total:
+  *                   type: integer
+   *       204:
+   *         description: No content.
+  */
   router.get('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -113,6 +115,10 @@ export function createPermissionRouter(
       filters: { search: req.query.search as string | undefined },
     });
     logger.debug('Permissions retrieved', getContext());
+    if (result.items.length === 0) {
+      res.status(204).end();
+      return;
+    }
     res.json(result);
   });
 

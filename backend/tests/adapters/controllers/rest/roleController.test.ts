@@ -42,6 +42,14 @@ describe('Role REST controller', () => {
     expect(roleRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { search: undefined } });
   });
 
+  it('should return 204 when no roles found', async () => {
+    roleRepo.findPage.mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });
+
+    const res = await request(app).get('/api/roles?page=1&limit=20');
+
+    expect(res.status).toBe(204);
+  });
+
   it('should get role by id', async () => {
     roleRepo.findById.mockResolvedValue(role);
 

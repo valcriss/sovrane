@@ -213,6 +213,16 @@ describe('User REST controller', () => {
     });
   });
 
+  it('should return 204 when no users found', async () => {
+    repo.findPage.mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });
+
+    const res = await request(app)
+      .get('/api/users?page=1&limit=20')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(204);
+  });
+
   it('should get user by id', async () => {
     repo.findById.mockResolvedValue(user);
 
@@ -284,6 +294,7 @@ describe('User REST controller', () => {
     expect(avatar.removeUserAvatar).toHaveBeenCalledWith('u');
   });
   it('should list users with default pagination', async () => {
+    repo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
     const res = await request(app)
       .get('/api/users')
       .set('Authorization', 'Bearer token');
