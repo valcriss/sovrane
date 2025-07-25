@@ -1091,7 +1091,8 @@ export function createDepartmentRouter(
      */
   router.post('/departments/:id/users/:userId', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments/:id/users/:userId', getContext());
-    const useCase = new AddDepartmentUserUseCase(userRepository, departmentRepository);
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    const useCase = new AddDepartmentUserUseCase(userRepository, departmentRepository, checker);
     const updated = await useCase.execute(req.params.userId, req.params.id);
     if (!updated) {
       logger.warn('User or department not found for add', getContext());
