@@ -3,6 +3,8 @@ import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { InvitationRepositoryPort } from '../../domain/ports/InvitationRepositoryPort';
 import { EmailServicePort } from '../../domain/ports/EmailServicePort';
 import { Invitation } from '../../domain/entities/Invitation';
+import { PermissionChecker } from '../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 
 /**
  * Use case responsible for creating and sending a user invitation.
@@ -12,6 +14,7 @@ export class CreateInvitationUseCase {
     private readonly userRepository: UserRepositoryPort,
     private readonly invitationRepository: InvitationRepositoryPort,
     private readonly emailService: EmailServicePort,
+    private readonly checker: PermissionChecker,
   ) {}
 
   /**
@@ -26,6 +29,7 @@ export class CreateInvitationUseCase {
     lastName?: string;
     role?: string;
   }): Promise<Invitation> {
+    this.checker.check(PermissionKeys.CREATE_INVITATION);
     const existingUser = await this.userRepository.findByEmail(data.email);
     if (existingUser) {
       throw new Error('User already exists');

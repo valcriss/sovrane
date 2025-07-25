@@ -8,6 +8,12 @@ import { InvitationRepositoryPort } from '../../../../domain/ports/InvitationRep
 import { EmailServicePort } from '../../../../domain/ports/EmailServicePort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { Invitation } from '../../../../domain/entities/Invitation';
+import { User } from '../../../../domain/entities/User';
+import { Department } from '../../../../domain/entities/Department';
+import { Site } from '../../../../domain/entities/Site';
+import { Role } from '../../../../domain/entities/Role';
+import { Permission } from '../../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Invitation REST controller', () => {
   let app: express.Express;
@@ -23,7 +29,28 @@ describe('Invitation REST controller', () => {
     invitationRepo = mockDeep<InvitationRepositoryPort>();
     email = mockDeep<EmailServicePort>();
     logger = mockDeep<LoggerPort>();
-    auth.verifyToken.mockResolvedValue({} as any);
+    
+    // Mock auth verification and user retrieval
+    auth.verifyToken.mockResolvedValue({ id: 'user-id' } as any);
+    const site = new Site('s', 'Site');
+    const dept = new Department('d', 'Dept', null, null, site);
+    const role = new Role('r', 'Role');
+    // Create user with invitation permissions
+    const mockUser = new User(
+      'user-id', 
+      'Test', 
+      'User', 
+      'test@test.com', 
+      [role], 
+      'active', 
+      dept, 
+      site,
+      undefined,
+      [
+        new Permission('p1', PermissionKeys.CREATE_INVITATION, 'Can create invitations')
+      ]
+    );
+    userRepo.findById.mockResolvedValue(mockUser);
 
     app = express();
     app.use(express.json());

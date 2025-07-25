@@ -73,4 +73,7 @@ export class PermissionKeys {
 
   /** Allows managing group responsibles. */
   static readonly MANAGE_GROUP_RESPONSIBLES = 'manage-group-responsibles';
+
+  /** Allows creating user invitations. */
+  static readonly CREATE_INVITATION = 'create-invitation';
 }

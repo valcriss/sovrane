@@ -8,6 +8,8 @@ import {CreateInvitationUseCase} from '../../../usecases/invitation/CreateInvita
 import {GetInvitationUseCase} from '../../../usecases/invitation/GetInvitationUseCase';
 import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import {getContext} from '../../../infrastructure/loggerContext';
+import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import {User} from '../../../domain/entities/User';
 
 /**
  * @openapi
@@ -18,6 +20,10 @@ import {getContext} from '../../../infrastructure/loggerContext';
  *       scheme: bearer
  *       bearerFormat: JWT
  */
+
+interface AuthedRequest extends Request {
+    user: User;
+}
 
 export function createInvitationRouter(
   authService: AuthServicePort,
@@ -72,6 +78,7 @@ export function createInvitationRouter(
       res.status(400).end();
       return;
     }
+    // No permission check needed for public invitation endpoint
     const useCase = new GetInvitationUseCase(invitationRepository);
     const invitation = await useCase.execute(token);
     if (!invitation) {
@@ -96,7 +103,13 @@ export function createInvitationRouter(
     }
     const token = header.slice(7);
     try {
-      await authService.verifyToken(token);
+      const claims = await authService.verifyToken(token);
+      const user = await userRepository.findById(claims.id);
+      if (!user) {
+        res.status(401).end();
+        return;
+      }
+      (req as AuthedRequest).user = user;
       next();
     } catch {
       res.status(401).end();
@@ -159,16 +172,23 @@ export function createInvitationRouter(
       res.status(400).end();
       return;
     }
+    const checker = new PermissionChecker((req as AuthedRequest).user);
     const useCase = new CreateInvitationUseCase(
       userRepository,
       invitationRepository,
       emailService,
+      checker,
     );
     try {
       const invitation = await useCase.execute({email, firstName, lastName, role});
       logger.debug('Invitation created', getContext());
       res.status(201).json({token: invitation.token});
     } catch (err) {
+      if ((err as Error).message === 'Forbidden') {
+        logger.warn('Permission denied creating invitation', {...getContext(), error: err});
+        res.status(403).json({error: 'Forbidden'});
+        return;
+      }
       logger.warn('Invitation creation failed', {...getContext(), error: err});
       const msg = (err as Error).message;
       if (msg === 'User already exists' || msg === 'Invitation already exists') {

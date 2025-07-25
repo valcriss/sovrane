@@ -8,11 +8,14 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { User } from '../../../domain/entities/User';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('CreateInvitationUseCase', () => {
   let userRepo: DeepMockProxy<UserRepositoryPort>;
   let invitationRepo: DeepMockProxy<InvitationRepositoryPort>;
   let email: DeepMockProxy<EmailServicePort>;
+  let checker: DeepMockProxy<PermissionChecker>;
   let useCase: CreateInvitationUseCase;
   let site: Site;
   let dept: Department;
@@ -23,7 +26,8 @@ describe('CreateInvitationUseCase', () => {
     userRepo = mockDeep<UserRepositoryPort>();
     invitationRepo = mockDeep<InvitationRepositoryPort>();
     email = mockDeep<EmailServicePort>();
-    useCase = new CreateInvitationUseCase(userRepo, invitationRepo, email);
+    checker = mockDeep<PermissionChecker>();
+    useCase = new CreateInvitationUseCase(userRepo, invitationRepo, email, checker);
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role');
@@ -37,6 +41,7 @@ describe('CreateInvitationUseCase', () => {
 
     const result = await useCase.execute({ email: 'new@test.com' });
 
+    expect(checker.check).toHaveBeenCalledWith(PermissionKeys.CREATE_INVITATION);
     expect(result.email).toBe('new@test.com');
     expect(invitationRepo.create).toHaveBeenCalled();
     expect(email.sendMail).toHaveBeenCalledWith({
