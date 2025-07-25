@@ -1,11 +1,16 @@
 import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositoryPort';
 import type { Department } from '../../domain/entities/Department';
+import { PermissionChecker } from '../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 
 /**
  * Use case for adding a department as a child of another department.
  */
 export class AddChildDepartmentUseCase {
-  constructor(private readonly departmentRepository: DepartmentRepositoryPort) {}
+  constructor(
+    private readonly departmentRepository: DepartmentRepositoryPort,
+    private readonly checker: PermissionChecker,
+  ) {}
 
   /**
    * Execute the child department addition.
@@ -15,6 +20,7 @@ export class AddChildDepartmentUseCase {
    * @returns The updated child {@link Department} or `null` if not found.
    */
   async execute(parentId: string, childId: string): Promise<Department | null> {
+    this.checker.check(PermissionKeys.UPDATE_DEPARTMENT);
     const child = await this.departmentRepository.findById(childId);
     if (!child) {
       return null;

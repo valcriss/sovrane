@@ -10,6 +10,7 @@ import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
+import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Department REST controller', () => {
   let app: express.Express;
@@ -28,8 +29,8 @@ describe('Department REST controller', () => {
     logger = mockDeep<LoggerPort>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
-    permission = new Permission('p', 'P', 'desc');
-    role = new Role('r', 'Role');
+    permission = new Permission('p', PermissionKeys.UPDATE_DEPARTMENT, 'desc');
+    role = new Role('r', 'Role', [permission]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     deptRepo.create.mockResolvedValue(department);
     deptRepo.update.mockResolvedValue(department);
@@ -41,6 +42,7 @@ describe('Department REST controller', () => {
 
     app = express();
     app.use(express.json());
+    app.use((req, _res, next) => { (req as any).user = user; next(); });
     app.use('/api', createDepartmentRouter(deptRepo, userRepo, logger));
   });
 
