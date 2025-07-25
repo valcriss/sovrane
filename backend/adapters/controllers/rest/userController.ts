@@ -514,6 +514,8 @@ export function createUserRouter(
    *                 total: 0
    *       204:
    *         description: No content.
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.get('/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users', getContext());
@@ -569,6 +571,8 @@ export function createUserRouter(
    *               $ref: '#/components/schemas/User'
    *       404:
    *         description: User not found.
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.get('/users/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users/:id', getContext());
@@ -596,12 +600,14 @@ export function createUserRouter(
  *     security:
  *       - bearerAuth: []
  *     responses:
- *       200:
- *         description: Profile of the authenticated user
+   *       200:
+   *         description: Profile of the authenticated user
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/User'
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.get('/users/me', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /users/me', getContext());
@@ -643,12 +649,14 @@ export function createUserRouter(
    *           schema:
    *             $ref: '#/components/schemas/User'
    *     responses:
- *       200:
- *         description: The user profile after update
+   *       200:
+   *         description: The user profile after update
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/User'
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.put('/users/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /users/:id', getContext());
@@ -692,12 +700,14 @@ export function createUserRouter(
    *             required:
    *               - status
    *     responses:
- *       200:
- *         description: User with the updated status
+   *       200:
+   *         description: User with the updated status
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/User'
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.put('/users/:id/status', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /users/:id/status', getContext());
@@ -746,6 +756,8 @@ export function createUserRouter(
    *     responses:
    *       204:
    *         description: Avatar updated
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.post('/users/:id/picture', upload.single('file'), async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /users/:id/picture', getContext());
@@ -773,6 +785,8 @@ export function createUserRouter(
    *     responses:
    *       204:
    *         description: Avatar removed
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.delete('/users/:id/picture', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /users/:id/picture', getContext());
@@ -799,9 +813,11 @@ export function createUserRouter(
  *         schema:
  *           type: string
  *         description: Identifier of the user to delete.
- *     responses:
- *       204:
- *         description: User successfully removed
+   *     responses:
+   *       204:
+   *         description: User successfully removed
+   *       401:
+   *         description: Invalid or expired authentication token.
    */
   router.delete('/users/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /users/:id', getContext());
