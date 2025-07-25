@@ -1,5 +1,5 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { RemoveGroupUserUseCase } from '../../../usecases/userGroup/RemoveGroupUserUseCase';
+import { RemoveGroupResponsibleUseCase } from '../../../usecases/group/RemoveGroupResponsibleUseCase';
 import { UserGroupRepositoryPort } from '../../../domain/ports/UserGroupRepositoryPort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { UserGroup } from '../../../domain/entities/UserGroup';
@@ -11,10 +11,10 @@ import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 
-describe('RemoveGroupUserUseCase', () => {
+describe('RemoveGroupResponsibleUseCase', () => {
   let groupRepo: DeepMockProxy<UserGroupRepositoryPort>;
   let userRepo: DeepMockProxy<UserRepositoryPort>;
-  let useCase: RemoveGroupUserUseCase;
+  let useCase: RemoveGroupResponsibleUseCase;
   let checker: PermissionChecker;
   let site: Site;
   let dept: Department;
@@ -38,23 +38,23 @@ describe('RemoveGroupUserUseCase', () => {
       dept,
       site,
       undefined,
-      [new Permission('p', PermissionKeys.MANAGE_GROUP_MEMBERS, '')],
+      [new Permission('p', PermissionKeys.MANAGE_GROUP_RESPONSIBLES, '')],
     );
     checker = new PermissionChecker(actor);
-    useCase = new RemoveGroupUserUseCase(groupRepo, userRepo, checker);
+    useCase = new RemoveGroupResponsibleUseCase(groupRepo, userRepo, checker);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
     group = new UserGroup('g', 'Group', [user], [user]);
   });
 
-  it('should remove user from group', async () => {
+  it('should remove responsible from group', async () => {
     groupRepo.findById.mockResolvedValue(group);
     userRepo.findById.mockResolvedValue(user);
-    groupRepo.removeUser.mockResolvedValue(group);
+    groupRepo.removeResponsible.mockResolvedValue(group);
 
     const result = await useCase.execute('g', 'u');
 
     expect(result).toBe(group);
-    expect(groupRepo.removeUser).toHaveBeenCalledWith('g', 'u');
+    expect(groupRepo.removeResponsible).toHaveBeenCalledWith('g', 'u');
   });
 
   it('should return null when group or user missing', async () => {
@@ -64,6 +64,6 @@ describe('RemoveGroupUserUseCase', () => {
     const result = await useCase.execute('g', 'u');
 
     expect(result).toBeNull();
-    expect(groupRepo.removeUser).not.toHaveBeenCalled();
+    expect(groupRepo.removeResponsible).not.toHaveBeenCalled();
   });
 });

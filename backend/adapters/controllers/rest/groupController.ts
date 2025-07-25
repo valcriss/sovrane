@@ -6,16 +6,16 @@ import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import {getContext} from '../../../infrastructure/loggerContext';
 import {UserGroup} from '../../../domain/entities/UserGroup';
 import {User} from '../../../domain/entities/User';
-import {CreateUserGroupUseCase} from '../../../usecases/userGroup/CreateUserGroupUseCase';
-import {UpdateUserGroupUseCase} from '../../../usecases/userGroup/UpdateUserGroupUseCase';
-import {RemoveUserGroupUseCase} from '../../../usecases/userGroup/RemoveUserGroupUseCase';
-import {AddGroupUserUseCase} from '../../../usecases/userGroup/AddGroupUserUseCase';
-import {RemoveGroupUserUseCase} from '../../../usecases/userGroup/RemoveGroupUserUseCase';
+import {CreateUserGroupUseCase} from '../../../usecases/group/CreateUserGroupUseCase';
+import {UpdateUserGroupUseCase} from '../../../usecases/group/UpdateUserGroupUseCase';
+import {RemoveUserGroupUseCase} from '../../../usecases/group/RemoveUserGroupUseCase';
+import {AddGroupUserUseCase} from '../../../usecases/group/AddGroupUserUseCase';
+import {RemoveGroupUserUseCase} from '../../../usecases/group/RemoveGroupUserUseCase';
 import {GetUserGroupsUseCase} from '../../../usecases/group/GetUserGroupsUseCase';
-import {AddGroupResponsibleUseCase} from '../../../usecases/userGroup/AddGroupResponsibleUseCase';
-import {RemoveGroupResponsibleUseCase} from '../../../usecases/userGroup/RemoveGroupResponsibleUseCase';
-import {GetGroupMembersUseCase} from '../../../usecases/userGroup/GetGroupMembersUseCase';
-import {GetGroupResponsiblesUseCase} from '../../../usecases/userGroup/GetGroupResponsiblesUseCase';
+import {AddGroupResponsibleUseCase} from '../../../usecases/group/AddGroupResponsibleUseCase';
+import {RemoveGroupResponsibleUseCase} from '../../../usecases/group/RemoveGroupResponsibleUseCase';
+import {GetGroupMembersUseCase} from '../../../usecases/group/GetGroupMembersUseCase';
+import {GetGroupResponsiblesUseCase} from '../../../usecases/group/GetGroupResponsiblesUseCase';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 
 /**
