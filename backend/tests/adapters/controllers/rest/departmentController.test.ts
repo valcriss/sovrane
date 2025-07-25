@@ -29,7 +29,7 @@ describe('Department REST controller', () => {
     logger = mockDeep<LoggerPort>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
-    permission = new Permission('p', PermissionKeys.UPDATE_DEPARTMENT, 'desc');
+    permission = new Permission('p', PermissionKeys.ROOT, 'desc');
     role = new Role('r', 'Role', [permission]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     deptRepo.create.mockResolvedValue(department);

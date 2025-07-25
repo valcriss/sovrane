@@ -6,6 +6,9 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { Permission } from '../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('AddDepartmentUserUseCase', () => {
   let userRepo: DeepMockProxy<UserRepositoryPort>;
@@ -16,11 +19,24 @@ describe('AddDepartmentUserUseCase', () => {
   let newDepartment: Department;
   let role: Role;
   let site: Site;
+  let checker: PermissionChecker;
 
   beforeEach(() => {
     userRepo = mockDeep<UserRepositoryPort>();
     deptRepo = mockDeep<DepartmentRepositoryPort>();
-    useCase = new AddDepartmentUserUseCase(userRepo, deptRepo);
+    checker = new PermissionChecker(
+      new User(
+        'actor',
+        'A',
+        'B',
+        'a@b.c',
+        [new Role('admin', 'Admin', [new Permission('p', PermissionKeys.UPDATE_USER, '')])],
+        'active',
+        new Department('d', 'Dept', null, null, new Site('s', 'Site')),
+        new Site('s', 'Site'),
+      ),
+    );
+    useCase = new AddDepartmentUserUseCase(userRepo, deptRepo, checker);
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
     newDepartment = new Department('dept-2', 'HR', null, null, site);
@@ -47,5 +63,13 @@ describe('AddDepartmentUserUseCase', () => {
 
     expect(result).toBeNull();
     expect(userRepo.update).not.toHaveBeenCalled();
+  });
+
+  it('should throw when permission denied', async () => {
+    const denied = mockDeep<PermissionChecker>();
+    denied.check.mockImplementation(() => { throw new Error('Forbidden'); });
+    useCase = new AddDepartmentUserUseCase(userRepo, deptRepo, denied);
+    await expect(useCase.execute('user-1', 'dept-2')).rejects.toThrow('Forbidden');
+    expect(userRepo.findById).not.toHaveBeenCalled();
   });
 });
