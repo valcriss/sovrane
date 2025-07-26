@@ -309,7 +309,10 @@ export function createUserRouter(
      */
     router.post(
       '/auth/login',
-      requireBodyParams(['email', 'password']),
+      requireBodyParams({
+        email: {validator: 'email'},
+        password: {validator: 'string', minLength: 8, maxLength: 49},
+      }),
       async (req: Request, res: Response): Promise<void> => {
         logger.debug('POST /auth/login', getContext());
         const {email, password} = req.body;

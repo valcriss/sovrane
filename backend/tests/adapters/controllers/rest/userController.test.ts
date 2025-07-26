@@ -103,7 +103,7 @@ describe('User REST controller', () => {
   it('should authenticate a user', async () => {
     const res = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'john@example.com', password: 'secret' });
+      .send({ email: 'john@example.com', password: 'secret123' });
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({
@@ -125,7 +125,7 @@ describe('User REST controller', () => {
 
     const res = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'john@example.com', password: 'bad' });
+      .send({ email: 'john@example.com', password: 'badpass1' });
 
     expect(res.status).toBe(401);
   });
@@ -137,7 +137,7 @@ describe('User REST controller', () => {
 
     const res = await request(app)
       .post('/api/auth/login')
-      .send({ email: 'john@example.com', password: 'secret' });
+      .send({ email: 'john@example.com', password: 'secret123' });
 
     expect(res.status).toBe(403);
     expect(res.body.error).toBe('User account is suspended or archived');
@@ -148,6 +148,15 @@ describe('User REST controller', () => {
 
     expect(res.status).toBe(400);
     expect(res.body.error).toBe('Missing required parameters: email, password');
+  });
+
+  it('should return 422 when parameters are invalid', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'bad', password: 'short' });
+
+    expect(res.status).toBe(422);
+    expect(res.body.error).toBe('Invalid parameters value : email, password');
   });
 
   it('should authenticate with provider', async () => {
