@@ -26,7 +26,11 @@ export class PrismaUserRepository implements UserRepositoryPort {
 
   private mapRecord(
     record: PrismaUser & {
-      roles: Array<{ role: PrismaRole }>;
+      roles: Array<{
+        role: PrismaRole & {
+          permissions: Array<{ permission: PrismaPermission }>;
+        };
+      }>;
       department: PrismaDepartment & { site: PrismaSite };
       site: PrismaSite;
       permissions: Array<{ permission: PrismaPermission }>;
@@ -37,7 +41,20 @@ export class PrismaUserRepository implements UserRepositoryPort {
       record.firstname,
       record.lastname,
       record.email,
-      record.roles.map((ur) => new Role(ur.role.id, ur.role.label)),
+      record.roles.map(
+        (ur) =>
+          new Role(
+            ur.role.id,
+            ur.role.label,
+            ur.role.permissions.map((rp) =>
+              new Permission(
+                rp.permission.id,
+                rp.permission.permissionKey,
+                rp.permission.description,
+              ),
+            ),
+          ),
+      ),
       record.status as 'active' | 'suspended' | 'archived',
       new Department(
         record.department.id,
@@ -59,7 +76,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
     const record = await this.prisma.user.findUnique({
       where: { id },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -72,7 +89,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
     this.logger.debug('User findAll', getContext());
     const records = await this.prisma.user.findMany({
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -111,7 +128,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
       take: params.limit,
       where,
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -131,7 +148,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
     const record = await this.prisma.user.findUnique({
       where: { email },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -148,7 +165,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         externalId: externalId
       },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -162,7 +179,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
     const records = await this.prisma.user.findMany({
       where: { departmentId },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -176,7 +193,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
     const records = await this.prisma.user.findMany({
       where: { roles: { some: { roleId } } },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -190,7 +207,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
     const records = await this.prisma.user.findMany({
       where: { siteId },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -220,7 +237,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         },
       },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
@@ -251,7 +268,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         },
       },
       include: {
-        roles: { include: { role: true } },
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
