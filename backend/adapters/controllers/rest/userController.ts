@@ -307,6 +307,7 @@ export function createUserRouter(
      *         description: User account is suspended or archived
      */
     router.post('/auth/login', async (req: Request, res: Response): Promise<void> => {
+      console.log('debug');
       logger.debug('POST /auth/login', getContext());
       const {email, password} = req.body;
       const useCase = new AuthenticateUserUseCase(authService);
