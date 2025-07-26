@@ -16,6 +16,8 @@ export class JWTAuthServiceAdapter implements AuthServicePort {
    *
    * @param secret - Secret used to sign and verify tokens.
    * @param userRepository - Repository for retrieving users.
+   * @param prisma
+   * @param logger
    */
   constructor(
     private readonly secret: string,
