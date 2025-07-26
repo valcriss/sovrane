@@ -2813,6 +2813,9 @@
               }
             }
           },
+          "401": {
+            "description": "Invalid credentials"
+          },
           "403": {
             "description": "User account is suspended or archived"
           }
