@@ -16,6 +16,12 @@ describe('PrismaUserRepository', () => {
   let mockRole: Role;
   let department: Department;
   let site: Site;
+  const includeRelations = {
+    roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
+    department: { include: { site: true } },
+    site: true,
+    permissions: { include: { permission: true } },
+  };
 
   beforeEach(() => {
     // Create deep mock of Prisma client
@@ -66,7 +72,8 @@ describe('PrismaUserRepository', () => {
             roleId: 'role-123',
             role: {
               id: 'role-123',
-              label: 'Admin'
+              label: 'Admin',
+              permissions: []
             }
           }
         ]
@@ -88,12 +95,7 @@ describe('PrismaUserRepository', () => {
 
       expect(prismaClient.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'user-123' },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -105,12 +107,7 @@ describe('PrismaUserRepository', () => {
       expect(result).toBeNull();
       expect(prismaClient.user.findUnique).toHaveBeenCalledWith({
         where: { id: 'non-existent-id' },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -165,7 +162,8 @@ describe('PrismaUserRepository', () => {
             roleId: 'role-123',
             role: {
               id: 'role-123',
-              label: 'Admin'
+              label: 'Admin',
+              permissions: []
             }
           }
         ]
@@ -180,12 +178,7 @@ describe('PrismaUserRepository', () => {
 
       expect(prismaClient.user.findUnique).toHaveBeenCalledWith({
         where: { email: 'john.doe@example.com' },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -228,12 +221,7 @@ describe('PrismaUserRepository', () => {
       expect(result?.id).toBe('user-123');
       expect(prismaClient.user.findFirst).toHaveBeenCalledWith({
         where: { externalProvider: 'google', externalId: 'g123' },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -269,7 +257,8 @@ describe('PrismaUserRepository', () => {
             roleId: 'role-123',
             role: {
               id: 'role-123',
-              label: 'Admin'
+              label: 'Admin',
+              permissions: []
             }
           }
         ]
@@ -299,12 +288,7 @@ describe('PrismaUserRepository', () => {
             create: [{ role: { connect: { id: 'role-123' } } }],
           },
         },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -351,12 +335,7 @@ describe('PrismaUserRepository', () => {
             create: [{ role: { connect: { id: 'role-123' } } }],
           },
         },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -411,12 +390,7 @@ describe('PrismaUserRepository', () => {
             create: [],
           },
         },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
   });
@@ -455,7 +429,8 @@ describe('PrismaUserRepository', () => {
             roleId: 'role-123',
             role: {
               id: 'role-123',
-              label: 'Admin'
+              label: 'Admin',
+              permissions: []
             }
           }
         ]
@@ -488,12 +463,7 @@ describe('PrismaUserRepository', () => {
             create: [{ role: { connect: { id: 'role-123' } } }],
           },
         },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -531,7 +501,8 @@ describe('PrismaUserRepository', () => {
             roleId: 'role-456',
             role: {
               id: 'role-456',
-              label: 'User'
+              label: 'User',
+              permissions: []
             }
           }
         ]
@@ -561,12 +532,7 @@ describe('PrismaUserRepository', () => {
             create: [{ role: { connect: { id: 'role-456' } } }],
           },
         },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -624,12 +590,7 @@ describe('PrismaUserRepository', () => {
             create: [{ role: { connect: { id: 'role-123' } } }],
           },
         },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
 
@@ -685,12 +646,7 @@ describe('PrismaUserRepository', () => {
             create: [],
           },
         },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
   });
@@ -720,12 +676,7 @@ describe('PrismaUserRepository', () => {
       expect(result).toHaveLength(1);
       expect(prismaClient.user.findMany).toHaveBeenCalledWith({
         where: { departmentId: 'dept-1' },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
   });
@@ -755,12 +706,7 @@ describe('PrismaUserRepository', () => {
       expect(result).toHaveLength(1);
       expect(prismaClient.user.findMany).toHaveBeenCalledWith({
         where: { roles: { some: { roleId: 'role-1' } } },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
   });
@@ -790,12 +736,7 @@ describe('PrismaUserRepository', () => {
       expect(result).toHaveLength(1);
       expect(prismaClient.user.findMany).toHaveBeenCalledWith({
         where: { siteId: 'site-1' },
-        include: {
-          roles: { include: { role: true } },
-          department: { include: { site: true } },
-          site: true,
-          permissions: { include: { permission: true } },
-        },
+        include: includeRelations,
       });
     });
   });
@@ -860,12 +801,7 @@ describe('PrismaUserRepository', () => {
 
     expect(result).toHaveLength(1);
     expect(prismaClient.user.findMany).toHaveBeenCalledWith({
-      include: {
-        roles: { include: { role: true } },
-        department: { include: { site: true } },
-        site: true,
-        permissions: { include: { permission: true } },
-      },
+      include: includeRelations,
     });
   });
 });
