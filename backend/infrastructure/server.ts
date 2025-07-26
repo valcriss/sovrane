@@ -33,6 +33,7 @@ async function bootstrap(): Promise<void> {
   const authService = new JWTAuthServiceAdapter(
     process.env.JWT_SECRET ?? 'secret',
     userRepository,
+    prisma,
     logger,
   );
 

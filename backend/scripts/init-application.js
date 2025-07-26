@@ -3,6 +3,7 @@
 // Initialize application with default administrator
 const { PrismaClient } = require('@prisma/client');
 const { randomUUID } = require('crypto');
+const argon2 = require('argon2');
 
 process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://sovrane:sovrane@localhost:5432/sovrane';
 process.env.JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -48,6 +49,7 @@ async function main() {
 
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+  const passwordHash = await argon2.hash(adminPassword);
 
   await prisma.user.create({
     data: {
@@ -55,7 +57,7 @@ async function main() {
       firstname: 'Admin',
       lastname: 'Admin',
       email: adminEmail,
-      password: adminPassword,
+      password: passwordHash,
       status: 'active',
       departmentId: department.id,
       siteId: site.id,
