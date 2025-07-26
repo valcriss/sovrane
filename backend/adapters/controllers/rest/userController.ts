@@ -295,16 +295,16 @@ export function createUserRouter(
      *               - email
      *               - password
      *     responses:
-      *       200:
-        *         description: User successfully authenticated
-        *         content:
-          *           application/json:
-            *             schema:
-              *               $ref: '#/components/schemas/User'
+     *       200:
+     *         description: User successfully authenticated
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/User'
      *       401:
      *         description: Invalid credentials
      *       403:
-       *         description: User account is suspended or archived
+     *         description: User account is suspended or archived
      */
     router.post('/auth/login', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/login', getContext());
