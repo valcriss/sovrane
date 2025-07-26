@@ -1,6 +1,7 @@
 import swaggerJsdoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { Application } from 'express';
+import * as fs from 'node:fs';
 
 export const swaggerSpec = swaggerJsdoc({
   definition: {
@@ -29,4 +30,5 @@ export interface SetupSwaggerOptions {
 
 export function setupSwagger(app: Application): void {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  fs.writeFileSync('./openapi.json', JSON.stringify(swaggerSpec, null, 2));
 }

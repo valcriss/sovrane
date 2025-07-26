@@ -1,0 +1,3476 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sovrane API",
+    "version": "1.0.0",
+    "description": "API documentation for the Sovrane application"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api"
+    }
+  ],
+  "paths": {
+    "/departments": {
+      "get": {
+        "summary": "Get all departments",
+        "description": "Returns a paginated list of departments.",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of departments per page."
+          },
+          {
+            "in": "query",
+            "name": "siteId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by site identifier."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated department list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Department"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a department.",
+        "description": "Creates a new department within a site. Authentication with\nadministrator privileges is required.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Department information to create.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Department"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created department",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}": {
+      "get": {
+        "summary": "Get department by ID",
+        "description": "Returns detailed information about a specific department.",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the department."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "404": {
+            "description": "Department not found."
+          }
+        }
+      },
+      "post": {
+        "summary": "Update a department.",
+        "description": "Modify a department's label, parent, manager or permissions.",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department to update."
+          }
+        ],
+        "requestBody": {
+          "description": "Updated department information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Department"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Department after update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a department.",
+        "description": "Permanently deletes a department. The operation fails if users are\nstill attached. Requires administrator privileges.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department to delete."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Department successfully deleted"
+          },
+          "400": {
+            "description": "Operation failed"
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/children": {
+      "get": {
+        "summary": "List child departments",
+        "description": "Retrieves a paginated list of departments that have the given department as parent.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the parent department."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "siteId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter children by site."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by label."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of child departments.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Department"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/manager": {
+      "get": {
+        "summary": "Get department manager",
+        "description": "Returns the user managing the department.",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Manager information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "404": {
+            "description": "Manager not found."
+          }
+        }
+      },
+      "post": {
+        "summary": "Set department manager.",
+        "description": "Assigns a user as the manager of the department. Requires\nadministrator privileges.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          }
+        ],
+        "requestBody": {
+          "description": "User identifier to set as manager.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Department with manager assigned",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove department manager.",
+        "description": "Clears the manager of the department. The caller must be authenticated\nas an administrator.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department without manager",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/parent": {
+      "get": {
+        "summary": "Get parent department",
+        "description": "Returns the parent department if any.",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Parent department information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "404": {
+            "description": "Parent department not found."
+          }
+        }
+      },
+      "post": {
+        "summary": "Set parent department.",
+        "description": "Defines the parent department for hierarchical organization. Requires\nadministrator privileges.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department to update."
+          }
+        ],
+        "requestBody": {
+          "description": "Identifier of the new parent department.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "parentId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "parentId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Department with updated parent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove parent department.",
+        "description": "Detaches the department from its current parent. Administrator\nauthentication is required.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department without parent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/permissions": {
+      "get": {
+        "summary": "List department permissions",
+        "description": "Returns a paginated list of permissions attached to the department.",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter permissions by key or description."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated permissions list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Permission"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "post": {
+        "summary": "Add permission to department.",
+        "description": "Grants a specific permission to the department. Administrator\nauthentication is required.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department to update."
+          }
+        ],
+        "requestBody": {
+          "description": "Permission data to add.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Permission"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Department with new permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/users": {
+      "get": {
+        "summary": "List department users",
+        "description": "Returns a paginated list of users belonging to the department.",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by user name or email."
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended",
+                "archived"
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "siteId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "roleId",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated users list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/children/{childId}": {
+      "post": {
+        "summary": "Add a child department.",
+        "description": "Attaches an existing department as a child of another department.\nRequires authentication with administrative rights.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the parent department."
+          },
+          {
+            "in": "path",
+            "name": "childId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the child department to attach."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department with new child attached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a child department.",
+        "description": "Detaches a child department from its parent. Authentication and\nadministrative privileges are required.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the parent department."
+          },
+          {
+            "in": "path",
+            "name": "childId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the child department to detach."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department without the removed child",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/permissions/{permissionId}": {
+      "delete": {
+        "summary": "Remove a permission from department.",
+        "description": "Revokes a previously granted permission from the department.\nAdministrator authentication is required.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          },
+          {
+            "in": "path",
+            "name": "permissionId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the permission to remove."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department after permission removal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/departments/{id}/users/{userId}": {
+      "post": {
+        "summary": "Attach user to department.",
+        "description": "Adds an existing user to the specified department. Requires\nadministrative privileges.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the target department."
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the user to attach."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department with user attached",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Detach user from department.",
+        "description": "Removes the association between a user and a department. Requires\nadministrator authentication.\n",
+        "tags": [
+          "Department"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the department."
+          },
+          {
+            "in": "path",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the user to detach."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Department after user removal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Department"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/groups": {
+      "post": {
+        "summary": "Create a new user group.",
+        "description": "Creates a new user group with the authenticated user as the responsible user.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Data for the new user group.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Identifier for the group."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Group name."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Optional group description."
+                  }
+                },
+                "required": [
+                  "id",
+                  "name"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "The created group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "get": {
+        "summary": "List all groups.",
+        "description": "Returns all user groups.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of groups per page."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term on the group name."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated group list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserGroup"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/groups/{id}": {
+      "get": {
+        "summary": "Get a user group by id.",
+        "description": "Retrieves a single user group.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The requested group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "404": {
+            "description": "Group not found."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a group.",
+        "description": "Updates group information. Only the responsible user can modify it.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          }
+        ],
+        "requestBody": {
+          "description": "Group data to update.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "New group name."
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "New description."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a group.",
+        "description": "Removes a group if the requester is responsible user.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Group deleted."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        }
+      }
+    },
+    "/groups/{id}/users": {
+      "get": {
+        "summary": "List users of a group.",
+        "description": "Returns the paginated members of the specified group.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of users per page."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term on the user name."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of group members.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "post": {
+        "summary": "Add user to group.",
+        "description": "Adds a user to the group. Only the responsible user can manage members.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          }
+        ],
+        "requestBody": {
+          "description": "User identifier to add.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "Identifier of the user."
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove user from group.",
+        "description": "Removes a user from the group. Only the responsible user can manage members.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          }
+        ],
+        "requestBody": {
+          "description": "User identifier to remove.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "Identifier of the user."
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        }
+      }
+    },
+    "/groups/{id}/responsibles": {
+      "get": {
+        "summary": "List responsible users of a group.",
+        "description": "Returns the paginated list of responsible users managing the group.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of users per page."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term on the user name."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of responsible users.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "post": {
+        "summary": "Add responsible user to group.",
+        "description": "Adds a user as responsible for the group. Only an existing responsible user can manage responsibles.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          }
+        ],
+        "requestBody": {
+          "description": "User identifier to add as responsible.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "Identifier of the user."
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove responsible user from group.",
+        "description": "Removes a responsible user from the group. Only an existing responsible user can manage responsibles.",
+        "tags": [
+          "UserGroup"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Group identifier."
+          }
+        ],
+        "requestBody": {
+          "description": "User identifier to remove from responsible users.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "Identifier of the user."
+                  }
+                },
+                "required": [
+                  "userId"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated group.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserGroup"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          }
+        }
+      }
+    },
+    "/invitations/invite/{token}": {
+      "get": {
+        "summary": "Get invitation information by token",
+        "description": "Retrieves the invitation details linked to the provided token. Used to validate the invitation and pre-fill onboarding fields.\n",
+        "tags": [
+          "Invitation"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "The invitation token from the activation link."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Invitation details and onboarding info.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string"
+                    },
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "role": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "email"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid token parameter."
+          },
+          "404": {
+            "description": "Invalid or expired invitation token."
+          }
+        }
+      }
+    },
+    "/invitations/invite": {
+      "post": {
+        "summary": "Invite a new user by email",
+        "description": "Sends an invitation email with an activation link to a new user. Only administrators can invite users.\n",
+        "tags": [
+          "Invitation"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Email and optional details for the invited user.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "description": "Email address of the invitee."
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "description": "First name (optional)."
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "description": "Last name (optional)."
+                  },
+                  "role": {
+                    "type": "string",
+                    "description": "Role to assign after activation (optional)."
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Invitation sent successfully."
+          },
+          "400": {
+            "description": "Invalid request."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "409": {
+            "description": "User already exists or invitation already sent."
+          }
+        }
+      }
+    },
+    "/permissions": {
+      "get": {
+        "summary": "Get all permissions",
+        "description": "Returns the list of all permissions.",
+        "tags": [
+          "Permission"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of permissions per page."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term on key or description."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated permission list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Permission"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a permission.",
+        "description": "Registers a new permission in the system. Only authenticated\nadministrators should use this endpoint.\n",
+        "tags": [
+          "Permission"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Permission details to create.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Permission"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created permission",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/permissions/{id}": {
+      "get": {
+        "summary": "Get permission by ID",
+        "description": "Returns detailed information about a specific permission.",
+        "tags": [
+          "Permission"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the permission."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Permission details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "404": {
+            "description": "Permission not found."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a permission.",
+        "description": "Modify the key or description of an existing permission.",
+        "tags": [
+          "Permission"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the permission to update."
+          }
+        ],
+        "requestBody": {
+          "description": "Updated permission information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Permission"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Permission after update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Permission"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a permission.",
+        "description": "Deletes an existing permission. It should no longer be referenced by any role before calling this endpoint.",
+        "tags": [
+          "Permission"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the permission to delete."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Permission successfully removed"
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/roles": {
+      "get": {
+        "summary": "Get all roles",
+        "description": "Returns a paginated list of roles.",
+        "tags": [
+          "Role"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of roles per page."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term on the role label."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of role objects.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Role"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a role.",
+        "description": "Registers a new role grouping a set of permissions. Requires\nauthentication and administrative rights.\n",
+        "tags": [
+          "Role"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Role information to store.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Role"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created role",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/roles/{id}": {
+      "get": {
+        "summary": "Get role by ID",
+        "description": "Returns detailed information about a specific role.",
+        "tags": [
+          "Role"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the role."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Role details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "404": {
+            "description": "Role not found."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a role.",
+        "description": "Modify the label or permissions of an existing role.",
+        "tags": [
+          "Role"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the role to update."
+          }
+        ],
+        "requestBody": {
+          "description": "Updated role data.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Role"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Role after update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Role"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a role.",
+        "description": "Deletes a role. The operation fails if users are still associated with\nit. Requires administrative privileges.\n",
+        "tags": [
+          "Role"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the role to delete."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Role successfully deleted"
+          },
+          "400": {
+            "description": "Deletion failed because the role is still in use"
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/sites": {
+      "get": {
+        "summary": "Get all sites",
+        "description": "Returns the list of all sites.",
+        "tags": [
+          "Site"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated site list.",
+            "parameters": [
+              {
+                "in": "query",
+                "name": "page",
+                "schema": {
+                  "type": "integer",
+                  "default": 1
+                },
+                "description": "Page number (starts at 1)."
+              },
+              {
+                "in": "query",
+                "name": "limit",
+                "schema": {
+                  "type": "integer",
+                  "default": 20
+                },
+                "description": "Number of sites per page."
+              },
+              {
+                "in": "query",
+                "name": "search",
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Search term on the site label."
+              }
+            ],
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Site"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a site.",
+        "description": "Adds a new physical site to the system. Authentication is required and\nthe caller must have administrator privileges.\n",
+        "tags": [
+          "Site"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Site information to create.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Site"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created site",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Site"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/sites/{id}": {
+      "get": {
+        "summary": "Get site by ID",
+        "description": "Returns detailed information about a specific site.",
+        "tags": [
+          "Site"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the site."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Site details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Site"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "404": {
+            "description": "Site not found."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a site.",
+        "description": "Modify the label of an existing site. Requires administrator privileges.",
+        "tags": [
+          "Site"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the site to update."
+          }
+        ],
+        "requestBody": {
+          "description": "New site data.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Site"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Site after update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Site"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a site.",
+        "description": "Deletes a site. The operation fails when users or departments are still\nattached to it. Requires administrator privileges.\n",
+        "tags": [
+          "Site"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the site to delete."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Site successfully deleted"
+          },
+          "400": {
+            "description": "Operation failed due to existing attachments"
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "summary": "Register a new user.",
+        "description": "Creates a user account for a new participant. This endpoint is open\nto unauthenticated clients and is typically used during onboarding.\n",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "description": "Data describing the user to create.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Newly created user profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get all users",
+        "description": "Returns a paginated and filterable list of users.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of users per page."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term to filter users by name or email."
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "suspended",
+                "archived"
+              ]
+            },
+            "description": "Filter users by status."
+          },
+          {
+            "in": "query",
+            "name": "departmentId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by department identifier."
+          },
+          {
+            "in": "query",
+            "name": "siteId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by site identifier."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated user list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/User"
+                      }
+                    },
+                    "page": {
+                      "type": "integer"
+                    },
+                    "limit": {
+                      "type": "integer"
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  },
+                  "example": {
+                    "items": [],
+                    "page": 1,
+                    "limit": 20,
+                    "total": 0
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Authenticate a user with email and password.",
+        "description": "Validates the provided credentials and returns the corresponding user\nprofile if the login succeeds.\n",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "description": "Email and password used to authenticate.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User account is suspended or archived"
+          }
+        }
+      }
+    },
+    "/auth/provider": {
+      "post": {
+        "summary": "Authenticate a user with an external provider.",
+        "description": "Exchanges a provider issued token (e.g. OAuth) for a local session and\nreturns the associated user profile.\n",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "description": "Provider name and issued token.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string"
+                  },
+                  "token": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "provider",
+                  "token"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User successfully authenticated with the provider",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User account is suspended or archived"
+          }
+        }
+      }
+    },
+    "/auth/request-reset": {
+      "post": {
+        "summary": "Request a password reset email.",
+        "description": "Sends a password reset link to the provided email address.",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "description": "Email address of the account requesting a reset.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Reset request processed, no content returned"
+          }
+        }
+      }
+    },
+    "/auth/reset": {
+      "post": {
+        "summary": "Reset a user password.",
+        "description": "Completes the password reset process using a valid reset token and the\nnew password provided.\n",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "description": "Reset token and the new password.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "token",
+                  "password"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Password successfully changed"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "summary": "Get user by ID",
+        "description": "Returns detailed information about a specific user.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Unique identifier of the user."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "User not found."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update a user profile.",
+        "description": "Updates information about an existing user. Authentication is required\nand only authorized administrators should call this endpoint.\n",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the user to update."
+          }
+        ],
+        "requestBody": {
+          "description": "Updated user information.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The user profile after update",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove a user.",
+        "description": "Permanently deletes a user account. This operation cannot be undone\nand requires administrative privileges.\n",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the user to delete."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User successfully removed"
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Returns the current user profile.",
+        "description": "Retrieves information about the authenticated user. A valid bearer\ntoken must be supplied in the `Authorization` header.\n",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile of the authenticated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          }
+        }
+      }
+    },
+    "/users/{id}/status": {
+      "put": {
+        "summary": "Change user status.",
+        "description": "Updates the account status (active, suspended or archived) of a user.\nRequires administrator privileges.\n",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the user to update."
+          }
+        ],
+        "requestBody": {
+          "description": "The new status value.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "suspended",
+                      "archived"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User with the updated status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          }
+        }
+      }
+    },
+    "/users/{id}/picture": {
+      "post": {
+        "summary": "Upload user avatar",
+        "description": "Uploads an avatar image for the specified user. Requires authentication.\n",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the user."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Avatar updated"
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Remove user avatar",
+        "description": "Deletes the avatar of the specified user if present.",
+        "tags": [
+          "User"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the user."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Avatar removed"
+          },
+          "401": {
+            "description": "Invalid or expired authentication token."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Site": {
+        "description": "Physical location where users and departments operate.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the site."
+          },
+          "label": {
+            "type": "string",
+            "description": "Human readable site name."
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "Permission": {
+        "description": "Authorization item representing an allowed action.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the permission."
+          },
+          "permissionKey": {
+            "type": "string",
+            "description": "Machine readable key for the permission."
+          },
+          "description": {
+            "type": "string",
+            "description": "Human readable explanation of the permission."
+          }
+        },
+        "required": [
+          "id",
+          "permissionKey",
+          "description"
+        ]
+      },
+      "Department": {
+        "description": "Organizational unit grouping users within a site.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the department."
+          },
+          "label": {
+            "type": "string",
+            "description": "Department name."
+          },
+          "parentDepartmentId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Identifier of the parent department if applicable."
+          },
+          "managerUserId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Identifier of the user managing this department."
+          },
+          "site": {
+            "$ref": "#/components/schemas/Site",
+            "description": "Site where the department is located."
+          },
+          "permissions": {
+            "type": "array",
+            "description": "Permissions granted to the department.",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "site"
+        ]
+      },
+      "UserGroup": {
+        "description": "A group of users with a responsible user and members.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the group."
+          },
+          "name": {
+            "type": "string",
+            "description": "Group name."
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional group description."
+          },
+          "responsibleUsers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "description": "The responsible users (group managers)."
+          },
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "description": "List of users in the group."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "responsibleUsers",
+          "members"
+        ]
+      },
+      "Role": {
+        "description": "Collection of permissions that can be assigned to users.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the role."
+          },
+          "label": {
+            "type": "string",
+            "description": "Human readable role name."
+          },
+          "permissions": {
+            "type": "array",
+            "description": "Permissions granted by the role.",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "User": {
+        "description": "Application user with profile and access information.",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier of the user."
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Given name of the user."
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Family name of the user."
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address used for communication and login."
+          },
+          "roles": {
+            "type": "array",
+            "description": "Roles assigned to the user.",
+            "items": {
+              "$ref": "#/components/schemas/Role"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended",
+              "archived"
+            ],
+            "description": "Current account status."
+          },
+          "department": {
+            "$ref": "#/components/schemas/Department",
+            "description": "Department the user belongs to."
+          },
+          "site": {
+            "$ref": "#/components/schemas/Site",
+            "description": "Site where the user is located."
+          },
+          "picture": {
+            "type": "string",
+            "description": "Optional URL of the profile picture."
+          },
+          "permissions": {
+            "type": "array",
+            "description": "Permissions granted directly to the user.",
+            "items": {
+              "$ref": "#/components/schemas/Permission"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "firstName",
+          "lastName",
+          "email",
+          "department",
+          "site"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
