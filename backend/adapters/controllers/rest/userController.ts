@@ -24,6 +24,7 @@ import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
 import {Permission} from '../../../domain/entities/Permission';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import {requireBodyParams} from './requestValidator';
 
 /**
  * @openapi
@@ -306,23 +307,26 @@ export function createUserRouter(
      *       403:
      *         description: User account is suspended or archived
      */
-    router.post('/auth/login', async (req: Request, res: Response): Promise<void> => {
-      console.log('debug');
-      logger.debug('POST /auth/login', getContext());
-      const {email, password} = req.body;
-      const useCase = new AuthenticateUserUseCase(authService);
-      try {
-        const user = await useCase.execute(email, password);
-        logger.debug('User authenticated', getContext());
-        res.json(user);
-      } catch (err) {
-        logger.warn('Authentication failed', {...getContext(), error: err});
-        const message = (err as Error).message;
-        const status =
-                message === 'User account is suspended or archived' ? 403 : 401;
-        res.status(status).json({error: message});
-      }
-    });
+    router.post(
+      '/auth/login',
+      requireBodyParams(['email', 'password']),
+      async (req: Request, res: Response): Promise<void> => {
+        logger.debug('POST /auth/login', getContext());
+        const {email, password} = req.body;
+        const useCase = new AuthenticateUserUseCase(authService);
+        try {
+          const user = await useCase.execute(email, password);
+          logger.debug('User authenticated', getContext());
+          res.json(user);
+        } catch (err) {
+          logger.warn('Authentication failed', {...getContext(), error: err});
+          const message = (err as Error).message;
+          const status =
+            message === 'User account is suspended or archived' ? 403 : 401;
+          res.status(status).json({error: message});
+        }
+      },
+    );
 
     /**
      * @openapi

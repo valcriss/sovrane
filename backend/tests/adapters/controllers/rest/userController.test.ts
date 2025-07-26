@@ -143,6 +143,13 @@ describe('User REST controller', () => {
     expect(res.body.error).toBe('User account is suspended or archived');
   });
 
+  it('should return 400 when parameters are missing', async () => {
+    const res = await request(app).post('/api/auth/login').send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('Missing required parameters: email, password');
+  });
+
   it('should authenticate with provider', async () => {
     const res = await request(app)
       .post('/api/auth/provider')
