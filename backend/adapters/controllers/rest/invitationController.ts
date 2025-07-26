@@ -116,7 +116,7 @@ export function createInvitationRouter(
     }
   };
 
-  router.use(authMiddleware);
+  router.use('/invitations', authMiddleware);
 
   /**
      * @openapi
