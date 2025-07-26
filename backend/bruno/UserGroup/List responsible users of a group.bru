@@ -1,0 +1,25 @@
+meta {
+  name: List responsible users of a group.
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/groups/:id/responsibles
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~search: 
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

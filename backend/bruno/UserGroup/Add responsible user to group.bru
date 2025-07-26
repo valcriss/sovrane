@@ -1,0 +1,25 @@
+meta {
+  name: Add responsible user to group.
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/groups/:id/responsibles
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": ""
+  }
+}

@@ -1,0 +1,27 @@
+meta {
+  name: Add permission to department.
+  type: http
+  seq: 14
+}
+
+post {
+  url: {{baseUrl}}/departments/:id/permissions
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "permissionKey": "",
+    "description": ""
+  }
+}

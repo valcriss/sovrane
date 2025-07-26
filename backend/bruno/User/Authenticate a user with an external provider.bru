@@ -1,0 +1,18 @@
+meta {
+  name: Authenticate a user with an external provider.
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/auth/provider
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "provider": "",
+    "token": ""
+  }
+}

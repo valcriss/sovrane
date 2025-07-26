@@ -1,0 +1,25 @@
+meta {
+  name: Set parent department.
+  type: http
+  seq: 11
+}
+
+post {
+  url: {{baseUrl}}/departments/:id/parent
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "parentId": ""
+  }
+}

@@ -1,0 +1,25 @@
+meta {
+  name: Set department manager.
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/departments/:id/manager
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": ""
+  }
+}

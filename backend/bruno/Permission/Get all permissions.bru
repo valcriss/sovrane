@@ -1,0 +1,21 @@
+meta {
+  name: Get all permissions
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/permissions
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~search: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

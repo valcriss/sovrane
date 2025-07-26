@@ -1,0 +1,22 @@
+meta {
+  name: Create a site.
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/sites
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "label": ""
+  }
+}

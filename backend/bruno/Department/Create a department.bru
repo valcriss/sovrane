@@ -1,0 +1,35 @@
+meta {
+  name: Create a department.
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/departments
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "label": "",
+    "parentDepartmentId": "",
+    "managerUserId": "",
+    "site": {
+      "id": "",
+      "label": ""
+    },
+    "permissions": [
+      {
+        "id": "",
+        "permissionKey": "",
+        "description": ""
+      }
+    ]
+  }
+}

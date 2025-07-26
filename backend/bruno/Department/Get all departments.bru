@@ -1,0 +1,21 @@
+meta {
+  name: Get all departments
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/departments
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~siteId: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

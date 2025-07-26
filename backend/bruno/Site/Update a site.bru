@@ -1,0 +1,26 @@
+meta {
+  name: Update a site.
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/sites/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "label": ""
+  }
+}

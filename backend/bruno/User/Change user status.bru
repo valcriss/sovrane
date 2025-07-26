@@ -1,0 +1,25 @@
+meta {
+  name: Change user status.
+  type: http
+  seq: 11
+}
+
+put {
+  url: {{baseUrl}}/users/:id/status
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "status": ""
+  }
+}

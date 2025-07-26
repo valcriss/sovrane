@@ -1,0 +1,27 @@
+meta {
+  name: Update a permission.
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/permissions/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "permissionKey": "",
+    "description": ""
+  }
+}

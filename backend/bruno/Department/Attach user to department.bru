@@ -1,0 +1,20 @@
+meta {
+  name: Attach user to department.
+  type: http
+  seq: 19
+}
+
+post {
+  url: {{baseUrl}}/departments/:id/users/:userId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+  userId: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

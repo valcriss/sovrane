@@ -1,0 +1,25 @@
+meta {
+  name: Add user to group.
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/groups/:id/users
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": ""
+  }
+}

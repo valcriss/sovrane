@@ -1,0 +1,23 @@
+meta {
+  name: Create a permission.
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/permissions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "permissionKey": "",
+    "description": ""
+  }
+}

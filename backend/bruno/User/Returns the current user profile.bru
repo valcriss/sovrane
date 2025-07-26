@@ -1,0 +1,15 @@
+meta {
+  name: Returns the current user profile.
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/users/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

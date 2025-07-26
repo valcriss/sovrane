@@ -1,0 +1,21 @@
+meta {
+  name: Get all roles
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/roles
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~search: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

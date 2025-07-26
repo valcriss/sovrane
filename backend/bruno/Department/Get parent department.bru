@@ -1,0 +1,19 @@
+meta {
+  name: Get parent department
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/departments/:id/parent
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

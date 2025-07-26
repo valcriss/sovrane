@@ -1,0 +1,25 @@
+meta {
+  name: Remove responsible user from group.
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/groups/:id/responsibles
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": ""
+  }
+}

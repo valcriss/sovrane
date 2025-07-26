@@ -16,8 +16,7 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "dev": "ts-node infrastructure/server.ts",
-    "permissions:sync": "ts-node scripts/syncPermissions.ts",
-    "bruno:sync": "ts-node scripts/generateBrunoRequests.ts"
+    "permissions:sync": "ts-node scripts/syncPermissions.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",

@@ -1,0 +1,24 @@
+meta {
+  name: Invite a new user by email
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/invitations/invite
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "email": "",
+    "firstName": "",
+    "lastName": "",
+    "role": ""
+  }
+}

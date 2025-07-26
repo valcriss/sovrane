@@ -1,0 +1,60 @@
+meta {
+  name: Update a user profile.
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/users/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "firstName": "",
+    "lastName": "",
+    "email": "",
+    "roles": [
+      {
+        "id": "",
+        "label": "",
+        "permissions": [
+          {
+            "id": "",
+            "permissionKey": "",
+            "description": ""
+          }
+        ]
+      }
+    ],
+    "status": "",
+    "department": {
+      "id": "",
+      "label": "",
+      "parentDepartmentId": "",
+      "managerUserId": "",
+      "site": {
+        "id": "",
+        "label": ""
+      },
+      "permissions": [
+        {}
+      ]
+    },
+    "site": {},
+    "picture": "",
+    "permissions": [
+      {}
+    ]
+  }
+}

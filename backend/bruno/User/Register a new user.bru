@@ -1,0 +1,52 @@
+meta {
+  name: Register a new user.
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "id": "",
+    "firstName": "",
+    "lastName": "",
+    "email": "",
+    "roles": [
+      {
+        "id": "",
+        "label": "",
+        "permissions": [
+          {
+            "id": "",
+            "permissionKey": "",
+            "description": ""
+          }
+        ]
+      }
+    ],
+    "status": "",
+    "department": {
+      "id": "",
+      "label": "",
+      "parentDepartmentId": "",
+      "managerUserId": "",
+      "site": {
+        "id": "",
+        "label": ""
+      },
+      "permissions": [
+        {}
+      ]
+    },
+    "site": {},
+    "picture": "",
+    "permissions": [
+      {}
+    ]
+  }
+}

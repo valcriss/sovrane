@@ -1,0 +1,15 @@
+meta {
+  name: Get invitation information by token
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/invitations/invite/:token
+  body: none
+  auth: none
+}
+
+params:path {
+  token: 
+}

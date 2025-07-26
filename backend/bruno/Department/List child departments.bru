@@ -1,0 +1,26 @@
+meta {
+  name: List child departments
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/departments/:id/children
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~siteId: 
+  ~search: 
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

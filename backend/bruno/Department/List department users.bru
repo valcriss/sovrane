@@ -1,0 +1,28 @@
+meta {
+  name: List department users
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/departments/:id/users
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~search: 
+  ~status: 
+  ~siteId: 
+  ~roleId: 
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

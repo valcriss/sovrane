@@ -1,0 +1,25 @@
+meta {
+  name: List department permissions
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/departments/:id/permissions
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~search: 
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

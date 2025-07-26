@@ -1,0 +1,25 @@
+meta {
+  name: Remove user from group.
+  type: http
+  seq: 8
+}
+
+delete {
+  url: {{baseUrl}}/groups/:id/users
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "userId": ""
+  }
+}

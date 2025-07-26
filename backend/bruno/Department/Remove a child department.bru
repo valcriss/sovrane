@@ -1,0 +1,20 @@
+meta {
+  name: Remove a child department.
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{baseUrl}}/departments/:id/children/:childId
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+  childId: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

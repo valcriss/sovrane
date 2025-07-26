@@ -1,0 +1,25 @@
+meta {
+  name: List users of a group.
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/groups/:id/users
+  body: none
+  auth: bearer
+}
+
+params:query {
+  ~page: 
+  ~limit: 
+  ~search: 
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

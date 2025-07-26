@@ -1,0 +1,19 @@
+meta {
+  name: Remove department manager.
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/departments/:id/manager
+  body: none
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}

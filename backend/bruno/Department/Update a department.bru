@@ -1,0 +1,39 @@
+meta {
+  name: Update a department.
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/departments/:id
+  body: json
+  auth: bearer
+}
+
+params:path {
+  id: 
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "id": "",
+    "label": "",
+    "parentDepartmentId": "",
+    "managerUserId": "",
+    "site": {
+      "id": "",
+      "label": ""
+    },
+    "permissions": [
+      {
+        "id": "",
+        "permissionKey": "",
+        "description": ""
+      }
+    ]
+  }
+}
