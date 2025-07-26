@@ -16,7 +16,8 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "dev": "ts-node infrastructure/server.ts",
-    "permissions:sync": "ts-node scripts/syncPermissions.ts"
+    "permissions:sync": "ts-node scripts/syncPermissions.ts",
+    "initialize": "node scripts/init-application.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.850.0",
