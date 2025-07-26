@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import { JWTAuthServiceAdapter } from '../../../adapters/auth/JWTAuthServiceAdapter';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
+import { PrismaClient } from '@prisma/client';
+import argon2 from 'argon2';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
@@ -17,15 +19,17 @@ describe('JWTAuthServiceAdapter', () => {
   let role: Role;
   let department: Department;
   let site: Site;
+  let prisma: DeepMockProxy<PrismaClient>;
 
   beforeEach(() => {
     repo = mockDeep<UserRepositoryPort>();
     logger = mockDeep<LoggerPort>();
+    prisma = mockDeep<PrismaClient>();
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
-    adapter = new JWTAuthServiceAdapter(secret, repo, logger);
+    adapter = new JWTAuthServiceAdapter(secret, repo, prisma, logger);
   });
 
   it('should verify token and return user', async () => {
@@ -39,20 +43,34 @@ describe('JWTAuthServiceAdapter', () => {
   });
 
   it('should authenticate by email', async () => {
-    repo.findByEmail.mockResolvedValue(user);
+    const hash = await argon2.hash('p');
+    prisma.user.findUnique.mockResolvedValue({ id: 'u', password: hash } as any);
+    repo.findById.mockResolvedValue(user);
     const result = await adapter.authenticate('john@example.com', 'p');
     expect(result).toBe(user);
-    expect(repo.findByEmail).toHaveBeenCalledWith('john@example.com');
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      where: { email: 'john@example.com' },
+      select: { password: true, id: true },
+    });
+    expect(repo.findById).toHaveBeenCalledWith('u');
   });
 
   it('should fail authentication with invalid credentials', async () => {
-    repo.findByEmail.mockResolvedValue(null);
+    prisma.user.findUnique.mockResolvedValue(null);
     await expect(adapter.authenticate('bad', 'p')).rejects.toThrow('Invalid credentials');
   });
 
+  it('should fail when password does not match', async () => {
+    const hash = await argon2.hash('other');
+    prisma.user.findUnique.mockResolvedValue({ id: 'u', password: hash } as any);
+    await expect(adapter.authenticate('john@example.com', 'p')).rejects.toThrow('Invalid credentials');
+  });
+
   it('should reject suspended or archived users when authenticating', async () => {
+    const hash = await argon2.hash('p');
+    prisma.user.findUnique.mockResolvedValue({ id: 'u', password: hash } as any);
+    repo.findById.mockResolvedValue(user);
     user.status = 'suspended';
-    repo.findByEmail.mockResolvedValue(user);
     await expect(adapter.authenticate('john@example.com', 'p')).rejects.toThrow(
       'User account is suspended or archived',
     );

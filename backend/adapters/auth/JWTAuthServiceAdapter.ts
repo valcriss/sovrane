@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import argon2 from 'argon2';
+import { PrismaClient } from '@prisma/client';
 import { AuthServicePort } from '../../domain/ports/AuthServicePort';
 import { User } from '../../domain/entities/User';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
@@ -18,13 +20,26 @@ export class JWTAuthServiceAdapter implements AuthServicePort {
   constructor(
     private readonly secret: string,
     private readonly userRepository: UserRepositoryPort,
+    private readonly prisma: PrismaClient,
     private readonly logger: LoggerPort,
   ) {}
 
-  async authenticate(email: string, _password: string): Promise<User> {
-    void _password;
+  async authenticate(email: string, password: string): Promise<User> {
     this.logger.debug('Authenticating via JWT', getContext());
-    const user = await this.userRepository.findByEmail(email);
+    const credentials = await this.prisma.user.findUnique({
+      where: { email },
+      select: { password: true, id: true },
+    });
+    if (!credentials || !credentials.password) {
+      throw new Error('Invalid credentials');
+    }
+
+    const match = await argon2.verify(credentials.password, password);
+    if (!match) {
+      throw new Error('Invalid credentials');
+    }
+
+    const user = await this.userRepository.findById(credentials.id);
     if (!user) {
       throw new Error('Invalid credentials');
     }
