@@ -48,7 +48,7 @@ async function main() {
   });
 
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@admin.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'rootadmin';
   const passwordHash = await argon2.hash(adminPassword);
 
   await prisma.user.create({

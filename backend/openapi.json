@@ -2818,9 +2818,6 @@
           },
           "403": {
             "description": "User account is suspended or archived"
-          },
-          "400": {
-            "description": "Missing required parameters"
           }
         }
       }

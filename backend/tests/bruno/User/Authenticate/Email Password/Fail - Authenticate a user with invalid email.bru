@@ -1,0 +1,32 @@
+meta {
+  name: Fail : Authenticate a user with invalid email
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "badadmin.com",
+    "password": "rootadmin"
+  }
+}
+
+tests {
+  test("should be Unprocessable Entity (422)", function () {
+    expect(res.getStatus()).to.equal(422);
+  });
+  
+  test("should be fast < 100ms", function () {
+    expect(res.getResponseTime()).to.be.at.most(100);
+  });
+  
+  test("should have a readable error", function () {
+    expect(res.getBody().error).to.eql("Invalid parameters value : email");
+  });
+}
