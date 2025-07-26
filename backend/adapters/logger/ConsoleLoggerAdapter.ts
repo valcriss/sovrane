@@ -18,8 +18,8 @@ export class ConsoleLoggerAdapter implements LoggerPort {
   private readonly currentLevel: number;
 
   constructor(env: Record<string, string | undefined> = process.env) {
-    const envLevel = (env.LOG_LEVEL?.toLowerCase() as LogLevel) || 'trace';
-    this.currentLevel = LEVELS[envLevel] ?? LEVELS.trace;
+    // const envLevel = (env.LOG_LEVEL?.toLowerCase() as LogLevel) || 'trace';
+    this.currentLevel = LEVELS.trace;
   }
 
   error(message: string, context?: Record<string, unknown>): void {
