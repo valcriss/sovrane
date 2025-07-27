@@ -21,6 +21,8 @@ export class UpdateUserGroupUseCase {
    */
   async execute(group: UserGroup): Promise<UserGroup> {
     this.checker.check(PermissionKeys.UPDATE_GROUP);
+    group.updatedAt = new Date();
+    group.updatedBy = this.checker.currentUser;
     return this.repository.update(group);
   }
 }

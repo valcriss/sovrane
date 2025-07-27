@@ -42,5 +42,20 @@ describe('UserGroup Entity', () => {
     expect(g.members).toEqual([]);
     expect(g.responsibleUsers).toEqual([]);
     expect(g.description).toBeUndefined();
+    expect(g.createdAt).toBeInstanceOf(Date);
+    expect(g.updatedAt).toEqual(g.createdAt);
+    expect(g.createdBy).toBeNull();
+    expect(g.updatedBy).toBeNull();
+  });
+
+  it('should accept custom audit information', () => {
+    const creator = new User('c', 'C', 'R', 'c@r.io', [role], 'active', department, site);
+    const updater = new User('u2', 'U', 'P', 'u@p.io', [role], 'active', department, site);
+    const date = new Date('2020-01-01T00:00:00Z');
+    const audited = new UserGroup('id2', 'name', [], [], undefined, date, date, creator, updater);
+    expect(audited.createdAt).toBe(date);
+    expect(audited.updatedAt).toBe(date);
+    expect(audited.createdBy).toBe(creator);
+    expect(audited.updatedBy).toBe(updater);
   });
 });

@@ -29,6 +29,8 @@ export class AddGroupResponsibleUseCase {
     if (!group || !user) {
       return null;
     }
+    group.updatedAt = new Date();
+    group.updatedBy = this.checker.currentUser;
     return this.groupRepository.addResponsible(groupId, userId);
   }
 }

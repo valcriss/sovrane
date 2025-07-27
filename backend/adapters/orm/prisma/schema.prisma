@@ -34,6 +34,8 @@ model User {
   managedDepartments Department[]           @relation("DepartmentManager")
   groups             UserGroupMember[]
   responsibleGroups  UserGroupResponsible[]
+  createdGroups      UserGroup[]           @relation("UserGroupCreatedBy")
+  updatedGroups      UserGroup[]           @relation("UserGroupUpdatedBy")
   createdUsers       User[]                 @relation("UserCreatedBy")
   updatedUsers       User[]                 @relation("UserUpdatedBy")
   RefreshToken       RefreshToken[]
@@ -116,6 +118,12 @@ model UserGroup {
   id           String                 @id @default(uuid())
   name         String
   description  String?
+  createdBy    User?                  @relation("UserGroupCreatedBy", fields: [createdById], references: [id])
+  createdById  String?
+  updatedBy    User?                  @relation("UserGroupUpdatedBy", fields: [updatedById], references: [id])
+  updatedById  String?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
   responsibles UserGroupResponsible[]
   members      UserGroupMember[]
 }
