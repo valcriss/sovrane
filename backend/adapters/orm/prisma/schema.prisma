@@ -34,8 +34,8 @@ model User {
   managedDepartments Department[]           @relation("DepartmentManager")
   groups             UserGroupMember[]
   responsibleGroups  UserGroupResponsible[]
-  createdGroups      UserGroup[]           @relation("UserGroupCreatedBy")
-  updatedGroups      UserGroup[]           @relation("UserGroupUpdatedBy")
+  createdGroups      UserGroup[]            @relation("UserGroupCreatedBy")
+  updatedGroups      UserGroup[]            @relation("UserGroupUpdatedBy")
   createdUsers       User[]                 @relation("UserCreatedBy")
   updatedUsers       User[]                 @relation("UserUpdatedBy")
   createdSites       Site[]                 @relation("SiteCreatedBy")
@@ -44,8 +44,10 @@ model User {
   updatedRoles       Role[]                 @relation("RoleUpdatedBy")
   createdPermissions Permission[]           @relation("PermissionCreatedBy")
   updatedPermissions Permission[]           @relation("PermissionUpdatedBy")
-  createdInvitations Invitation[]          @relation("InvitationCreatedBy")
-  updatedInvitations Invitation[]          @relation("InvitationUpdatedBy")
+  createdInvitations Invitation[]           @relation("InvitationCreatedBy")
+  updatedInvitations Invitation[]           @relation("InvitationUpdatedBy")
+  createdDepartments Department[]           @relation("DepartmentCreatedBy")
+  updatedDepartments Department[]           @relation("DepartmentUpdatedBy")
   RefreshToken       RefreshToken[]
 }
 
@@ -74,6 +76,12 @@ model Department {
   permissions        DepartmentPermission[]
   site               Site                   @relation(fields: [siteId], references: [id])
   siteId             String
+  createdBy          User?                  @relation("DepartmentCreatedBy", fields: [createdById], references: [id])
+  createdById        String?
+  updatedBy          User?                  @relation("DepartmentUpdatedBy", fields: [updatedById], references: [id])
+  updatedById        String?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
 }
 
 model UserRole {
@@ -173,14 +181,14 @@ model UserGroupResponsible {
 }
 
 model Invitation {
-  id        String   @id @default(uuid())
-  email     String
-  token     String   @unique
-  firstName String?
-  lastName  String?
-  role      String?
-  status    String
-  expiresAt DateTime
+  id          String   @id @default(uuid())
+  email       String
+  token       String   @unique
+  firstName   String?
+  lastName    String?
+  role        String?
+  status      String
+  expiresAt   DateTime
   createdBy   User?    @relation("InvitationCreatedBy", fields: [createdById], references: [id])
   createdById String?
   updatedBy   User?    @relation("InvitationUpdatedBy", fields: [updatedById], references: [id])

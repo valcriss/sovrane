@@ -98,6 +98,10 @@ describe('User REST controller', () => {
           createdBy: null,
           updatedBy: null,
         },
+        createdAt: department.createdAt.toISOString(),
+        updatedAt: department.updatedAt.toISOString(),
+        createdBy: null,
+        updatedBy: null,
       },
       site: {
         ...site,
@@ -159,6 +163,10 @@ describe('User REST controller', () => {
             createdBy: null,
             updatedBy: null,
           },
+          createdAt: department.createdAt.toISOString(),
+          updatedAt: department.updatedAt.toISOString(),
+          createdBy: null,
+          updatedBy: null,
         },
         site: {
           ...site,
@@ -200,6 +208,10 @@ describe('User REST controller', () => {
             createdBy: null,
             updatedBy: null,
           },
+          createdAt: department.createdAt.toISOString(),
+          updatedAt: department.updatedAt.toISOString(),
+          createdBy: null,
+          updatedBy: null,
         },
         site: {
           ...site,

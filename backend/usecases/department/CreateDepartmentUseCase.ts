@@ -20,6 +20,11 @@ export class CreateDepartmentUseCase {
    */
   async execute(department: Department): Promise<Department> {
     this.checker.check(PermissionKeys.CREATE_DEPARTMENT);
+    const now = new Date();
+    department.createdAt = now;
+    department.updatedAt = now;
+    department.createdBy = this.checker.currentUser;
+    department.updatedBy = this.checker.currentUser;
     return this.departmentRepository.create(department);
   }
 }

@@ -126,6 +126,40 @@ function parseDepartment(body: DepartmentPayload): Department {
   );
 }
 
+function serializeDepartment(d: Department): Record<string, unknown> {
+  return {
+    ...d,
+    site: {
+      ...d.site,
+      createdAt: d.site.createdAt.toISOString(),
+      updatedAt: d.site.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    },
+    permissions: d.permissions.map((p) => ({
+      ...p,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    })),
+    createdAt: d.createdAt.toISOString(),
+    updatedAt: d.updatedAt.toISOString(),
+    createdBy: null,
+    updatedBy: null,
+  };
+}
+
+function serializeUser(u: User): Record<string, unknown> {
+  return {
+    ...u,
+    createdAt: u.createdAt.toISOString(),
+    updatedAt: u.updatedAt.toISOString(),
+    createdBy: null,
+    updatedBy: null,
+  };
+}
+
 interface AuthedRequest extends Request {
   user: User;
 }
@@ -204,7 +238,7 @@ export function createDepartmentRouter(
       res.status(204).end();
       return;
     }
-    res.json(result);
+    res.json({ ...result, items: result.items.map(serializeDepartment) });
   });
 
   /**
@@ -247,7 +281,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department retrieved', getContext());
-    res.json(department);
+    res.json(serializeDepartment(department));
   });
 
   /**
@@ -330,7 +364,7 @@ export function createDepartmentRouter(
       res.status(204).end();
       return;
     }
-    res.json(result);
+    res.json({ ...result, items: result.items.map(serializeDepartment) });
   });
 
   /**
@@ -664,7 +698,7 @@ export function createDepartmentRouter(
     const useCase = new UpdateDepartmentUseCase(departmentRepository, checker);
     const updated = await useCase.execute(department);
     logger.debug('Department updated', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -714,7 +748,7 @@ export function createDepartmentRouter(
         return;
       }
       logger.debug('Child department added', getContext());
-      res.json(updated);
+      res.json(serializeDepartment(updated));
     } catch (err) {
       if ((err as Error).message === 'Forbidden') {
         logger.warn('Permission denied adding child department', {...getContext(), error: err});
@@ -771,7 +805,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Child department removed', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -826,7 +860,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department manager set', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -869,7 +903,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department manager removed', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -924,7 +958,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department parent set', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -967,7 +1001,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department parent removed', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -1018,7 +1052,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department permission added', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -1067,7 +1101,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department permission removed', getContext());
-    res.json(updated);
+    res.json(serializeDepartment(updated));
   });
 
   /**
@@ -1116,7 +1150,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department user added', getContext());
-    res.json(updated);
+    res.json(serializeUser(updated));
   });
 
   /**
@@ -1165,7 +1199,7 @@ export function createDepartmentRouter(
       return;
     }
     logger.debug('Department user removed', getContext());
-    res.json(updated);
+    res.json(serializeUser(updated));
   });
 
   /**

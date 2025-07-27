@@ -31,6 +31,11 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
       record.parentDepartmentId,
       record.managerUserId,
       new Site(record.site.id, record.site.label),
+      [],
+      record.createdAt,
+      record.updatedAt,
+      null,
+      null,
     );
   }
 
@@ -88,6 +93,8 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
         parentDepartmentId: department.parentDepartmentId,
         managerUserId: department.managerUserId,
         siteId: department.site.id,
+        createdById: department.createdBy?.id,
+        updatedById: department.updatedBy?.id,
       },
       include: { site: true },
     });
@@ -103,6 +110,7 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
         parentDepartmentId: department.parentDepartmentId,
         managerUserId: department.managerUserId,
         siteId: department.site.id,
+        updatedById: department.updatedBy?.id,
       },
       include: { site: true },
     });
