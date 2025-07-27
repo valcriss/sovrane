@@ -11,6 +11,8 @@ CREATE TABLE "User" (
     "emailVerified" BOOLEAN DEFAULT false,
     "externalId" TEXT,
     "externalProvider" TEXT,
+    "lastLogin" TIMESTAMP(3),
+    "lastActivity" TIMESTAMP(3),
     "createdById" TEXT,
     "updatedById" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -161,6 +163,22 @@ CREATE TABLE "RefreshToken" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "RefreshToken_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AuditLog" (
+    "id" TEXT NOT NULL,
+    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "actorId" TEXT,
+    "actorType" TEXT NOT NULL,
+    "action" TEXT NOT NULL,
+    "targetType" TEXT,
+    "targetId" TEXT,
+    "details" JSONB,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+
+    CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex

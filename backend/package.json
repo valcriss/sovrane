@@ -11,6 +11,7 @@
     "database:update": "prisma migrate dev --schema adapters/orm/prisma/schema.prisma",
     "database:reset": "prisma migrate reset --schema adapters/orm/prisma/schema.prisma",
     "database:format": "prisma format --schema adapters/orm/prisma/schema.prisma",
+    "database:fullreset": "rm -rf adapters/orm/prisma/migrations && npm run database:reset && npm run database:update && npm run database:generate",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --coverage --watchAll=false",
