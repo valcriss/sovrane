@@ -3,6 +3,7 @@ import { AuthenticateUserUseCase } from '../../../usecases/user/AuthenticateUser
 import { AuthServicePort } from '../../../domain/ports/AuthServicePort';
 import { TokenServicePort } from '../../../domain/ports/TokenServicePort';
 import { User } from '../../../domain/entities/User';
+import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
@@ -10,6 +11,7 @@ import { Site } from '../../../domain/entities/Site';
 describe('AuthenticateUserUseCase', () => {
   let service: DeepMockProxy<AuthServicePort>;
   let tokenService: DeepMockProxy<TokenServicePort>;
+  let repo: DeepMockProxy<UserRepositoryPort>;
   let useCase: AuthenticateUserUseCase;
   let user: User;
   let role: Role;
@@ -19,7 +21,8 @@ describe('AuthenticateUserUseCase', () => {
   beforeEach(() => {
     service = mockDeep<AuthServicePort>();
     tokenService = mockDeep<TokenServicePort>();
-    useCase = new AuthenticateUserUseCase(service, tokenService);
+    repo = mockDeep<UserRepositoryPort>();
+    useCase = new AuthenticateUserUseCase(service, tokenService, repo);
     role = new Role('role-1', 'Admin');
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
@@ -37,5 +40,6 @@ describe('AuthenticateUserUseCase', () => {
     expect(service.authenticate).toHaveBeenCalledWith('john@example.com', 'secret');
     expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
     expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(user);
+    expect(repo.update).toHaveBeenCalledWith(user);
   });
 });

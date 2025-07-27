@@ -156,7 +156,7 @@ describe('User Entity', () => {
       const creator = new User('c1', 'C', 'D', 'c@d.e', [], 'active', department, site);
       const updater = new User('u2', 'U', 'D', 'u@d.e', [], 'active', department, site);
       const date = new Date('2020-01-01T00:00:00Z');
-      const auditedUser = new User('u3', 'F', 'L', 'f@l.c', [], 'active', department, site, undefined, [], date, date, creator, updater);
+      const auditedUser = new User('u3', 'F', 'L', 'f@l.c', [], 'active', department, site, undefined, [], undefined, undefined, date, date, creator, updater);
 
       expect(auditedUser.createdAt).toBe(date);
       expect(auditedUser.updatedAt).toBe(date);

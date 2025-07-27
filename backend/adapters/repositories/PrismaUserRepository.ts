@@ -68,6 +68,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
       record.permissions.map((up) =>
         new Permission(up.permission.id, up.permission.permissionKey, up.permission.description),
       ),
+      record.lastLogin ?? null,
+      record.lastActivity ?? null,
       record.createdAt,
       record.updatedAt,
       null,
@@ -249,6 +251,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         departmentId: user.department.id,
         siteId: user.site.id,
         picture: user.picture,
+        lastLogin: user.lastLogin ?? undefined,
+        lastActivity: user.lastActivity ?? undefined,
         createdById: user.createdBy?.id,
         updatedById: user.updatedBy?.id,
         permissions: {
@@ -282,6 +286,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         departmentId: user.department.id,
         siteId: user.site.id,
         picture: user.picture,
+        lastLogin: user.lastLogin ?? undefined,
+        lastActivity: user.lastActivity ?? undefined,
         updatedById: user.updatedBy?.id,
         permissions: {
           deleteMany: {},

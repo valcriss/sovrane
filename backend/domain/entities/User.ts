@@ -36,6 +36,10 @@ export class User {
     public site: Site,
     public picture?: string,
     public permissions: Permission[] = [],
+    /** Date and time of the user's last successful login. */
+    public lastLogin: Date | null = null,
+    /** Date and time of the user's last activity (login or token refresh). */
+    public lastActivity: Date | null = null,
     /** Date when the user record was created. */
     public createdAt: Date = new Date(),
     /** Date when the user record was last updated. Defaults to {@link createdAt}. */
