@@ -140,7 +140,10 @@ CREATE TABLE "Invitation" (
     "role" TEXT,
     "status" TEXT NOT NULL,
     "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdById" TEXT,
+    "updatedById" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Invitation_pkey" PRIMARY KEY ("id")
 );
@@ -251,3 +254,9 @@ ALTER TABLE "UserGroup" ADD CONSTRAINT "UserGroup_updatedById_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "RefreshToken" ADD CONSTRAINT "RefreshToken_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Invitation" ADD CONSTRAINT "Invitation_updatedById_fkey" FOREIGN KEY ("updatedById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

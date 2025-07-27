@@ -23,6 +23,10 @@ export class PrismaInvitationRepository implements InvitationRepositoryPort {
       record.firstName ?? undefined,
       record.lastName ?? undefined,
       record.role ?? undefined,
+      record.createdAt,
+      record.updatedAt,
+      null,
+      null,
     );
   }
 
@@ -37,6 +41,8 @@ export class PrismaInvitationRepository implements InvitationRepositoryPort {
         firstName: invitation.firstName,
         lastName: invitation.lastName,
         role: invitation.role,
+        createdById: invitation.createdBy?.id,
+        updatedById: invitation.updatedBy?.id,
       },
     });
     return this.mapRecord(record);
