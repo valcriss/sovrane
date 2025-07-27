@@ -29,6 +29,8 @@ export class AddDepartmentUserUseCase {
       return null;
     }
     user.department = department;
+    user.updatedAt = new Date();
+    user.updatedBy = this.checker.currentUser;
     return this.userRepository.update(user);
   }
 }

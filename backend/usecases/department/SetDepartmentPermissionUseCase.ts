@@ -27,6 +27,8 @@ export class SetDepartmentPermissionUseCase {
       return null;
     }
     department.permissions.push(permission);
+    department.updatedAt = new Date();
+    department.updatedBy = this.checker.currentUser;
     return this.departmentRepository.update(department);
   }
 }

@@ -25,6 +25,8 @@ export class RemoveDepartmentManagerUseCase {
       return null;
     }
     department.managerUserId = null;
+    department.updatedAt = new Date();
+    department.updatedBy = this.checker.currentUser;
     return this.departmentRepository.update(department);
   }
 }

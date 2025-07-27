@@ -26,6 +26,8 @@ export class SetDepartmentParentDepartmentUseCase {
       return null;
     }
     department.parentDepartmentId = parentDepartmentId;
+    department.updatedAt = new Date();
+    department.updatedBy = this.checker.currentUser;
     return this.departmentRepository.update(department);
   }
 }

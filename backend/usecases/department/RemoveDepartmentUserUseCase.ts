@@ -30,6 +30,8 @@ export class RemoveDepartmentUserUseCase {
       return null;
     }
     user.department = null as unknown as Department;
+    user.updatedAt = new Date();
+    user.updatedBy = this.checker.currentUser;
     return this.userRepository.update(user);
   }
 }

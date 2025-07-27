@@ -25,6 +25,8 @@ export class RemoveChildDepartmentUseCase {
       return null;
     }
     child.parentDepartmentId = null;
+    child.updatedAt = new Date();
+    child.updatedBy = this.checker.currentUser;
     return this.departmentRepository.update(child);
   }
 }

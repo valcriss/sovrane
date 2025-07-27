@@ -26,6 +26,8 @@ export class RemoveDepartmentPermissionUseCase {
       return null;
     }
     department.permissions = department.permissions.filter(p => p.id !== permissionId);
+    department.updatedAt = new Date();
+    department.updatedBy = this.checker.currentUser;
     return this.departmentRepository.update(department);
   }
 }

@@ -20,6 +20,8 @@ export class UpdateDepartmentUseCase {
    */
   async execute(department: Department): Promise<Department> {
     this.checker.check(PermissionKeys.UPDATE_DEPARTMENT);
+    department.updatedAt = new Date();
+    department.updatedBy = this.checker.currentUser;
     return this.departmentRepository.update(department);
   }
 }
