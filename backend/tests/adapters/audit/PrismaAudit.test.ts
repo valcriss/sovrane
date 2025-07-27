@@ -69,4 +69,86 @@ describe('PrismaAudit', () => {
       },
     });
   });
+
+  it('should return paginated audit logs', async () => {
+    (prisma as any).auditLog.findMany.mockResolvedValue([
+      {
+        timestamp: new Date('2024-01-01T00:00:00Z'),
+        actorId: 'u',
+        actorType: 'user',
+        action: 'action',
+        targetType: null,
+        targetId: null,
+        details: null,
+        ipAddress: null,
+        userAgent: null,
+      },
+    ]);
+    (prisma as any).auditLog.count.mockResolvedValue(1);
+
+    const result = await adapter.findPaginated({ page: 1, limit: 20 });
+
+    expect((prisma as any).auditLog.findMany).toHaveBeenCalled();
+    expect(result.total).toBe(1);
+    expect(result.items[0].action).toBe('action');
+  });
+
+  it('should apply filters when retrieving logs', async () => {
+    (prisma as any).auditLog.findMany.mockResolvedValue([]);
+    (prisma as any).auditLog.count.mockResolvedValue(0);
+
+    await adapter.findPaginated({
+      page: 2,
+      limit: 10,
+      actorId: 'u',
+      action: 'a',
+      targetType: 't',
+      dateFrom: new Date('2024-01-01T00:00:00Z'),
+      dateTo: new Date('2024-01-02T00:00:00Z'),
+    });
+
+    expect((prisma as any).auditLog.findMany).toHaveBeenCalledWith({
+      skip: 10,
+      take: 10,
+      where: {
+        actorId: 'u',
+        action: 'a',
+        targetType: 't',
+        timestamp: { gte: new Date('2024-01-01T00:00:00Z'), lte: new Date('2024-01-02T00:00:00Z') },
+      },
+      orderBy: { timestamp: 'desc' },
+    });
+  });
+
+  it('should handle only dateFrom filter', async () => {
+    (prisma as any).auditLog.findMany.mockResolvedValue([]);
+    (prisma as any).auditLog.count.mockResolvedValue(0);
+
+    await adapter.findPaginated({ page: 1, limit: 5, dateFrom: new Date('2024-01-01T00:00:00Z') });
+
+    expect((prisma as any).auditLog.findMany).toHaveBeenCalledWith({
+      skip: 0,
+      take: 5,
+      where: {
+        timestamp: { gte: new Date('2024-01-01T00:00:00Z') },
+      },
+      orderBy: { timestamp: 'desc' },
+    });
+  });
+
+  it('should handle only dateTo filter', async () => {
+    (prisma as any).auditLog.findMany.mockResolvedValue([]);
+    (prisma as any).auditLog.count.mockResolvedValue(0);
+
+    await adapter.findPaginated({ page: 1, limit: 5, dateTo: new Date('2024-01-02T00:00:00Z') });
+
+    expect((prisma as any).auditLog.findMany).toHaveBeenCalledWith({
+      skip: 0,
+      take: 5,
+      where: {
+        timestamp: { lte: new Date('2024-01-02T00:00:00Z') },
+      },
+      orderBy: { timestamp: 'desc' },
+    });
+  });
 });

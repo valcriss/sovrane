@@ -6,6 +6,7 @@ import { randomUUID } from 'crypto';
 import { createUserRouter } from '../adapters/controllers/rest/userController';
 import { createInvitationRouter } from '../adapters/controllers/rest/invitationController';
 import { createRoleRouter } from '../adapters/controllers/rest/roleController';
+import { createAuditRouter } from '../adapters/controllers/rest/auditController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -85,6 +86,15 @@ async function bootstrap(): Promise<void> {
     createRoleRouter(
       roleRepository,
       userRepository,
+      logger,
+    ),
+  );
+  app.use(
+    '/api',
+    createAuditRouter(
+      authService,
+      userRepository,
+      audit,
       logger,
     ),
   );

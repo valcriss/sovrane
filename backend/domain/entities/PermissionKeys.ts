@@ -76,4 +76,7 @@ export class PermissionKeys {
 
   /** Allows creating user invitations. */
   static readonly CREATE_INVITATION = 'create-invitation';
+
+  /** Allows viewing audit log entries. */
+  static readonly VIEW_AUDIT_LOGS = 'view_audit_logs';
 }
