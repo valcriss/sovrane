@@ -19,7 +19,15 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
   ) {}
 
   private mapRecord(record: PrismaPermission): Permission {
-    return new Permission(record.id, record.permissionKey, record.description);
+    return new Permission(
+      record.id,
+      record.permissionKey,
+      record.description,
+      record.createdAt,
+      record.updatedAt,
+      null,
+      null,
+    );
   }
 
   async findById(id: string): Promise<Permission | null> {
@@ -69,7 +77,13 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
   async create(permission: Permission): Promise<Permission> {
     this.logger.info('Creating permission', getContext());
     const record = await this.prisma.permission.create({
-      data: { id: permission.id, permissionKey: permission.permissionKey, description: permission.description },
+      data: {
+        id: permission.id,
+        permissionKey: permission.permissionKey,
+        description: permission.description,
+        createdById: permission.createdBy?.id,
+        updatedById: permission.updatedBy?.id,
+      },
     });
     return this.mapRecord(record);
   }
@@ -78,7 +92,11 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
     this.logger.info('Updating permission', getContext());
     const record = await this.prisma.permission.update({
       where: { id: permission.id },
-      data: { permissionKey: permission.permissionKey, description: permission.description },
+      data: {
+        permissionKey: permission.permissionKey,
+        description: permission.description,
+        updatedById: permission.updatedBy?.id,
+      },
     });
     return this.mapRecord(record);
   }

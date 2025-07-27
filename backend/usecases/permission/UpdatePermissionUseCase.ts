@@ -14,6 +14,8 @@ export class UpdatePermissionUseCase {
    * @returns The persisted {@link Permission} after update.
    */
   async execute(permission: Permission): Promise<Permission> {
+    permission.updatedAt = new Date();
+    permission.updatedBy = null;
     return this.permissionRepository.update(permission);
   }
 }
