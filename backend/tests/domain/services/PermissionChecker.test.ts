@@ -58,4 +58,10 @@ describe('PermissionChecker', () => {
     const checker = new PermissionChecker(user);
     expect(checker.has(PermissionKeys.READ_USERS)).toBe(false);
   });
+
+  it('exposes the current user', () => {
+    const user = new User('u', 'John', 'Doe', 'j@e.c', [], 'active', dept, site);
+    const checker = new PermissionChecker(user);
+    expect(checker.currentUser).toBe(user);
+  });
 });

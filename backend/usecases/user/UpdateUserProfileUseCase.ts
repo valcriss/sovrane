@@ -20,6 +20,8 @@ export class UpdateUserProfileUseCase {
    */
   async execute(user: User): Promise<User> {
     this.checker.check(PermissionKeys.UPDATE_USER);
+    user.updatedAt = new Date();
+    user.updatedBy = this.checker.currentUser;
     return this.userRepository.update(user);
   }
 }

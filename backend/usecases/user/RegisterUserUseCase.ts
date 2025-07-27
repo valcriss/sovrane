@@ -19,6 +19,10 @@ export class RegisterUserUseCase {
    * @returns The registered user profile and tokens.
    */
   async execute(user: User): Promise<{ user: User; token: string; refreshToken: string }> {
+    user.createdAt = new Date();
+    user.updatedAt = user.createdAt;
+    user.createdBy = null;
+    user.updatedBy = null;
     const created = await this.userRepository.create(user);
     const token = this.tokenService.generateAccessToken(created);
     const refreshToken = await this.tokenService.generateRefreshToken(created);

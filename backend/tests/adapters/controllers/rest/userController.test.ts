@@ -71,6 +71,10 @@ describe('User REST controller', () => {
       department,
       site,
       permissions: [],
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
     });
     expect(auth.verifyToken).toHaveBeenCalledWith('token');
   });
@@ -106,7 +110,17 @@ describe('User REST controller', () => {
       .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
 
     expect(res.status).toBe(201);
-    expect(res.body).toEqual({ user, token: 't', refreshToken: 'r' });
+    expect(res.body).toEqual({
+      user: {
+        ...user,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
+        createdBy: null,
+        updatedBy: null,
+      },
+      token: 't',
+      refreshToken: 'r',
+    });
     expect(repo.create).toHaveBeenCalled();
   });
 
@@ -119,7 +133,17 @@ describe('User REST controller', () => {
       .send({ email: 'john@example.com', password: 'secret123' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ user, token: 't', refreshToken: 'r' });
+    expect(res.body).toEqual({
+      user: {
+        ...user,
+        createdAt: user.createdAt.toISOString(),
+        updatedAt: user.updatedAt.toISOString(),
+        createdBy: null,
+        updatedBy: null,
+      },
+      token: 't',
+      refreshToken: 'r',
+    });
     expect(auth.authenticate).toHaveBeenCalled();
   });
 

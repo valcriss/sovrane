@@ -26,6 +26,8 @@ export class ChangeUserStatusUseCase {
       return null;
     }
     user.status = status;
+    user.updatedAt = new Date();
+    user.updatedBy = this.checker.currentUser;
     return this.userRepository.update(user);
   }
 }
