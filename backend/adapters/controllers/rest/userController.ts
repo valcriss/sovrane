@@ -5,6 +5,7 @@ import multer from 'multer';
 import {AuthServicePort} from '../../../domain/ports/AuthServicePort';
 import {UserRepositoryPort} from '../../../domain/ports/UserRepositoryPort';
 import {AvatarServicePort} from '../../../domain/ports/AvatarServicePort';
+import {TokenServicePort} from '../../../domain/ports/TokenServicePort';
 import {GetCurrentUserProfileUseCase} from '../../../usecases/user/GetCurrentUserProfileUseCase';
 import {RegisterUserUseCase} from '../../../usecases/user/RegisterUserUseCase';
 import {AuthenticateUserUseCase} from '../../../usecases/user/AuthenticateUserUseCase';
@@ -170,6 +171,7 @@ export function createUserRouter(
   authService: AuthServicePort,
   userRepository: UserRepositoryPort,
   avatarService: AvatarServicePort,
+  tokenService: TokenServicePort,
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
@@ -245,6 +247,7 @@ export function createUserRouter(
      *     description: |
      *       Creates a user account for a new participant. This endpoint is open
      *       to unauthenticated clients and is typically used during onboarding.
+     *       The returned `refreshToken` allows requesting a new access token.
      *     tags:
      *       - User
      *     requestBody:
@@ -256,18 +259,25 @@ export function createUserRouter(
      *             $ref: '#/components/schemas/User'
      *     responses:
      *       201:
-     *         description: Newly created user profile.
+     *         description: Newly created user profile with authentication tokens.
      *         content:
      *           application/json:
      *             schema:
-     *               $ref: '#/components/schemas/User'
+     *               type: object
+     *               properties:
+     *                 user:
+     *                   $ref: '#/components/schemas/User'
+     *                 token:
+     *                   type: string
+     *                 refreshToken:
+     *                   type: string
      */
     router.post('/users', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /users', getContext());
-      const useCase = new RegisterUserUseCase(userRepository);
-      const user = await useCase.execute(parseUser(req.body));
+      const useCase = new RegisterUserUseCase(userRepository, tokenService);
+      const result = await useCase.execute(parseUser(req.body));
       logger.debug('User registered', getContext());
-      res.status(201).json(user);
+      res.status(201).json(result);
     });
 
     /**
@@ -277,7 +287,8 @@ export function createUserRouter(
      *     summary: Authenticate a user with email and password.
      *     description: |
      *       Validates the provided credentials and returns the corresponding user
-     *       profile if the login succeeds.
+     *       profile if the login succeeds. The `refreshToken` can be used to
+     *       obtain a new access token when the short lived one expires.
      *     tags:
      *       - User
      *     requestBody:
@@ -301,7 +312,14 @@ export function createUserRouter(
      *         content:
      *           application/json:
      *             schema:
-     *               $ref: '#/components/schemas/User'
+     *               type: object
+     *               properties:
+     *                 user:
+     *                   $ref: '#/components/schemas/User'
+     *                 token:
+     *                   type: string
+     *                 refreshToken:
+     *                   type: string
      *       401:
      *         description: Invalid credentials
      *       403:
@@ -316,11 +334,11 @@ export function createUserRouter(
       async (req: Request, res: Response): Promise<void> => {
         logger.debug('POST /auth/login', getContext());
         const {email, password} = req.body;
-        const useCase = new AuthenticateUserUseCase(authService);
+        const useCase = new AuthenticateUserUseCase(authService, tokenService);
         try {
-          const user = await useCase.execute(email, password);
+          const result = await useCase.execute(email, password);
           logger.debug('User authenticated', getContext());
-          res.json(user);
+          res.json(result);
         } catch (err) {
           logger.warn('Authentication failed', {...getContext(), error: err});
           const message = (err as Error).message;

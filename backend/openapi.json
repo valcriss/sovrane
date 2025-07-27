@@ -2647,11 +2647,16 @@
         },
         "responses": {
           "201": {
-            "description": "Newly created user profile.",
+            "description": "Newly created user profile with authentication tokens.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" },
+                    "token": { "type": "string" },
+                    "refreshToken": { "type": "string" }
+                  }
                 }
               }
             }
@@ -2808,7 +2813,12 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "type": "object",
+                  "properties": {
+                    "user": { "$ref": "#/components/schemas/User" },
+                    "token": { "type": "string" },
+                    "refreshToken": { "type": "string" }
+                  }
                 }
               }
             }

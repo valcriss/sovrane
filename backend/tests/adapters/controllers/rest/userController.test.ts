@@ -5,6 +5,7 @@ import { createUserRouter } from '../../../../adapters/controllers/rest/userCont
 import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
 import { AvatarServicePort } from '../../../../domain/ports/AvatarServicePort';
+import { TokenServicePort } from '../../../../domain/ports/TokenServicePort';
 
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
@@ -19,6 +20,7 @@ describe('User REST controller', () => {
   let auth: DeepMockProxy<AuthServicePort>;
   let repo: DeepMockProxy<UserRepositoryPort>;
   let avatar: DeepMockProxy<AvatarServicePort>;
+  let tokenService: DeepMockProxy<TokenServicePort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let user: User;
   let role: Role;
@@ -29,6 +31,7 @@ describe('User REST controller', () => {
     auth = mockDeep<AuthServicePort>();
     repo = mockDeep<UserRepositoryPort>();
     avatar = mockDeep<AvatarServicePort>();
+    tokenService = mockDeep<TokenServicePort>();
     logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, 'root')]);
     site = new Site('s', 'Site');
@@ -45,7 +48,7 @@ describe('User REST controller', () => {
     auth.resetPassword.mockResolvedValue();
     app = express();
     app.use(express.json());
-    app.use('/api', createUserRouter(auth, repo, avatar, logger));
+    app.use('/api', createUserRouter(auth, repo, avatar, tokenService, logger));
   });
 
   it('should return current user profile', async () => {
@@ -92,31 +95,27 @@ describe('User REST controller', () => {
   });
 
   it('should register a user', async () => {
+    tokenService.generateAccessToken.mockReturnValue('t');
+    tokenService.generateRefreshToken.mockResolvedValue('r');
     const res = await request(app)
       .post('/api/users')
       .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
 
     expect(res.status).toBe(201);
+    expect(res.body).toEqual({ user, token: 't', refreshToken: 'r' });
     expect(repo.create).toHaveBeenCalled();
   });
 
   it('should authenticate a user', async () => {
+    tokenService.generateAccessToken.mockReturnValue('t');
+    tokenService.generateRefreshToken.mockResolvedValue('r');
+
     const res = await request(app)
       .post('/api/auth/login')
       .send({ email: 'john@example.com', password: 'secret123' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({
-      id: 'u',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      roles: [role],
-      status: 'active',
-      department,
-      site,
-      permissions: [],
-    });
+    expect(res.body).toEqual({ user, token: 't', refreshToken: 'r' });
     expect(auth.authenticate).toHaveBeenCalled();
   });
 
