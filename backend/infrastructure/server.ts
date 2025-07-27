@@ -17,6 +17,7 @@ import { ConsoleEmailServiceAdapter } from '../adapters/email/ConsoleEmailServic
 import { LocalFileStorageAdapter } from '../adapters/storage/LocalFileStorageAdapter';
 import { AvatarService } from '../domain/services/AvatarService';
 import { PrismaRefreshTokenRepository } from '../adapters/repositories/PrismaRefreshTokenRepository';
+import { PrismaAudit } from '../adapters/audit/PrismaAudit';
 import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
@@ -41,6 +42,7 @@ async function bootstrap(): Promise<void> {
     refreshRepo,
     logger,
   );
+  const audit = new PrismaAudit(prisma, logger);
 
   const authService = new JWTAuthServiceAdapter(
     process.env.JWT_SECRET ?? 'secret',
@@ -71,6 +73,7 @@ async function bootstrap(): Promise<void> {
     createUserRouter(
       authService,
       userRepository,
+      audit,
       avatarService,
       tokenService,
       refreshRepo,

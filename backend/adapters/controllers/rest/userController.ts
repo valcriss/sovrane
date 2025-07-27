@@ -4,6 +4,7 @@ import type {Express} from 'express';
 import multer from 'multer';
 import {AuthServicePort} from '../../../domain/ports/AuthServicePort';
 import {UserRepositoryPort} from '../../../domain/ports/UserRepositoryPort';
+import { AuditPort } from '../../../domain/ports/AuditPort';
 import {AvatarServicePort} from '../../../domain/ports/AvatarServicePort';
 import {TokenServicePort} from '../../../domain/ports/TokenServicePort';
 import { RefreshTokenRepositoryPort } from '../../../domain/ports/RefreshTokenRepositoryPort';
@@ -182,6 +183,7 @@ interface AuthedRequest extends Request {
 export function createUserRouter(
   authService: AuthServicePort,
   userRepository: UserRepositoryPort,
+  audit: AuditPort,
   avatarService: AvatarServicePort,
   tokenService: TokenServicePort,
   refreshTokenRepository: RefreshTokenRepositoryPort,
@@ -813,7 +815,7 @@ export function createUserRouter(
       logger.debug('PUT /users/:id', getContext());
       const user = parseUser({ ...req.body, id: req.params.id });
       const checker = new PermissionChecker((req as AuthedRequest).user);
-      const useCase = new UpdateUserProfileUseCase(userRepository, checker);
+      const useCase = new UpdateUserProfileUseCase(userRepository, checker, audit);
       try {
         const updated = await useCase.execute(user);
         logger.debug('User profile updated', getContext());
