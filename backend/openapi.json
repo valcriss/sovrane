@@ -2927,6 +2927,26 @@
           },
           "403": {
             "description": "User account is suspended or archived"
+          },
+          "423": {
+            "description": "Account temporarily locked due to failed attempts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" },
+                    "code": { "type": "string" },
+                    "lockedUntil": { "type": "string", "format": "date-time" }
+                  },
+                  "example": {
+                    "error": "Account is temporarily locked due to multiple failed login attempts.",
+                    "code": "account_locked",
+                    "lockedUntil": "2030-01-01T00:00:00.000Z"
+                  }
+                }
+              }
+            }
           }
         }
       }

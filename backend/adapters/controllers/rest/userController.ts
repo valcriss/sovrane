@@ -28,6 +28,7 @@ import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
 import {Permission} from '../../../domain/entities/Permission';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
 import {requireBodyParams} from './requestValidator';
 
 /**
@@ -388,11 +389,21 @@ export function createUserRouter(
           logger.debug('User authenticated', getContext());
           res.json(result);
         } catch (err) {
-          logger.warn('Authentication failed', {...getContext(), error: err});
+          logger.warn('Authentication failed', { ...getContext(), error: err });
+          if (err instanceof AccountLockedError) {
+            res
+              .status(423)
+              .json({
+                error: err.message,
+                code: 'account_locked',
+                lockedUntil: err.lockedUntil.toISOString(),
+              });
+            return;
+          }
           const message = (err as Error).message;
           const status =
             message === 'User account is suspended or archived' ? 403 : 401;
-          res.status(status).json({error: message});
+          res.status(status).json({ error: message });
         }
       },
     );

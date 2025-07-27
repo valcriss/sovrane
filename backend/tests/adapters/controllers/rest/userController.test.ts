@@ -14,6 +14,7 @@ import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
+import { AccountLockedError } from '../../../../domain/errors/AccountLockedError';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { RefreshToken } from '../../../../domain/entities/RefreshToken';
 import { AuditPort } from '../../../../domain/ports/AuditPort';
@@ -248,6 +249,24 @@ describe('User REST controller', () => {
       .send({ email: 'john@example.com', password: 'badpass1' });
 
     expect(res.status).toBe(401);
+  });
+
+  it('should return 423 when account is locked', async () => {
+    user.lockedUntil = new Date(Date.now() + 1000);
+    repo.findByEmail.mockResolvedValue(user);
+
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'john@example.com', password: 'secret123' });
+
+    expect(res.status).toBe(423);
+    expect(res.body).toEqual({
+      error:
+        'Account is temporarily locked due to multiple failed login attempts.',
+      code: 'account_locked',
+      lockedUntil: user.lockedUntil.toISOString(),
+    });
+    expect(auth.authenticate).not.toHaveBeenCalled();
   });
 
   it('should return 403 when user account is suspended', async () => {
