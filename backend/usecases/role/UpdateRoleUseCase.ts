@@ -14,6 +14,8 @@ export class UpdateRoleUseCase {
    * @returns The persisted {@link Role} after update.
    */
   async execute(role: Role): Promise<Role> {
+    role.updatedAt = new Date();
+    role.updatedBy = null;
     return this.roleRepository.update(role);
   }
 }
