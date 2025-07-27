@@ -16,6 +16,7 @@ import { Permission } from '../../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { RefreshToken } from '../../../../domain/entities/RefreshToken';
+import { AuditPort } from '../../../../domain/ports/AuditPort';
 
 describe('User REST controller', () => {
   let app: express.Express;
@@ -24,6 +25,7 @@ describe('User REST controller', () => {
   let avatar: DeepMockProxy<AvatarServicePort>;
   let tokenService: DeepMockProxy<TokenServicePort>;
   let refreshRepo: DeepMockProxy<RefreshTokenRepositoryPort>;
+  let audit: DeepMockProxy<AuditPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let user: User;
   let role: Role;
@@ -36,6 +38,7 @@ describe('User REST controller', () => {
     avatar = mockDeep<AvatarServicePort>();
     tokenService = mockDeep<TokenServicePort>();
     refreshRepo = mockDeep<RefreshTokenRepositoryPort>();
+    audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, 'root')]);
     site = new Site('s', 'Site');
@@ -52,7 +55,7 @@ describe('User REST controller', () => {
     auth.resetPassword.mockResolvedValue();
     app = express();
     app.use(express.json());
-    app.use('/api', createUserRouter(auth, repo, avatar, tokenService, refreshRepo, logger));
+    app.use('/api', createUserRouter(auth, repo, audit, avatar, tokenService, refreshRepo, logger));
   });
 
   function serializePermission(p: Permission) {
