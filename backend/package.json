@@ -10,6 +10,7 @@
     "database:generate": "prisma generate --schema adapters/orm/prisma/schema.prisma",
     "database:update": "prisma migrate dev --schema adapters/orm/prisma/schema.prisma",
     "database:reset": "prisma migrate reset --schema adapters/orm/prisma/schema.prisma",
+    "database:format": "prisma format --schema adapters/orm/prisma/schema.prisma",
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --coverage --watchAll=false",

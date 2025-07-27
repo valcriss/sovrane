@@ -8,89 +8,90 @@ generator client {
 }
 
 model User {
-  id                 String   @id @default(uuid())
+  id                 String                 @id @default(uuid())
   firstname          String
   lastname           String
-  email              String   @unique
+  email              String                 @unique
   password           String?
   status             String
   picture            String?
   metadata           Json?
-  emailVerified      Boolean? @default(false)
+  emailVerified      Boolean?               @default(false)
   externalId         String?
   externalProvider   String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  department         Department @relation(fields: [departmentId], references: [id])
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  department         Department             @relation(fields: [departmentId], references: [id])
   departmentId       String
-  site               Site       @relation(fields: [siteId], references: [id])
+  site               Site                   @relation(fields: [siteId], references: [id])
   siteId             String
   roles              UserRole[]
   permissions        UserPermission[]
-  managedDepartments Department[] @relation("DepartmentManager")
-  groups            UserGroupMember[]
-  responsibleGroups UserGroupResponsible[]
+  managedDepartments Department[]           @relation("DepartmentManager")
+  groups             UserGroupMember[]
+  responsibleGroups  UserGroupResponsible[]
+  RefreshToken       RefreshToken[]
 }
 
 model Role {
-  id    String @id @default(uuid())
-  label String
-  users UserRole[]
+  id          String           @id @default(uuid())
+  label       String
+  users       UserRole[]
   permissions RolePermission[]
 }
 
 model Department {
-  id                 String      @id @default(uuid())
+  id                 String                 @id @default(uuid())
   label              String
   parentDepartmentId String?
-  parent             Department? @relation("DepartmentParent", fields: [parentDepartmentId], references: [id])
-  children           Department[] @relation("DepartmentParent")
+  parent             Department?            @relation("DepartmentParent", fields: [parentDepartmentId], references: [id])
+  children           Department[]           @relation("DepartmentParent")
   managerUserId      String?
-  manager            User?       @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  manager            User?                  @relation("DepartmentManager", fields: [managerUserId], references: [id])
   users              User[]
-  permissions DepartmentPermission[]
-  site               Site       @relation(fields: [siteId], references: [id])
+  permissions        DepartmentPermission[]
+  site               Site                   @relation(fields: [siteId], references: [id])
   siteId             String
 }
 
 model UserRole {
-  user   User @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
   userId String
-  role   Role @relation(fields: [roleId], references: [id])
+  role   Role   @relation(fields: [roleId], references: [id])
   roleId String
 
   @@id([userId, roleId])
 }
 
 model Permission {
-  id            String   @id @default(uuid())
-  permissionKey String   @unique
-  description   String
+  id                    String                 @id @default(uuid())
+  permissionKey         String                 @unique
+  description           String
   userPermissions       UserPermission[]
   rolePermissions       RolePermission[]
   departmentPermissions DepartmentPermission[]
 }
 
 model UserPermission {
-  user        User       @relation(fields: [userId], references: [id])
-  userId      String
-  permission  Permission @relation(fields: [permissionId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+  userId       String
+  permission   Permission @relation(fields: [permissionId], references: [id])
   permissionId String
 
   @@id([userId, permissionId])
 }
 
 model RolePermission {
-  role        Role       @relation(fields: [roleId], references: [id])
-  roleId      String
-  permission  Permission @relation(fields: [permissionId], references: [id])
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       String
+  permission   Permission @relation(fields: [permissionId], references: [id])
   permissionId String
 
   @@id([roleId, permissionId])
 }
 
 model DepartmentPermission {
-  department  Department @relation(fields: [departmentId], references: [id])
+  department   Department @relation(fields: [departmentId], references: [id])
   departmentId String
   permission   Permission @relation(fields: [permissionId], references: [id])
   permissionId String
@@ -106,18 +107,18 @@ model Site {
 }
 
 model UserGroup {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
+  id           String                 @id @default(uuid())
+  name         String
+  description  String?
   responsibles UserGroupResponsible[]
-  members     UserGroupMember[]
+  members      UserGroupMember[]
 }
 
 model UserGroupMember {
-  user     User      @relation(fields: [userId], references: [id])
-  userId   String
-  group    UserGroup @relation(fields: [groupId], references: [id])
-  groupId  String
+  user    User      @relation(fields: [userId], references: [id])
+  userId  String
+  group   UserGroup @relation(fields: [groupId], references: [id])
+  groupId String
 
   @@id([userId, groupId])
 }
