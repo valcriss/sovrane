@@ -156,6 +156,19 @@ import {requireBodyParams} from './requestValidator';
  *           format: date-time
  *           nullable: true
  *           description: Timestamp of the user's last activity (login or token refresh).
+ *         failedLoginAttempts:
+ *           type: integer
+ *           description: Number of consecutive failed login attempts.
+ *         lastFailedLoginAt:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Timestamp of the last failed login attempt.
+ *         lockedUntil:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Account lock expiration timestamp when locked.
  *         permissions:
  *           type: array
  *           description: Permissions granted directly to the user.
@@ -242,6 +255,8 @@ export function createUserRouter(
         updatedAt: u.updatedAt.toISOString(),
         lastLogin: u.lastLogin ? u.lastLogin.toISOString() : null,
         lastActivity: u.lastActivity ? u.lastActivity.toISOString() : null,
+        lastFailedLoginAt: u.lastFailedLoginAt ? u.lastFailedLoginAt.toISOString() : null,
+        lockedUntil: u.lockedUntil ? u.lockedUntil.toISOString() : null,
         createdBy: null,
         updatedBy: null,
       };
@@ -361,7 +376,13 @@ export function createUserRouter(
       async (req: Request, res: Response): Promise<void> => {
         logger.debug('POST /auth/login', getContext());
         const {email, password} = req.body;
-        const useCase = new AuthenticateUserUseCase(authService, tokenService, userRepository);
+        const useCase = new AuthenticateUserUseCase(
+          authService,
+          tokenService,
+          userRepository,
+          audit,
+          logger,
+        );
         try {
           const result = await useCase.execute(email, password);
           logger.debug('User authenticated', getContext());

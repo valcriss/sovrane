@@ -110,6 +110,21 @@ describe('User Entity', () => {
       expect(user.permissions).toHaveLength(1);
       expect(user.permissions[0]).toBe(perm);
     });
+
+    it('should track login attempts and locking fields', () => {
+      expect(user.failedLoginAttempts).toBe(0);
+      expect(user.lastFailedLoginAt).toBeNull();
+      expect(user.lockedUntil).toBeNull();
+
+      user.failedLoginAttempts = 3;
+      const now = new Date();
+      user.lastFailedLoginAt = now;
+      user.lockedUntil = new Date(now.getTime() + 1000);
+
+      expect(user.failedLoginAttempts).toBe(3);
+      expect(user.lastFailedLoginAt).toBe(now);
+      expect(user.lockedUntil).toBeInstanceOf(Date);
+    });
   });
 
   describe('User Status', () => {
@@ -156,7 +171,27 @@ describe('User Entity', () => {
       const creator = new User('c1', 'C', 'D', 'c@d.e', [], 'active', department, site);
       const updater = new User('u2', 'U', 'D', 'u@d.e', [], 'active', department, site);
       const date = new Date('2020-01-01T00:00:00Z');
-      const auditedUser = new User('u3', 'F', 'L', 'f@l.c', [], 'active', department, site, undefined, [], undefined, undefined, date, date, creator, updater);
+      const auditedUser = new User(
+        'u3',
+        'F',
+        'L',
+        'f@l.c',
+        [],
+        'active',
+        department,
+        site,
+        undefined,
+        [],
+        undefined,
+        undefined,
+        0,
+        null,
+        null,
+        date,
+        date,
+        creator,
+        updater,
+      );
 
       expect(auditedUser.createdAt).toBe(date);
       expect(auditedUser.updatedAt).toBe(date);

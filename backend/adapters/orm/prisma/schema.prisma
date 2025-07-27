@@ -21,6 +21,9 @@ model User {
   externalProvider   String?
   lastLogin          DateTime?
   lastActivity       DateTime?
+  failedLoginAttempts Int                     @default(0)
+  lastFailedLoginAt  DateTime?
+  lockedUntil        DateTime?
   createdBy          User?                  @relation("UserCreatedBy", fields: [createdById], references: [id])
   createdById        String?
   updatedBy          User?                  @relation("UserUpdatedBy", fields: [updatedById], references: [id])
