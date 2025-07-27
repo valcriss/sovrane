@@ -9,10 +9,12 @@ import { registerUserGateway } from '../adapters/controllers/websocket/userGatew
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
 import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
+import { JWTTokenServiceAdapter } from '../adapters/token/JWTTokenServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
 import { ConsoleEmailServiceAdapter } from '../adapters/email/ConsoleEmailServiceAdapter';
 import { LocalFileStorageAdapter } from '../adapters/storage/LocalFileStorageAdapter';
 import { AvatarService } from '../domain/services/AvatarService';
+import { PrismaRefreshTokenRepository } from '../adapters/repositories/PrismaRefreshTokenRepository';
 import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
@@ -29,6 +31,13 @@ async function bootstrap(): Promise<void> {
   const emailService = new ConsoleEmailServiceAdapter(logger);
   const storage = new LocalFileStorageAdapter(process.env.STORAGE_PATH ?? './uploads', logger);
   const avatarService = new AvatarService(storage, userRepository, logger);
+
+  const refreshRepo = new PrismaRefreshTokenRepository(prisma, logger);
+  const tokenService = new JWTTokenServiceAdapter(
+    process.env.JWT_SECRET ?? 'secret',
+    refreshRepo,
+    logger,
+  );
 
   const authService = new JWTAuthServiceAdapter(
     process.env.JWT_SECRET ?? 'secret',
@@ -60,6 +69,7 @@ async function bootstrap(): Promise<void> {
       authService,
       userRepository,
       avatarService,
+      tokenService,
       logger,
     ),
   );
