@@ -68,8 +68,23 @@ describe('User REST controller', () => {
       email: 'john@example.com',
       roles: [role],
       status: 'active',
-      department,
-      site,
+      department: {
+        ...department,
+        site: {
+          ...site,
+          createdAt: site.createdAt.toISOString(),
+          updatedAt: site.updatedAt.toISOString(),
+          createdBy: null,
+          updatedBy: null,
+        },
+      },
+      site: {
+        ...site,
+        createdAt: site.createdAt.toISOString(),
+        updatedAt: site.updatedAt.toISOString(),
+        createdBy: null,
+        updatedBy: null,
+      },
       permissions: [],
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
@@ -113,6 +128,23 @@ describe('User REST controller', () => {
     expect(res.body).toEqual({
       user: {
         ...user,
+        department: {
+          ...department,
+          site: {
+            ...site,
+            createdAt: site.createdAt.toISOString(),
+            updatedAt: site.updatedAt.toISOString(),
+            createdBy: null,
+            updatedBy: null,
+          },
+        },
+        site: {
+          ...site,
+          createdAt: site.createdAt.toISOString(),
+          updatedAt: site.updatedAt.toISOString(),
+          createdBy: null,
+          updatedBy: null,
+        },
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
         createdBy: null,
@@ -136,6 +168,23 @@ describe('User REST controller', () => {
     expect(res.body).toEqual({
       user: {
         ...user,
+        department: {
+          ...department,
+          site: {
+            ...site,
+            createdAt: site.createdAt.toISOString(),
+            updatedAt: site.updatedAt.toISOString(),
+            createdBy: null,
+            updatedBy: null,
+          },
+        },
+        site: {
+          ...site,
+          createdAt: site.createdAt.toISOString(),
+          updatedAt: site.updatedAt.toISOString(),
+          createdBy: null,
+          updatedBy: null,
+        },
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
         createdBy: null,

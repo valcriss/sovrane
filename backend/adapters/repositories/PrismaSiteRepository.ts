@@ -16,7 +16,14 @@ export class PrismaSiteRepository implements SiteRepositoryPort {
   ) {}
 
   private mapRecord(record: PrismaSite): Site {
-    return new Site(record.id, record.label);
+    return new Site(
+      record.id,
+      record.label,
+      record.createdAt,
+      record.updatedAt,
+      null,
+      null,
+    );
   }
 
   async findById(id: string): Promise<Site | null> {
@@ -58,7 +65,12 @@ export class PrismaSiteRepository implements SiteRepositoryPort {
   async create(site: Site): Promise<Site> {
     this.logger.info('Creating site', getContext());
     const record = await this.prisma.site.create({
-      data: { id: site.id, label: site.label },
+      data: {
+        id: site.id,
+        label: site.label,
+        createdById: site.createdBy?.id,
+        updatedById: site.updatedBy?.id,
+      },
     });
     return this.mapRecord(record);
   }
@@ -67,7 +79,10 @@ export class PrismaSiteRepository implements SiteRepositoryPort {
     this.logger.info('Updating site', getContext());
     const record = await this.prisma.site.update({
       where: { id: site.id },
-      data: { label: site.label },
+      data: {
+        label: site.label,
+        updatedById: site.updatedBy?.id,
+      },
     });
     return this.mapRecord(record);
   }
