@@ -10,6 +10,7 @@ import { AuditEvent } from '../../../domain/entities/AuditEvent';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
 
 describe('AuthenticateUserUseCase', () => {
   let service: DeepMockProxy<AuthServicePort>;
@@ -57,7 +58,9 @@ describe('AuthenticateUserUseCase', () => {
   it('should reject when account locked', async () => {
     user.lockedUntil = new Date(Date.now() + 1000);
     repo.findByEmail.mockResolvedValue(user);
-    await expect(useCase.execute('john@example.com', 'secret')).rejects.toThrow('Account temporarily locked');
+    await expect(
+      useCase.execute('john@example.com', 'secret'),
+    ).rejects.toBeInstanceOf(AccountLockedError);
   });
 
   it('should lock account after too many failures', async () => {
@@ -65,7 +68,9 @@ describe('AuthenticateUserUseCase', () => {
     repo.findByEmail.mockResolvedValue(user);
     user.failedLoginAttempts = 5;
     service.authenticate.mockRejectedValue(new Error('bad'));
-    await expect(useCase.execute('john@example.com', 'bad')).rejects.toThrow('bad');
+    await expect(
+      useCase.execute('john@example.com', 'bad'),
+    ).rejects.toBeInstanceOf(AccountLockedError);
     expect(repo.update.mock.calls[0][0].lockedUntil).toBeInstanceOf(Date);
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
   });
