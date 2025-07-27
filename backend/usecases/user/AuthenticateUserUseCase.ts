@@ -5,6 +5,7 @@ import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
+import { AccountLockedError } from '../../domain/errors/AccountLockedError';
 
 /**
  * Use case for authenticating a user using login and password
@@ -34,7 +35,7 @@ export class AuthenticateUserUseCase {
     const existing = await this.userRepository.findByEmail(email);
     if (existing && existing.lockedUntil && existing.lockedUntil.getTime() > Date.now()) {
       this.logger.warn('User account locked');
-      throw new Error('Account temporarily locked');
+      throw new AccountLockedError(existing.lockedUntil!);
     }
 
     try {
@@ -56,11 +57,18 @@ export class AuthenticateUserUseCase {
         const lockDuration = parseInt(process.env.ACCOUNT_LOCK_DURATION || '900', 10) * 1000;
         if (existing.failedLoginAttempts > threshold) {
           existing.lockedUntil = new Date(Date.now() + lockDuration);
-          await this.audit.log(new AuditEvent(new Date(), existing.id, 'user', 'user.accountLocked', 'user', existing.id));
+          await this.audit.log(
+            new AuditEvent(new Date(), existing.id, 'user', 'user.accountLocked', 'user', existing.id),
+          );
         } else {
-          await this.audit.log(new AuditEvent(new Date(), existing.id, 'user', 'user.loginFailed', 'user', existing.id));
+          await this.audit.log(
+            new AuditEvent(new Date(), existing.id, 'user', 'user.loginFailed', 'user', existing.id),
+          );
         }
         await this.userRepository.update(existing);
+        if (existing.lockedUntil && existing.failedLoginAttempts > threshold) {
+          throw new AccountLockedError(existing.lockedUntil);
+        }
       }
       /* istanbul ignore next */
       throw err;
