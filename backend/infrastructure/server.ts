@@ -5,9 +5,11 @@ import { randomUUID } from 'crypto';
 
 import { createUserRouter } from '../adapters/controllers/rest/userController';
 import { createInvitationRouter } from '../adapters/controllers/rest/invitationController';
+import { createRoleRouter } from '../adapters/controllers/rest/roleController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
+import { PrismaRoleRepository } from '../adapters/repositories/PrismaRoleRepository';
 import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
 import { JWTTokenServiceAdapter } from '../adapters/token/JWTTokenServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
@@ -27,6 +29,7 @@ async function bootstrap(): Promise<void> {
   logger.info('Database connected');
 
   const userRepository = new PrismaUserRepository(prisma, logger);
+  const roleRepository = new PrismaRoleRepository(prisma, logger);
   const invitationRepository = new PrismaInvitationRepository(prisma, logger);
   const emailService = new ConsoleEmailServiceAdapter(logger);
   const storage = new LocalFileStorageAdapter(process.env.STORAGE_PATH ?? './uploads', logger);
@@ -71,6 +74,14 @@ async function bootstrap(): Promise<void> {
       avatarService,
       tokenService,
       refreshRepo,
+      logger,
+    ),
+  );
+  app.use(
+    '/api',
+    createRoleRouter(
+      roleRepository,
+      userRepository,
       logger,
     ),
   );
