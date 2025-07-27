@@ -110,6 +110,8 @@ describe('User REST controller', () => {
         createdBy: null,
         updatedBy: null,
       },
+      lastLogin: null,
+      lastActivity: null,
       permissions: [],
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
@@ -150,24 +152,11 @@ describe('User REST controller', () => {
       .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
 
     expect(res.status).toBe(201);
-    expect(res.body).toEqual({
-      user: {
-        ...user,
-        roles: [serializeRole(role)],
-        department: {
-          ...department,
-          site: {
-            ...site,
-            createdAt: site.createdAt.toISOString(),
-            updatedAt: site.updatedAt.toISOString(),
-            createdBy: null,
-            updatedBy: null,
-          },
-          createdAt: department.createdAt.toISOString(),
-          updatedAt: department.updatedAt.toISOString(),
-          createdBy: null,
-          updatedBy: null,
-        },
+    const expectedUser = {
+      ...user,
+      roles: [serializeRole(role)],
+      department: {
+        ...department,
         site: {
           ...site,
           createdAt: site.createdAt.toISOString(),
@@ -175,14 +164,26 @@ describe('User REST controller', () => {
           createdBy: null,
           updatedBy: null,
         },
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
+        createdAt: department.createdAt.toISOString(),
+        updatedAt: department.updatedAt.toISOString(),
         createdBy: null,
         updatedBy: null,
       },
-      token: 't',
-      refreshToken: 'r',
-    });
+      site: {
+        ...site,
+        createdAt: site.createdAt.toISOString(),
+        updatedAt: site.updatedAt.toISOString(),
+        createdBy: null,
+        updatedBy: null,
+      },
+      lastLogin: null,
+      lastActivity: null,
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    };
+    expect(res.body).toEqual({ user: expectedUser, token: 't', refreshToken: 'r' });
     expect(repo.create).toHaveBeenCalled();
   });
 
@@ -195,24 +196,11 @@ describe('User REST controller', () => {
       .send({ email: 'john@example.com', password: 'secret123' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({
-      user: {
-        ...user,
-        roles: [serializeRole(role)],
-        department: {
-          ...department,
-          site: {
-            ...site,
-            createdAt: site.createdAt.toISOString(),
-            updatedAt: site.updatedAt.toISOString(),
-            createdBy: null,
-            updatedBy: null,
-          },
-          createdAt: department.createdAt.toISOString(),
-          updatedAt: department.updatedAt.toISOString(),
-          createdBy: null,
-          updatedBy: null,
-        },
+    const expected = {
+      ...user,
+      roles: [serializeRole(role)],
+      department: {
+        ...department,
         site: {
           ...site,
           createdAt: site.createdAt.toISOString(),
@@ -220,14 +208,26 @@ describe('User REST controller', () => {
           createdBy: null,
           updatedBy: null,
         },
-        createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString(),
+        createdAt: department.createdAt.toISOString(),
+        updatedAt: department.updatedAt.toISOString(),
         createdBy: null,
         updatedBy: null,
       },
-      token: 't',
-      refreshToken: 'r',
-    });
+      site: {
+        ...site,
+        createdAt: site.createdAt.toISOString(),
+        updatedAt: site.updatedAt.toISOString(),
+        createdBy: null,
+        updatedBy: null,
+      },
+      lastLogin: user.lastLogin!.toISOString(),
+      lastActivity: user.lastActivity!.toISOString(),
+      createdAt: user.createdAt.toISOString(),
+      updatedAt: user.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    };
+    expect(res.body).toEqual({ user: expected, token: 't', refreshToken: 'r' });
     expect(auth.authenticate).toHaveBeenCalled();
   });
 

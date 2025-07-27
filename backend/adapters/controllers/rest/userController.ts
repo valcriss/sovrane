@@ -145,6 +145,16 @@ import {requireBodyParams} from './requestValidator';
  *         picture:
  *           type: string
  *           description: Optional URL of the profile picture.
+ *         lastLogin:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Timestamp of the user's last successful login.
+ *         lastActivity:
+ *           type: string
+ *           format: date-time
+ *           nullable: true
+ *           description: Timestamp of the user's last activity (login or token refresh).
  *         permissions:
  *           type: array
  *           description: Permissions granted directly to the user.
@@ -228,6 +238,8 @@ export function createUserRouter(
         ...u,
         createdAt: u.createdAt.toISOString(),
         updatedAt: u.updatedAt.toISOString(),
+        lastLogin: u.lastLogin ? u.lastLogin.toISOString() : null,
+        lastActivity: u.lastActivity ? u.lastActivity.toISOString() : null,
         createdBy: null,
         updatedBy: null,
       };
@@ -347,7 +359,7 @@ export function createUserRouter(
       async (req: Request, res: Response): Promise<void> => {
         logger.debug('POST /auth/login', getContext());
         const {email, password} = req.body;
-        const useCase = new AuthenticateUserUseCase(authService, tokenService);
+        const useCase = new AuthenticateUserUseCase(authService, tokenService, userRepository);
         try {
           const result = await useCase.execute(email, password);
           logger.debug('User authenticated', getContext());
@@ -459,7 +471,7 @@ export function createUserRouter(
     router.post('/auth/provider', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/provider', getContext());
       const {provider, token} = req.body;
-      const useCase = new AuthenticateWithProviderUseCase(authService);
+      const useCase = new AuthenticateWithProviderUseCase(authService, userRepository);
       try {
         const user = await useCase.execute(provider, token);
         logger.debug('Provider auth success', getContext());

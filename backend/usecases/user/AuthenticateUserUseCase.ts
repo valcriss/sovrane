@@ -1,6 +1,7 @@
 import { AuthServicePort } from '../../domain/ports/AuthServicePort';
 import { TokenServicePort } from '../../domain/ports/TokenServicePort';
 import { User } from '../../domain/entities/User';
+import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 
 /**
  * Use case for authenticating a user using login and password
@@ -10,6 +11,7 @@ export class AuthenticateUserUseCase {
   constructor(
     private readonly authService: AuthServicePort,
     private readonly tokenService: TokenServicePort,
+    private readonly userRepository: UserRepositoryPort,
   ) {}
 
   /**
@@ -24,6 +26,9 @@ export class AuthenticateUserUseCase {
     password: string,
   ): Promise<{ user: User; token: string; refreshToken: string }> {
     const user = await this.authService.authenticate(email, password);
+    user.lastLogin = new Date();
+    user.lastActivity = user.lastLogin;
+    await this.userRepository.update(user);
     const token = this.tokenService.generateAccessToken(user);
     const refreshToken = await this.tokenService.generateRefreshToken(user);
     return { user, token, refreshToken };

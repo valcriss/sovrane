@@ -40,6 +40,8 @@ export class RefreshAccessTokenUseCase {
     }
 
     await this.refreshRepo.delete(refreshToken);
+    user.lastActivity = new Date();
+    await this.userRepository.update(user);
     const token = this.tokenService.generateAccessToken(user);
     const newRefresh = await this.tokenService.generateRefreshToken(user);
     this.logger.debug('Access token refreshed');
