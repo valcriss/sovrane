@@ -13,6 +13,7 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
+  coverageProvider: 'babel',
   collectCoverageFrom: [
     '**/*.ts',
     '!**/*.d.ts',

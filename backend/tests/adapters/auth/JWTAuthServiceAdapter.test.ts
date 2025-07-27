@@ -105,4 +105,12 @@ describe('JWTAuthServiceAdapter', () => {
     await expect(adapter.requestPasswordReset('e')).rejects.toThrow('Not implemented');
     await expect(adapter.resetPassword('t', 'p')).rejects.toThrow('Not implemented');
   });
+
+  it('should fail when user cannot be fetched after password check', async () => {
+    const hash = await argon2.hash('p');
+    prisma.user.findUnique.mockResolvedValue({ id: 'u', password: hash } as any);
+    repo.findById.mockResolvedValue(null);
+
+    await expect(adapter.authenticate('john@example.com', 'p')).rejects.toThrow('Invalid credentials');
+  });
 });

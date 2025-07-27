@@ -137,6 +137,45 @@ describe('PrismaUserRepository', () => {
       expect(result).not.toBeNull();
       expect(result?.roles).toHaveLength(0);
     });
+
+    it('should map role permissions correctly', async () => {
+      const mockPrismaUserWithPerm = {
+        id: 'user-123',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'hashed-password',
+        status: 'active',
+        departmentId: 'dept-1',
+        siteId: 'site-1',
+        department: { id: "dept-1", label: "IT", parentDepartmentId: null, managerUserId: null, siteId: "site-1", site: { id: "site-1", label: "HQ" } },
+        site: { id: 'site-1', label: 'HQ' },
+        picture: null,
+        permissions: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        roles: [
+          {
+            userId: 'user-123',
+            roleId: 'role-123',
+            role: {
+              id: 'role-123',
+              label: 'Admin',
+              permissions: [
+                { permission: { id: 'perm-1', permissionKey: 'ROOT', description: 'root' } },
+              ]
+            }
+          }
+        ]
+      };
+
+      prismaClient.user.findUnique.mockResolvedValue(mockPrismaUserWithPerm as any);
+
+      const result = await repository.findById('user-123');
+
+      expect(result?.roles[0].permissions[0].id).toBe('perm-1');
+      expect(result?.roles[0].permissions[0].permissionKey).toBe('ROOT');
+    });
   });
 
   describe('findByEmail', () => {
