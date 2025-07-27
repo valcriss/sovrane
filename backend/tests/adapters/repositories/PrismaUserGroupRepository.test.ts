@@ -34,6 +34,10 @@ describe('PrismaUserGroupRepository', () => {
       id: 'g',
       name: 'Group',
       description: null,
+      createdAt: new Date('2020-01-01T00:00:00Z'),
+      updatedAt: new Date('2020-01-01T00:00:00Z'),
+      createdBy: null,
+      updatedBy: null,
       responsibles: [{ user: {
         id: 'u',
         firstname: 'John',
@@ -58,6 +62,10 @@ describe('PrismaUserGroupRepository', () => {
         id: 'g',
         name: 'Group',
         description: null,
+        createdAt: new Date('2020-01-01T00:00:00Z'),
+        updatedAt: new Date('2020-01-01T00:00:00Z'),
+        createdBy: null,
+        updatedBy: null,
         responsibles: [{ user: {
           id: 'u',
           firstname: 'John',
@@ -81,6 +89,30 @@ describe('PrismaUserGroupRepository', () => {
       id: 'g',
       name: 'Group',
       description: null,
+      createdAt: new Date('2020-01-01T00:00:00Z'),
+      updatedAt: new Date('2020-01-01T00:00:00Z'),
+      createdBy: {
+        id: 'c',
+        firstname: 'Creator',
+        lastname: 'User',
+        email: 'c@u.com',
+        roles: [],
+        status: 'active',
+        department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
+        site: { id: 's', label: 'Site' },
+        permissions: []
+      },
+      updatedBy: {
+        id: 'u2',
+        firstname: 'Updater',
+        lastname: 'User',
+        email: 'u@u.com',
+        roles: [],
+        status: 'active',
+        department: { id: 'd', label: 'Dept', parentDepartmentId: null, managerUserId: null, site: { id: 's', label: 'Site' } },
+        site: { id: 's', label: 'Site' },
+        permissions: []
+      },
       responsibles: [{ user: {
         id: 'u',
         firstname: 'John',
@@ -114,6 +146,10 @@ describe('PrismaUserGroupRepository', () => {
       id: 'g',
       name: 'New',
       description: null,
+      createdAt: new Date('2020-01-01T00:00:00Z'),
+      updatedAt: new Date('2020-01-01T00:00:00Z'),
+      createdBy: null,
+      updatedBy: null,
       responsibles: [{ user: {
         id: 'u',
         firstname: 'John',

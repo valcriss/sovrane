@@ -30,6 +30,8 @@ export class AddGroupUserUseCase {
       return null;
     }
     group.members.push(user);
+    group.updatedAt = new Date();
+    group.updatedBy = this.checker.currentUser;
     return this.groupRepository.addUser(groupId, userId);
   }
 }

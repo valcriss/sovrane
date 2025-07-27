@@ -63,6 +63,20 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
       site: PrismaSite;
       permissions: Array<{ permission: PrismaPermission }>;
     } }>;
+    createdBy?: PrismaUser & {
+      roles: Array<{ role: PrismaRole }>;
+      department: PrismaDepartment & { site: PrismaSite };
+      site: PrismaSite;
+      permissions: Array<{ permission: PrismaPermission }>;
+    } | null;
+    updatedBy?: PrismaUser & {
+      roles: Array<{ role: PrismaRole }>;
+      department: PrismaDepartment & { site: PrismaSite };
+      site: PrismaSite;
+      permissions: Array<{ permission: PrismaPermission }>;
+    } | null;
+    createdAt: Date;
+    updatedAt: Date;
   }): UserGroup {
     return new UserGroup(
       record.id,
@@ -72,6 +86,10 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       record.members.map((m: any) => this.mapUser(m.user)),
       record.description ?? undefined,
+      record.createdAt,
+      record.updatedAt,
+      record.createdBy ? this.mapUser(record.createdBy) : null,
+      record.updatedBy ? this.mapUser(record.updatedBy) : null,
     );
   }
 
@@ -81,6 +99,8 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
     const record = await (this.prisma as any).userGroup.findUnique({
       where: { id },
       include: {
+        createdBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
+        updatedBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
         responsibles: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
         members: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
       },
@@ -93,6 +113,8 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const records = await (this.prisma as any).userGroup.findMany({
       include: {
+        createdBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
+        updatedBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
         responsibles: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
         members: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
       },
@@ -116,6 +138,8 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
       take: params.limit,
       where,
       include: {
+        createdBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
+        updatedBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
         responsibles: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
         members: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
       },
@@ -139,6 +163,8 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
         id: group.id,
         name: group.name,
         description: group.description,
+        createdById: group.createdBy?.id,
+        updatedById: group.updatedBy?.id,
         responsibles: {
           create: group.responsibleUsers.map(u => ({ user: { connect: { id: u.id } } })),
         },
@@ -147,6 +173,8 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
         },
       },
       include: {
+        createdBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
+        updatedBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
         responsibles: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
         members: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
       },
@@ -162,8 +190,11 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
       data: {
         name: group.name,
         description: group.description,
+        updatedById: group.updatedBy?.id,
       },
       include: {
+        createdBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
+        updatedBy: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } },
         responsibles: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
         members: { include: { user: { include: { roles: { include: { role: true } }, department: { include: { site: true } }, site: true, permissions: { include: { permission: true } } } } } },
       },

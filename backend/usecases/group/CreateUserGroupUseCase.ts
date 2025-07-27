@@ -21,6 +21,11 @@ export class CreateUserGroupUseCase {
    */
   async execute(group: UserGroup): Promise<UserGroup> {
     this.checker.check(PermissionKeys.CREATE_GROUP);
+    const now = new Date();
+    group.createdAt = now;
+    group.updatedAt = now;
+    group.createdBy = this.checker.currentUser;
+    group.updatedBy = this.checker.currentUser;
     return this.repository.create(group);
   }
 }

@@ -29,6 +29,8 @@ export class RemoveGroupResponsibleUseCase {
     if (!group || !user) {
       return null;
     }
+    group.updatedAt = new Date();
+    group.updatedBy = this.checker.currentUser;
     return this.groupRepository.removeResponsible(groupId, userId);
   }
 }
