@@ -14,6 +14,11 @@ export class CreatePermissionUseCase {
    * @returns The created {@link Permission}.
    */
   async execute(permission: Permission): Promise<Permission> {
+    const now = new Date();
+    permission.createdAt = now;
+    permission.updatedAt = now;
+    permission.createdBy = null;
+    permission.updatedBy = null;
     return this.permissionRepository.create(permission);
   }
 }

@@ -10,13 +10,15 @@ describe('PrismaPermissionRepository', () => {
   let prismaAny: any;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let perm: Permission;
+  let now: Date;
 
   beforeEach(() => {
     prisma = mockDeep<PrismaClient>();
     prismaAny = prisma as any;
     logger = mockDeep<LoggerPort>();
     repository = new PrismaPermissionRepository(prisma, logger);
-    perm = new Permission('perm-1', 'READ', 'Read access');
+    now = new Date();
+    perm = new Permission('perm-1', 'READ', 'Read access', now, now);
   });
 
   afterEach(() => {
@@ -25,7 +27,7 @@ describe('PrismaPermissionRepository', () => {
 
   describe('findById', () => {
     it('should return a permission when found', async () => {
-      prismaAny.permission.findUnique.mockResolvedValue({ id: 'perm-1', permissionKey: 'READ', description: 'Read access' } as any);
+      prismaAny.permission.findUnique.mockResolvedValue({ id: 'perm-1', permissionKey: 'READ', description: 'Read access', createdAt: now, updatedAt: now } as any);
 
       const result = await repository.findById('perm-1');
 
@@ -45,7 +47,7 @@ describe('PrismaPermissionRepository', () => {
 
   describe('findByKey', () => {
     it('should return a permission by key', async () => {
-      prismaAny.permission.findFirst.mockResolvedValue({ id: 'perm-1', permissionKey: 'READ', description: 'Read access' } as any);
+      prismaAny.permission.findFirst.mockResolvedValue({ id: 'perm-1', permissionKey: 'READ', description: 'Read access', createdAt: now, updatedAt: now } as any);
 
       const result = await repository.findByKey('READ');
 
@@ -65,25 +67,36 @@ describe('PrismaPermissionRepository', () => {
 
   describe('create', () => {
     it('should create a permission', async () => {
-      prismaAny.permission.create.mockResolvedValue({ id: 'perm-1', permissionKey: 'READ', description: 'Read access' } as any);
+      prismaAny.permission.create.mockResolvedValue({ id: 'perm-1', permissionKey: 'READ', description: 'Read access', createdAt: now, updatedAt: now } as any);
 
       const result = await repository.create(perm);
 
       expect(result).toEqual(perm);
-      expect(prismaAny.permission.create).toHaveBeenCalledWith({ data: { id: 'perm-1', permissionKey: 'READ', description: 'Read access' } });
+      expect(prismaAny.permission.create).toHaveBeenCalledWith({
+        data: {
+          id: 'perm-1',
+          permissionKey: 'READ',
+          description: 'Read access',
+          createdById: undefined,
+          updatedById: undefined,
+        },
+      });
     });
   });
 
   describe('update', () => {
     it('should update a permission', async () => {
-      prismaAny.permission.update.mockResolvedValue({ id: 'perm-1', permissionKey: 'WRITE', description: 'Write access' } as any);
+      prismaAny.permission.update.mockResolvedValue({ id: 'perm-1', permissionKey: 'WRITE', description: 'Write access', createdAt: now, updatedAt: now } as any);
 
       perm.permissionKey = 'WRITE';
       perm.description = 'Write access';
       const result = await repository.update(perm);
 
-      expect(result).toEqual(new Permission('perm-1', 'WRITE', 'Write access'));
-      expect(prismaAny.permission.update).toHaveBeenCalledWith({ where: { id: 'perm-1' }, data: { permissionKey: 'WRITE', description: 'Write access' } });
+      expect(result).toEqual(new Permission('perm-1', 'WRITE', 'Write access', now, now));
+      expect(prismaAny.permission.update).toHaveBeenCalledWith({
+        where: { id: 'perm-1' },
+        data: { permissionKey: 'WRITE', description: 'Write access', updatedById: undefined },
+      });
     });
   });
 

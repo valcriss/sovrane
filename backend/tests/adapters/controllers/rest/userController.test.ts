@@ -55,6 +55,27 @@ describe('User REST controller', () => {
     app.use('/api', createUserRouter(auth, repo, avatar, tokenService, refreshRepo, logger));
   });
 
+  function serializePermission(p: Permission) {
+    return {
+      ...p,
+      createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    };
+  }
+
+  function serializeRole(r: Role) {
+    return {
+      ...r,
+      permissions: r.permissions.map(serializePermission),
+      createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    };
+  }
+
   it('should return current user profile', async () => {
     const res = await request(app)
       .get('/api/users/me')
@@ -66,15 +87,7 @@ describe('User REST controller', () => {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
-      roles: [
-        {
-          ...role,
-          createdAt: role.createdAt.toISOString(),
-          updatedAt: role.updatedAt.toISOString(),
-          createdBy: null,
-          updatedBy: null,
-        },
-      ],
+      roles: [serializeRole(role)],
       status: 'active',
       department: {
         ...department,
@@ -136,15 +149,7 @@ describe('User REST controller', () => {
     expect(res.body).toEqual({
       user: {
         ...user,
-        roles: [
-          {
-            ...role,
-            createdAt: role.createdAt.toISOString(),
-            updatedAt: role.updatedAt.toISOString(),
-            createdBy: null,
-            updatedBy: null,
-          },
-        ],
+        roles: [serializeRole(role)],
         department: {
           ...department,
           site: {
@@ -185,15 +190,7 @@ describe('User REST controller', () => {
     expect(res.body).toEqual({
       user: {
         ...user,
-        roles: [
-          {
-            ...role,
-            createdAt: role.createdAt.toISOString(),
-            updatedAt: role.updatedAt.toISOString(),
-            createdBy: null,
-            updatedBy: null,
-          },
-        ],
+        roles: [serializeRole(role)],
         department: {
           ...department,
           site: {
