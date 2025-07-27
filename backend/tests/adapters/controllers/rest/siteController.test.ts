@@ -54,7 +54,14 @@ describe('Site REST controller', () => {
     const res = await request(app).get('/api/sites/s');
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ id: 's', label: 'Site' });
+    expect(res.body).toEqual({
+      id: 's',
+      label: 'Site',
+      createdAt: site.createdAt.toISOString(),
+      updatedAt: site.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    });
     expect(siteRepo.findById).toHaveBeenCalledWith('s');
   });
 
@@ -66,7 +73,14 @@ describe('Site REST controller', () => {
       .send({ id: 's', label: 'Site' });
 
     expect(res.status).toBe(201);
-    expect(res.body).toEqual({ id: 's', label: 'Site' });
+    expect(res.body).toEqual({
+      id: 's',
+      label: 'Site',
+      createdAt: site.createdAt.toISOString(),
+      updatedAt: site.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    });
     expect(siteRepo.create).toHaveBeenCalled();
   });
 
@@ -79,7 +93,14 @@ describe('Site REST controller', () => {
       .send({ label: 'New' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ id: 's', label: 'New' });
+    expect(res.body).toEqual({
+      id: 's',
+      label: 'New',
+      createdAt: updated.createdAt.toISOString(),
+      updatedAt: updated.updatedAt.toISOString(),
+      createdBy: null,
+      updatedBy: null,
+    });
     expect(siteRepo.update).toHaveBeenCalled();
   });
 

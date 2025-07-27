@@ -14,6 +14,11 @@ export class CreateSiteUseCase {
    * @returns The created {@link Site}.
    */
   async execute(site: Site): Promise<Site> {
+    const now = new Date();
+    site.createdAt = now;
+    site.updatedAt = now;
+    site.createdBy = null;
+    site.updatedBy = null;
     return this.siteRepository.create(site);
   }
 }

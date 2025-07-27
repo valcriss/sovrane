@@ -35,6 +35,8 @@ describe('PrismaDepartmentRepository', () => {
     } as any);
 
     const result = await repo.findById('dept-1');
+    dept.site.createdAt = result!.site.createdAt;
+    dept.site.updatedAt = result!.site.updatedAt;
     expect(result).toEqual(dept);
     expect(prisma.department.findUnique).toHaveBeenCalledWith({ where: { id: 'dept-1' }, include: { site: true } });
   });
@@ -59,6 +61,8 @@ describe('PrismaDepartmentRepository', () => {
     } as any);
 
     const result = await repo.create(dept);
+    dept.site.createdAt = result.site.createdAt;
+    dept.site.updatedAt = result.site.updatedAt;
     expect(result).toEqual(dept);
     expect(prisma.department.create).toHaveBeenCalledWith({
       data: {
@@ -82,6 +86,10 @@ describe('PrismaDepartmentRepository', () => {
     } as any);
 
     const result = await repo.findByLabel('IT');
+    if (result) {
+      dept.site.createdAt = result.site.createdAt;
+      dept.site.updatedAt = result.site.updatedAt;
+    }
     expect(result).toEqual(dept);
     expect(prisma.department.findFirst).toHaveBeenCalledWith({ where: { label: 'IT' }, include: { site: true } });
   });
@@ -107,6 +115,8 @@ describe('PrismaDepartmentRepository', () => {
     } as any);
 
     const result = await repo.update(updated);
+    updated.site.createdAt = result.site.createdAt;
+    updated.site.updatedAt = result.site.updatedAt;
     expect(result).toEqual(updated);
     expect(prisma.department.update).toHaveBeenCalledWith({
       where: { id: 'dept-1' },
@@ -167,7 +177,8 @@ describe('PrismaDepartmentRepository', () => {
     ]);
 
     const result = await repo.findAll();
-
+    dept.site.createdAt = result[0].site.createdAt;
+    dept.site.updatedAt = result[0].site.updatedAt;
     expect(result).toEqual([dept]);
     expect(prisma.department.findMany).toHaveBeenCalledWith({ include: { site: true } });
   });

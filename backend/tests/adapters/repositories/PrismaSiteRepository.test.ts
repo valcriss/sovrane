@@ -22,7 +22,12 @@ describe('PrismaSiteRepository', () => {
   });
 
   it('should find by id', async () => {
-    prisma.site.findUnique.mockResolvedValue({ id: 'site-1', label: 'HQ' } as any);
+    prisma.site.findUnique.mockResolvedValue({
+      id: 'site-1',
+      label: 'HQ',
+      createdAt: site.createdAt,
+      updatedAt: site.updatedAt,
+    } as any);
     const result = await repo.findById('site-1');
     expect(result).toEqual(site);
     expect(prisma.site.findUnique).toHaveBeenCalledWith({ where: { id: 'site-1' } });
@@ -38,14 +43,26 @@ describe('PrismaSiteRepository', () => {
   });
 
   it('should create a site', async () => {
-    prisma.site.create.mockResolvedValue({ id: 'site-1', label: 'HQ' } as any);
+    prisma.site.create.mockResolvedValue({
+      id: 'site-1',
+      label: 'HQ',
+      createdAt: site.createdAt,
+      updatedAt: site.updatedAt,
+    } as any);
     const result = await repo.create(site);
     expect(result).toEqual(site);
-    expect(prisma.site.create).toHaveBeenCalledWith({ data: { id: 'site-1', label: 'HQ' } });
+    expect(prisma.site.create).toHaveBeenCalledWith({
+      data: { id: 'site-1', label: 'HQ', createdById: undefined, updatedById: undefined },
+    });
   });
 
   it('should find by label', async () => {
-    prisma.site.findFirst.mockResolvedValue({ id: 'site-1', label: 'HQ' } as any);
+    prisma.site.findFirst.mockResolvedValue({
+      id: 'site-1',
+      label: 'HQ',
+      createdAt: site.createdAt,
+      updatedAt: site.updatedAt,
+    } as any);
     const result = await repo.findByLabel('HQ');
     expect(result).toEqual(site);
     expect(prisma.site.findFirst).toHaveBeenCalledWith({ where: { label: 'HQ' } });
@@ -61,11 +78,18 @@ describe('PrismaSiteRepository', () => {
   });
 
   it('should update a site', async () => {
-    prisma.site.update.mockResolvedValue({ id: 'site-1', label: 'Paris' } as any);
+    prisma.site.update.mockResolvedValue({
+      id: 'site-1',
+      label: 'Paris',
+      createdAt: site.createdAt,
+      updatedAt: new Date('2024-01-01'),
+    } as any);
     const updated = new Site('site-1', 'Paris');
+    updated.createdAt = site.createdAt;
+    updated.updatedAt = new Date('2024-01-01');
     const result = await repo.update(updated);
     expect(result).toEqual(updated);
-    expect(prisma.site.update).toHaveBeenCalledWith({ where: { id: 'site-1' }, data: { label: 'Paris' } });
+    expect(prisma.site.update).toHaveBeenCalledWith({ where: { id: 'site-1' }, data: { label: 'Paris', updatedById: undefined } });
   });
 
   it('should delete a site', async () => {
@@ -85,7 +109,12 @@ describe('PrismaSiteRepository', () => {
 
   it('should return all sites', async () => {
     prisma.site.findMany.mockResolvedValue([
-      { id: 'site-1', label: 'HQ' } as any,
+      {
+        id: 'site-1',
+        label: 'HQ',
+        createdAt: site.createdAt,
+        updatedAt: site.updatedAt,
+      } as any,
     ]);
     const result = await repo.findAll();
     expect(result).toEqual([site]);

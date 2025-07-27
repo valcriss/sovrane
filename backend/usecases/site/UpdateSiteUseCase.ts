@@ -14,6 +14,8 @@ export class UpdateSiteUseCase {
    * @returns The persisted {@link Site} after update.
    */
   async execute(site: Site): Promise<Site> {
+    site.updatedAt = new Date();
+    site.updatedBy = null;
     return this.siteRepository.update(site);
   }
 }
