@@ -70,6 +70,7 @@ async function bootstrap(): Promise<void> {
       userRepository,
       avatarService,
       tokenService,
+      refreshRepo,
       logger,
     ),
   );

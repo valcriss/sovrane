@@ -6,6 +6,7 @@ import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
 import { AvatarServicePort } from '../../../../domain/ports/AvatarServicePort';
 import { TokenServicePort } from '../../../../domain/ports/TokenServicePort';
+import { RefreshTokenRepositoryPort } from '../../../../domain/ports/RefreshTokenRepositoryPort';
 
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
@@ -14,6 +15,7 @@ import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
+import { RefreshToken } from '../../../../domain/entities/RefreshToken';
 
 describe('User REST controller', () => {
   let app: express.Express;
@@ -21,6 +23,7 @@ describe('User REST controller', () => {
   let repo: DeepMockProxy<UserRepositoryPort>;
   let avatar: DeepMockProxy<AvatarServicePort>;
   let tokenService: DeepMockProxy<TokenServicePort>;
+  let refreshRepo: DeepMockProxy<RefreshTokenRepositoryPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let user: User;
   let role: Role;
@@ -32,6 +35,7 @@ describe('User REST controller', () => {
     repo = mockDeep<UserRepositoryPort>();
     avatar = mockDeep<AvatarServicePort>();
     tokenService = mockDeep<TokenServicePort>();
+    refreshRepo = mockDeep<RefreshTokenRepositoryPort>();
     logger = mockDeep<LoggerPort>();
     role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, 'root')]);
     site = new Site('s', 'Site');
@@ -48,7 +52,7 @@ describe('User REST controller', () => {
     auth.resetPassword.mockResolvedValue();
     app = express();
     app.use(express.json());
-    app.use('/api', createUserRouter(auth, repo, avatar, tokenService, logger));
+    app.use('/api', createUserRouter(auth, repo, avatar, tokenService, refreshRepo, logger));
   });
 
   it('should return current user profile', async () => {
@@ -206,6 +210,33 @@ describe('User REST controller', () => {
 
     expect(res.status).toBe(204);
     expect(auth.resetPassword).toHaveBeenCalledWith('tok', 'new');
+  });
+
+  it('should refresh tokens', async () => {
+    refreshRepo.findByToken.mockResolvedValue(
+      new RefreshToken('old', 'u', new Date(Date.now() + 1000)),
+    );
+    tokenService.generateAccessToken.mockReturnValue('newT');
+    tokenService.generateRefreshToken.mockResolvedValue('newR');
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: 'old' });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ token: 'newT', refreshToken: 'newR' });
+    expect(refreshRepo.findByToken).toHaveBeenCalledWith('old');
+    expect(refreshRepo.delete).toHaveBeenCalledWith('old');
+  });
+
+  it('should return 401 for invalid refresh token', async () => {
+    refreshRepo.findByToken.mockResolvedValue(null);
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: 'bad' });
+
+    expect(res.status).toBe(401);
   });
 
   it('should list users', async () => {
