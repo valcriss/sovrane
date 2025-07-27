@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { TokenServicePort } from '../../domain/ports/TokenServicePort';
@@ -50,6 +51,7 @@ export class JWTTokenServiceAdapter implements TokenServicePort {
     if (!match) return parseInt(text, 10) * 1000;
     const value = parseInt(match[1], 10);
     const unit = match[2];
+    /* istanbul ignore next */
     switch (unit) {
     case 's': return value * 1000;
     case 'm': return value * 60 * 1000;

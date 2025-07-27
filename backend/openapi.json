@@ -2842,6 +2842,53 @@
             "description": "User account is suspended or archived"
           }
         }
+        }
+      },
+    "/auth/refresh": {
+      "post": {
+        "summary": "Refresh an access token.",
+        "description": "Exchanges a valid refresh token for a new access token.",
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "description": "Refresh token previously issued by the API.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refreshToken": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "refreshToken"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "New authentication tokens.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": { "type": "string" },
+                    "refreshToken": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired refresh token."
+          }
+        }
       }
     },
     "/auth/provider": {

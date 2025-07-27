@@ -6,10 +6,12 @@ import {AuthServicePort} from '../../../domain/ports/AuthServicePort';
 import {UserRepositoryPort} from '../../../domain/ports/UserRepositoryPort';
 import {AvatarServicePort} from '../../../domain/ports/AvatarServicePort';
 import {TokenServicePort} from '../../../domain/ports/TokenServicePort';
+import { RefreshTokenRepositoryPort } from '../../../domain/ports/RefreshTokenRepositoryPort';
 import {GetCurrentUserProfileUseCase} from '../../../usecases/user/GetCurrentUserProfileUseCase';
 import {RegisterUserUseCase} from '../../../usecases/user/RegisterUserUseCase';
 import {AuthenticateUserUseCase} from '../../../usecases/user/AuthenticateUserUseCase';
 import {AuthenticateWithProviderUseCase} from '../../../usecases/user/AuthenticateWithProviderUseCase';
+import { RefreshAccessTokenUseCase } from '../../../usecases/user/RefreshAccessTokenUseCase';
 import {RequestPasswordResetUseCase} from '../../../usecases/user/RequestPasswordResetUseCase';
 import {ResetPasswordUseCase} from '../../../usecases/user/ResetPasswordUseCase';
 import {UpdateUserProfileUseCase} from '../../../usecases/user/UpdateUserProfileUseCase';
@@ -172,6 +174,7 @@ export function createUserRouter(
   userRepository: UserRepositoryPort,
   avatarService: AvatarServicePort,
   tokenService: TokenServicePort,
+  refreshTokenRepository: RefreshTokenRepositoryPort,
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
@@ -345,6 +348,65 @@ export function createUserRouter(
           const status =
             message === 'User account is suspended or archived' ? 403 : 401;
           res.status(status).json({error: message});
+        }
+      },
+    );
+
+    /**
+     * @openapi
+     * /auth/refresh:
+     *   post:
+     *     summary: Refresh an access token.
+     *     description: |
+     *       Exchanges a valid refresh token for a new access token.
+     *     tags:
+     *       - User
+     *     requestBody:
+     *       description: Refresh token previously issued by the API.
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               refreshToken:
+     *                 type: string
+     *             required:
+     *               - refreshToken
+     *     responses:
+     *       200:
+     *         description: New authentication tokens.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 token:
+     *                   type: string
+     *                 refreshToken:
+     *                   type: string
+     *       401:
+     *         description: Invalid or expired refresh token
+     */
+    router.post(
+      '/auth/refresh',
+      requireBodyParams({ refreshToken: { validator: 'string' } }),
+      async (req: Request, res: Response): Promise<void> => {
+        logger.debug('POST /auth/refresh', getContext());
+        const { refreshToken } = req.body;
+        const useCase = new RefreshAccessTokenUseCase(
+          refreshTokenRepository,
+          userRepository,
+          tokenService,
+          logger,
+        );
+        try {
+          const result = await useCase.execute(refreshToken);
+          logger.debug('Access token refreshed', getContext());
+          res.json(result);
+        } catch (err) {
+          logger.warn('Refresh token failed', { ...getContext(), error: err });
+          res.status(401).json({ error: (err as Error).message });
         }
       },
     );

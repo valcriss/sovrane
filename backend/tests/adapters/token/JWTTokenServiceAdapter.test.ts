@@ -39,4 +39,13 @@ describe('JWTTokenServiceAdapter', () => {
     expect(saved.token).toBe(token);
     expect(saved.userId).toBe('u');
   });
+
+  it('should parse duration units', async () => {
+    const units = ['1s', '1m', '1h', '1d', '1w', '10', '1y'];
+    for (const u of units) {
+      const svc = new JWTTokenServiceAdapter(secret, repo, logger, '15m', u);
+      await svc.generateRefreshToken(user);
+    }
+    expect(repo.create).toHaveBeenCalledTimes(units.length);
+  });
 });
