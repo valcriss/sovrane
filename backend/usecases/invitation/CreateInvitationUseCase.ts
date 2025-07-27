@@ -40,6 +40,7 @@ export class CreateInvitationUseCase {
     }
 
     const token = randomBytes(32).toString('hex');
+    const now = new Date();
     const invitation = new Invitation(
       data.email,
       token,
@@ -48,6 +49,10 @@ export class CreateInvitationUseCase {
       data.firstName,
       data.lastName,
       data.role,
+      now,
+      now,
+      this.checker.currentUser,
+      this.checker.currentUser,
     );
 
     await this.invitationRepository.create(invitation);

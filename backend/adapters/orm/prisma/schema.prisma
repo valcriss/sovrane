@@ -44,6 +44,8 @@ model User {
   updatedRoles       Role[]                 @relation("RoleUpdatedBy")
   createdPermissions Permission[]           @relation("PermissionCreatedBy")
   updatedPermissions Permission[]           @relation("PermissionUpdatedBy")
+  createdInvitations Invitation[]          @relation("InvitationCreatedBy")
+  updatedInvitations Invitation[]          @relation("InvitationUpdatedBy")
   RefreshToken       RefreshToken[]
 }
 
@@ -179,7 +181,12 @@ model Invitation {
   role      String?
   status    String
   expiresAt DateTime
-  createdAt DateTime @default(now())
+  createdBy   User?    @relation("InvitationCreatedBy", fields: [createdById], references: [id])
+  createdById String?
+  updatedBy   User?    @relation("InvitationUpdatedBy", fields: [updatedById], references: [id])
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model RefreshToken {

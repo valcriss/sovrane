@@ -26,6 +26,7 @@ describe('PrismaInvitationRepository', () => {
       role: null,
       id: '1',
       createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-02'),
     } as any);
 
     const inv = await repo.create(new Invitation('a', 't', 'pending', new Date('2024-01-01')));
@@ -45,6 +46,7 @@ describe('PrismaInvitationRepository', () => {
       role: null,
       id: '1',
       createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-02'),
     } as any);
 
     const inv = await repo.findByToken('t');
@@ -70,6 +72,7 @@ describe('PrismaInvitationRepository', () => {
       role: null,
       id: '2',
       createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-02'),
     } as any);
 
     const inv = await repo.findByEmail('b');
