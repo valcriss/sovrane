@@ -21,6 +21,8 @@ describe('PrismaUserRepository', () => {
     department: { include: { site: true } },
     site: true,
     permissions: { include: { permission: true } },
+    createdBy: true,
+    updatedBy: true,
   };
 
   beforeEach(() => {
@@ -321,6 +323,8 @@ describe('PrismaUserRepository', () => {
           departmentId: 'dept-1',
           siteId: 'site-1',
           picture: undefined,
+          createdById: undefined,
+          updatedById: undefined,
           permissions: { create: [] },
           status: 'active',
           roles: {
@@ -368,6 +372,8 @@ describe('PrismaUserRepository', () => {
           departmentId: 'dept-1',
           siteId: 'site-1',
           picture: undefined,
+          createdById: undefined,
+          updatedById: undefined,
           permissions: { create: [{ permission: { connect: { id: 'perm-1' } } }] },
           status: 'active',
           roles: {
@@ -423,6 +429,8 @@ describe('PrismaUserRepository', () => {
           departmentId: 'dept-1',
           siteId: 'site-1',
           picture: undefined,
+          createdById: undefined,
+          updatedById: undefined,
           permissions: { create: [] },
           status: 'active',
           roles: {
@@ -496,6 +504,7 @@ describe('PrismaUserRepository', () => {
           departmentId: 'dept-1',
           siteId: 'site-1',
           picture: undefined,
+          updatedById: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
             deleteMany: {},
@@ -565,6 +574,7 @@ describe('PrismaUserRepository', () => {
           departmentId: 'dept-1',
           siteId: 'site-1',
           picture: undefined,
+          updatedById: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
             deleteMany: {},
@@ -623,6 +633,7 @@ describe('PrismaUserRepository', () => {
           departmentId: 'dept-1',
           siteId: 'site-1',
           picture: undefined,
+          updatedById: undefined,
           permissions: { deleteMany: {}, create: [{ permission: { connect: { id: 'perm-2' } } }] },
           roles: {
             deleteMany: {},
@@ -679,6 +690,7 @@ describe('PrismaUserRepository', () => {
           departmentId: 'dept-1',
           siteId: 'site-1',
           picture: undefined,
+          updatedById: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
             deleteMany: {},

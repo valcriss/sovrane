@@ -223,6 +223,16 @@ export function createUserRouter(
       );
     }
 
+    function serializeUser(u: User): Record<string, unknown> {
+      return {
+        ...u,
+        createdAt: u.createdAt.toISOString(),
+        updatedAt: u.updatedAt.toISOString(),
+        createdBy: null,
+        updatedBy: null,
+      };
+    }
+
     const authMiddleware: express.RequestHandler = async (req, res, next) => {
       logger.debug('REST auth middleware', getContext());
       const header = req.headers.authorization;
@@ -795,7 +805,7 @@ export function createUserRouter(
       try {
         const updated = await useCase.execute(user);
         logger.debug('User profile updated', getContext());
-        res.json(updated);
+        res.json(serializeUser(updated));
       } catch (err) {
         if ((err as Error).message === 'Forbidden') {
           logger.warn('Permission denied updating user', { ...getContext(), error: err });
@@ -863,7 +873,7 @@ export function createUserRouter(
           return;
         }
         logger.debug('User status changed', getContext());
-        res.json(updated);
+        res.json(serializeUser(updated));
       } catch (err) {
         if ((err as Error).message === 'Forbidden') {
           logger.warn('Permission denied changing status', { ...getContext(), error: err });

@@ -68,6 +68,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
       record.permissions.map((up) =>
         new Permission(up.permission.id, up.permission.permissionKey, up.permission.description),
       ),
+      record.createdAt,
+      record.updatedAt,
+      null,
+      null,
     );
   }
 
@@ -80,6 +84,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return record ? this.mapRecord(record) : null;
@@ -93,6 +99,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return records.map(r => this.mapRecord(r));
@@ -132,6 +140,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     const total = await this.prisma.user.count({ where });
@@ -152,6 +162,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return record ? this.mapRecord(record) : null;
@@ -169,6 +181,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return record ? this.mapRecord(record) : null;
@@ -183,6 +197,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return records.map(r => this.mapRecord(r));
@@ -197,6 +213,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return records.map(r => this.mapRecord(r));
@@ -211,6 +229,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return records.map(r => this.mapRecord(r));
@@ -229,6 +249,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         departmentId: user.department.id,
         siteId: user.site.id,
         picture: user.picture,
+        createdById: user.createdBy?.id,
+        updatedById: user.updatedBy?.id,
         permissions: {
           create: user.permissions.map((p) => ({ permission: { connect: { id: p.id } } })),
         },
@@ -241,6 +263,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return this.mapRecord(record);
@@ -258,6 +282,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         departmentId: user.department.id,
         siteId: user.site.id,
         picture: user.picture,
+        updatedById: user.updatedBy?.id,
         permissions: {
           deleteMany: {},
           create: user.permissions.map((p) => ({ permission: { connect: { id: p.id } } })),
@@ -272,6 +297,8 @@ export class PrismaUserRepository implements UserRepositoryPort {
         department: { include: { site: true } },
         site: true,
         permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
       },
     });
     return this.mapRecord(record);

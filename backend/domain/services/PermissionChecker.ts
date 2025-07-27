@@ -13,6 +13,15 @@ export class PermissionChecker {
   constructor(private readonly user: User) {}
 
   /**
+   * Retrieve the user associated with this checker.
+   *
+   * @returns The current authenticated {@link User}.
+   */
+  get currentUser(): User {
+    return this.user;
+  }
+
+  /**
    * Determine whether the user has the requested permission key or the root permission.
    *
    * @param key - Permission key to verify.

@@ -141,4 +141,27 @@ describe('User Entity', () => {
       expect(multiRoleUser.roles).toContain(userRole);
     });
   });
+
+  describe('Timestamps and Audit Fields', () => {
+    it('should set default createdAt and updatedAt values', () => {
+      const newUser = new User('u1', 'A', 'B', 'a@b.c', [], 'active', department, site);
+
+      expect(newUser.createdAt).toBeInstanceOf(Date);
+      expect(newUser.updatedAt).toEqual(newUser.createdAt);
+      expect(newUser.createdBy).toBeNull();
+      expect(newUser.updatedBy).toBeNull();
+    });
+
+    it('should accept custom audit information', () => {
+      const creator = new User('c1', 'C', 'D', 'c@d.e', [], 'active', department, site);
+      const updater = new User('u2', 'U', 'D', 'u@d.e', [], 'active', department, site);
+      const date = new Date('2020-01-01T00:00:00Z');
+      const auditedUser = new User('u3', 'F', 'L', 'f@l.c', [], 'active', department, site, undefined, [], date, date, creator, updater);
+
+      expect(auditedUser.createdAt).toBe(date);
+      expect(auditedUser.updatedAt).toBe(date);
+      expect(auditedUser.createdBy).toBe(creator);
+      expect(auditedUser.updatedBy).toBe(updater);
+    });
+  });
 });

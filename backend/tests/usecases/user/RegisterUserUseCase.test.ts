@@ -34,6 +34,10 @@ describe('RegisterUserUseCase', () => {
     const result = await useCase.execute(user);
 
     expect(result).toEqual({ user, token: 't', refreshToken: 'r' });
+    expect(user.createdAt).toBeInstanceOf(Date);
+    expect(user.updatedAt).toBeInstanceOf(Date);
+    expect(user.createdBy).toBeNull();
+    expect(user.updatedBy).toBeNull();
     expect(repository.create).toHaveBeenCalledWith(user);
     expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
     expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(user);

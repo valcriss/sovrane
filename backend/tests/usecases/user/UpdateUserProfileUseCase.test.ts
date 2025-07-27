@@ -45,6 +45,8 @@ describe('UpdateUserProfileUseCase', () => {
     const result = await useCase.execute(user);
 
     expect(result).toBe(user);
+    expect(user.updatedBy).toBe(checker.currentUser);
+    expect(user.updatedAt).toBeInstanceOf(Date);
     expect(repository.update).toHaveBeenCalledWith(user);
   });
 

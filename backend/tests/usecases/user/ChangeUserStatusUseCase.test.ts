@@ -47,6 +47,8 @@ describe('ChangeUserStatusUseCase', () => {
 
     expect(result).toBe(user);
     expect(user.status).toBe('suspended');
+    expect(user.updatedBy).toBe(checker.currentUser);
+    expect(user.updatedAt).toBeInstanceOf(Date);
     expect(repository.findById).toHaveBeenCalledWith('user-1');
     expect(repository.update).toHaveBeenCalledWith(user);
   });

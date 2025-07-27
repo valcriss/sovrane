@@ -20,7 +20,11 @@ export class User {
    * @param site - {@link Site} where the user is located.
    * @param picture - Optional profile picture URL.
    * @param permissions - Collection of {@link Permission} granted directly to the user.
-  */
+   * @param createdAt - Date when the user was created.
+   * @param updatedAt - Date when the user was last updated. Defaults to {@link createdAt}.
+   * @param createdBy - User who created this record or `null` when created automatically.
+   * @param updatedBy - User who last updated this record or `null` when updated automatically.
+   */
   constructor(
     public readonly id: string,
     public firstName: string,
@@ -32,6 +36,14 @@ export class User {
     public site: Site,
     public picture?: string,
     public permissions: Permission[] = [],
+    /** Date when the user record was created. */
+    public createdAt: Date = new Date(),
+    /** Date when the user record was last updated. Defaults to {@link createdAt}. */
+    public updatedAt: Date = createdAt,
+    /** User that created this record or `null` when created automatically. */
+    public createdBy: User | null = null,
+    /** User that last updated this record or `null` when updated automatically. */
+    public updatedBy: User | null = createdBy,
   ) {}
 }
 
