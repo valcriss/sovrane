@@ -14,6 +14,11 @@ export class CreateRoleUseCase {
    * @returns The created {@link Role}.
    */
   async execute(role: Role): Promise<Role> {
+    const now = new Date();
+    role.createdAt = now;
+    role.updatedAt = now;
+    role.createdBy = null;
+    role.updatedBy = null;
     return this.roleRepository.create(role);
   }
 }

@@ -66,7 +66,15 @@ describe('User REST controller', () => {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john@example.com',
-      roles: [role],
+      roles: [
+        {
+          ...role,
+          createdAt: role.createdAt.toISOString(),
+          updatedAt: role.updatedAt.toISOString(),
+          createdBy: null,
+          updatedBy: null,
+        },
+      ],
       status: 'active',
       department: {
         ...department,
@@ -128,6 +136,15 @@ describe('User REST controller', () => {
     expect(res.body).toEqual({
       user: {
         ...user,
+        roles: [
+          {
+            ...role,
+            createdAt: role.createdAt.toISOString(),
+            updatedAt: role.updatedAt.toISOString(),
+            createdBy: null,
+            updatedBy: null,
+          },
+        ],
         department: {
           ...department,
           site: {
@@ -168,6 +185,15 @@ describe('User REST controller', () => {
     expect(res.body).toEqual({
       user: {
         ...user,
+        roles: [
+          {
+            ...role,
+            createdAt: role.createdAt.toISOString(),
+            updatedAt: role.updatedAt.toISOString(),
+            createdBy: null,
+            updatedBy: null,
+          },
+        ],
         department: {
           ...department,
           site: {

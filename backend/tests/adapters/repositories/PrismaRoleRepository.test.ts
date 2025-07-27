@@ -23,7 +23,12 @@ describe('PrismaRoleRepository', () => {
 
   describe('findById', () => {
     it('should return a role when found', async () => {
-      prisma.role.findUnique.mockResolvedValue({ id: 'role-1', label: 'Admin' } as any);
+      prisma.role.findUnique.mockResolvedValue({
+        id: 'role-1',
+        label: 'Admin',
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+      } as any);
 
       const result = await repository.findById('role-1');
 
@@ -43,7 +48,12 @@ describe('PrismaRoleRepository', () => {
 
   describe('findByLabel', () => {
     it('should return a role by label', async () => {
-      prisma.role.findFirst.mockResolvedValue({ id: 'role-1', label: 'Admin' } as any);
+      prisma.role.findFirst.mockResolvedValue({
+        id: 'role-1',
+        label: 'Admin',
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+      } as any);
 
       const result = await repository.findByLabel('Admin');
 
@@ -63,24 +73,54 @@ describe('PrismaRoleRepository', () => {
 
   describe('create', () => {
     it('should create a role', async () => {
-      prisma.role.create.mockResolvedValue({ id: 'role-1', label: 'Admin' } as any);
+      prisma.role.create.mockResolvedValue({
+        id: 'role-1',
+        label: 'Admin',
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+      } as any);
 
       const result = await repository.create(role);
 
       expect(result).toEqual(role);
-      expect(prisma.role.create).toHaveBeenCalledWith({ data: { id: 'role-1', label: 'Admin' } });
+      expect(prisma.role.create).toHaveBeenCalledWith({
+        data: {
+          id: 'role-1',
+          label: 'Admin',
+          createdById: undefined,
+          updatedById: undefined,
+        },
+      });
     });
   });
 
   describe('update', () => {
     it('should update a role', async () => {
-      prisma.role.update.mockResolvedValue({ id: 'role-1', label: 'Super Admin' } as any);
+      prisma.role.update.mockResolvedValue({
+        id: 'role-1',
+        label: 'Super Admin',
+        createdAt: role.createdAt,
+        updatedAt: new Date('2024-01-01'),
+      } as any);
 
       role.label = 'Super Admin';
       const result = await repository.update(role);
 
-      expect(result).toEqual(new Role('role-1', 'Super Admin'));
-      expect(prisma.role.update).toHaveBeenCalledWith({ where: { id: 'role-1' }, data: { label: 'Super Admin' } });
+      expect(result).toEqual(
+        new Role(
+          'role-1',
+          'Super Admin',
+          [],
+          role.createdAt,
+          new Date('2024-01-01'),
+          null,
+          null,
+        ),
+      );
+      expect(prisma.role.update).toHaveBeenCalledWith({
+        where: { id: 'role-1' },
+        data: { label: 'Super Admin', updatedById: undefined },
+      });
     });
   });
 
@@ -105,7 +145,13 @@ describe('PrismaRoleRepository', () => {
 
   it('should return all roles', async () => {
     prisma.role.findMany.mockResolvedValue([
-      { id: 'role-1', label: 'Admin', permissions: [] } as any,
+      {
+        id: 'role-1',
+        label: 'Admin',
+        createdAt: role.createdAt,
+        updatedAt: role.updatedAt,
+        permissions: [],
+      } as any,
     ]);
     const result = await repository.findAll();
     expect(result).toEqual([role]);

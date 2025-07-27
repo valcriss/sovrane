@@ -143,6 +143,8 @@ describe('PrismaDepartmentRepository', () => {
     ] as any);
 
     const result = await repo.findBySiteId('site-1');
+    dept.site.createdAt = result[0].site.createdAt;
+    dept.site.updatedAt = result[0].site.updatedAt;
     expect(result).toEqual([dept]);
     expect(prisma.department.findMany).toHaveBeenCalledWith({ where: { siteId: 'site-1' }, include: { site: true } });
   });

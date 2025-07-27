@@ -16,7 +16,15 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
   ) {}
 
   private mapRecord(record: PrismaRole): Role {
-    return new Role(record.id, record.label);
+    return new Role(
+      record.id,
+      record.label,
+      [],
+      record.createdAt,
+      record.updatedAt,
+      null,
+      null,
+    );
   }
 
   async findById(id: string): Promise<Role | null> {
@@ -63,7 +71,12 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
   async create(role: Role): Promise<Role> {
     this.logger.info('Creating role', getContext());
     const record = await this.prisma.role.create({
-      data: { id: role.id, label: role.label },
+      data: {
+        id: role.id,
+        label: role.label,
+        createdById: role.createdBy?.id,
+        updatedById: role.updatedBy?.id,
+      },
     });
     return this.mapRecord(record);
   }
@@ -72,7 +85,7 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
     this.logger.info('Updating role', getContext());
     const record = await this.prisma.role.update({
       where: { id: role.id },
-      data: { label: role.label },
+      data: { label: role.label, updatedById: role.updatedBy?.id },
     });
     return this.mapRecord(record);
   }
