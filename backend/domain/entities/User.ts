@@ -40,6 +40,12 @@ export class User {
     public lastLogin: Date | null = null,
     /** Date and time of the user's last activity (login or token refresh). */
     public lastActivity: Date | null = null,
+    /** Number of consecutive failed login attempts. */
+    public failedLoginAttempts: number = 0,
+    /** Date and time of the last failed login attempt. */
+    public lastFailedLoginAt: Date | null = null,
+    /** Timestamp until which the account is locked following too many failures. */
+    public lockedUntil: Date | null = null,
     /** Date when the user record was created. */
     public createdAt: Date = new Date(),
     /** Date when the user record was last updated. Defaults to {@link createdAt}. */
