@@ -2630,7 +2630,7 @@
     "/users": {
       "post": {
         "summary": "Register a new user.",
-        "description": "Creates a user account for a new participant. This endpoint is open\nto unauthenticated clients and is typically used during onboarding.\n",
+        "description": "Creates a user account for a new participant. This endpoint is open\nto unauthenticated clients and is typically used during onboarding.\nThe returned `refreshToken` allows requesting a new access token.\n",
         "tags": [
           "User"
         ],
@@ -2653,9 +2653,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "user": { "$ref": "#/components/schemas/User" },
-                    "token": { "type": "string" },
-                    "refreshToken": { "type": "string" }
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -2780,7 +2786,7 @@
     "/auth/login": {
       "post": {
         "summary": "Authenticate a user with email and password.",
-        "description": "Validates the provided credentials and returns the corresponding user\nprofile if the login succeeds.\n",
+        "description": "Validates the provided credentials and returns the corresponding user\nprofile if the login succeeds. The `refreshToken` can be used to\nobtain a new access token when the short lived one expires.\n",
         "tags": [
           "User"
         ],
@@ -2815,9 +2821,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "user": { "$ref": "#/components/schemas/User" },
-                    "token": { "type": "string" },
-                    "refreshToken": { "type": "string" }
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "refreshToken": {
+                      "type": "string"
+                    }
                   }
                 }
               }
