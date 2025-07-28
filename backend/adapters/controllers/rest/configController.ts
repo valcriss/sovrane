@@ -1,8 +1,8 @@
 /* istanbul ignore file */
 import express, { Request, Response, Router } from 'express';
-import { GetConfigUseCase } from '../usecases/config/GetConfigUseCase';
-import { UpdateConfigUseCase } from '../usecases/config/UpdateConfigUseCase';
-import { LoggerPort } from '../domain/ports/LoggerPort';
+import { GetConfigUseCase } from '../../../usecases/config/GetConfigUseCase';
+import { UpdateConfigUseCase } from '../../../usecases/config/UpdateConfigUseCase';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
 /**
  * Create an Express router for application configuration management.
