@@ -103,8 +103,12 @@ export function createPermissionRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.get('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions', getContext());
@@ -150,8 +154,12 @@ export function createPermissionRouter(
      *               $ref: '#/components/schemas/Permission'
      *       404:
      *         description: Permission not found.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.get('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions/:id', getContext());
@@ -192,8 +200,12 @@ export function createPermissionRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Permission'
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.post('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /permissions', getContext());
@@ -234,8 +246,12 @@ export function createPermissionRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Permission'
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.put('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /permissions/:id', getContext());
@@ -267,8 +283,12 @@ export function createPermissionRouter(
      *     responses:
      *       204:
      *         description: Permission successfully removed
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.delete('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /permissions/:id', getContext());
