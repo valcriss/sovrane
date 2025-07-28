@@ -18,6 +18,8 @@ import { AccountLockedError } from '../../../../domain/errors/AccountLockedError
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { RefreshToken } from '../../../../domain/entities/RefreshToken';
 import { AuditPort } from '../../../../domain/ports/AuditPort';
+import { GetConfigUseCase } from '../../../../usecases/config/GetConfigUseCase';
+import { AppConfigKeys } from '../../../../domain/entities/AppConfigKeys';
 
 describe('User REST controller', () => {
   let app: express.Express;
@@ -28,6 +30,7 @@ describe('User REST controller', () => {
   let refreshRepo: DeepMockProxy<RefreshTokenRepositoryPort>;
   let audit: DeepMockProxy<AuditPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
+  let getConfig: DeepMockProxy<GetConfigUseCase>;
   let user: User;
   let role: Role;
   let department: Department;
@@ -41,6 +44,19 @@ describe('User REST controller', () => {
     refreshRepo = mockDeep<RefreshTokenRepositoryPort>();
     audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
+    getConfig = mockDeep<GetConfigUseCase>();
+    (getConfig.execute as jest.Mock).mockImplementation(async (key: string) => {
+      switch (key) {
+      case AppConfigKeys.ACCOUNT_LOCK_ON_LOGIN_FAIL:
+        return false;
+      case AppConfigKeys.ACCOUNT_LOCK_DURATION:
+        return 900;
+      case AppConfigKeys.ACCOUNT_LOCK_FAIL_THRESHOLD:
+        return 4;
+      default:
+        return null;
+      }
+    });
     role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, 'root')]);
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
@@ -56,7 +72,7 @@ describe('User REST controller', () => {
     auth.resetPassword.mockResolvedValue();
     app = express();
     app.use(express.json());
-    app.use('/api', createUserRouter(auth, repo, audit, avatar, tokenService, refreshRepo, logger));
+    app.use('/api', createUserRouter(auth, repo, audit, avatar, tokenService, refreshRepo, logger, getConfig));
   });
 
   function serializePermission(p: Permission) {

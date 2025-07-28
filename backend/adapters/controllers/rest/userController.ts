@@ -21,6 +21,7 @@ import {RemoveUserUseCase} from '../../../usecases/user/RemoveUserUseCase';
 import {GetUsersUseCase} from '../../../usecases/user/GetUsersUseCase';
 import {GetUserUseCase} from '../../../usecases/user/GetUserUseCase';
 import {LoggerPort} from '../../../domain/ports/LoggerPort';
+import { GetConfigUseCase } from '../../../usecases/config/GetConfigUseCase';
 import {getContext} from '../../../infrastructure/loggerContext';
 import {User} from '../../../domain/entities/User';
 import {Role} from '../../../domain/entities/Role';
@@ -202,6 +203,7 @@ export function createUserRouter(
   tokenService: TokenServicePort,
   refreshTokenRepository: RefreshTokenRepositoryPort,
   logger: LoggerPort,
+  getConfigUseCase: GetConfigUseCase,
 ): Router {
   const router = express.Router();
   const upload = multer();
@@ -383,6 +385,7 @@ export function createUserRouter(
           userRepository,
           audit,
           logger,
+          getConfigUseCase,
         );
         try {
           const result = await useCase.execute(email, password);

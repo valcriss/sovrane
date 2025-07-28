@@ -23,6 +23,11 @@ import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
 import { setupSwagger } from './swagger';
+import { PrismaConfigAdapter } from './config/PrismaConfigAdapter';
+import { InMemoryCacheAdapter } from './cache/InMemoryCacheAdapter';
+import { ConfigService } from '../domain/services/ConfigService';
+import { GetConfigUseCase } from '../usecases/config/GetConfigUseCase';
+import { BootstapService } from '../domain/services/BootstapService';
 
 async function bootstrap(): Promise<void> {
   const logger = new ConsoleLoggerAdapter();
@@ -44,6 +49,13 @@ async function bootstrap(): Promise<void> {
     logger,
   );
   const audit = new PrismaAudit(prisma, logger);
+
+  const configRepo = new PrismaConfigAdapter(prisma, logger);
+  const cache = new InMemoryCacheAdapter();
+  const configService = new ConfigService(cache, configRepo);
+  const getConfigUseCase = new GetConfigUseCase(configService);
+  const bootstrapService = new BootstapService(configService, logger);
+  await bootstrapService.initialize();
 
   const authService = new JWTAuthServiceAdapter(
     process.env.JWT_SECRET ?? 'secret',
@@ -79,6 +91,7 @@ async function bootstrap(): Promise<void> {
       tokenService,
       refreshRepo,
       logger,
+      getConfigUseCase,
     ),
   );
   app.use(
