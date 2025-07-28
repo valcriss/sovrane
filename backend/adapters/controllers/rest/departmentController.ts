@@ -740,7 +740,7 @@ export function createDepartmentRouter(
   /**
      * @openapi
      * /departments/{id}/children/{childId}:
-     *   put:
+     *   post:
      *     summary: Add a child department.
      *     description: |
      *       Attaches an existing department as a child of another department.
@@ -859,7 +859,7 @@ export function createDepartmentRouter(
   /**
      * @openapi
      * /departments/{id}/manager:
-     *   post:
+     *   put:
      *     summary: Set department manager.
      *     description: |
      *       Assigns a user as the manager of the department. Requires
@@ -969,7 +969,7 @@ export function createDepartmentRouter(
   /**
      * @openapi
      * /departments/{id}/parent:
-     *   post:
+     *   put:
      *     summary: Set parent department.
      *     description: |
      *       Defines the parent department for hierarchical organization. Requires
