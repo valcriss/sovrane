@@ -1,4 +1,4 @@
-import { InMemoryCacheAdapter } from '../../../infrastructure/cache/InMemoryCacheAdapter';
+import { InMemoryCacheAdapter } from '../../../adapters/cache/InMemoryCacheAdapter';
 import { ConfigService } from '../../../domain/services/ConfigService';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { ConfigPort } from '../../../domain/ports/ConfigPort';

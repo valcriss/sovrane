@@ -1,5 +1,5 @@
 import { CacheService } from '../../../domain/services/CacheService';
-import { InMemoryCacheAdapter } from '../../../infrastructure/cache/InMemoryCacheAdapter';
+import { InMemoryCacheAdapter } from '../../../adapters/cache/InMemoryCacheAdapter';
 
 describe('CacheService', () => {
   it('getOrLoad should load when cache empty', async () => {
