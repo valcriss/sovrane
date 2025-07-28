@@ -190,8 +190,8 @@ CREATE TABLE "AppConfig" (
     "key" TEXT NOT NULL,
     "value" TEXT NOT NULL,
     "type" TEXT NOT NULL,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-    "updatedBy" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3),
+    "updatedBy" TEXT,
 
     CONSTRAINT "AppConfig_pkey" PRIMARY KEY ("id")
 );

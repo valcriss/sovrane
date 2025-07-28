@@ -8,52 +8,52 @@ generator client {
 }
 
 model User {
-  id                 String                 @id @default(uuid())
-  firstname          String
-  lastname           String
-  email              String                 @unique
-  password           String?
-  status             String
-  picture            String?
-  metadata           Json?
-  emailVerified      Boolean?               @default(false)
-  externalId         String?
-  externalProvider   String?
-  lastLogin          DateTime?
-  lastActivity       DateTime?
-  failedLoginAttempts Int                     @default(0)
-  lastFailedLoginAt  DateTime?
-  lockedUntil        DateTime?
-  createdBy          User?                  @relation("UserCreatedBy", fields: [createdById], references: [id])
-  createdById        String?
-  updatedBy          User?                  @relation("UserUpdatedBy", fields: [updatedById], references: [id])
-  updatedById        String?
-  createdAt          DateTime               @default(now())
-  updatedAt          DateTime               @updatedAt
-  department         Department             @relation(fields: [departmentId], references: [id])
-  departmentId       String
-  site               Site                   @relation(fields: [siteId], references: [id])
-  siteId             String
-  roles              UserRole[]
-  permissions        UserPermission[]
-  managedDepartments Department[]           @relation("DepartmentManager")
-  groups             UserGroupMember[]
-  responsibleGroups  UserGroupResponsible[]
-  createdGroups      UserGroup[]            @relation("UserGroupCreatedBy")
-  updatedGroups      UserGroup[]            @relation("UserGroupUpdatedBy")
-  createdUsers       User[]                 @relation("UserCreatedBy")
-  updatedUsers       User[]                 @relation("UserUpdatedBy")
-  createdSites       Site[]                 @relation("SiteCreatedBy")
-  updatedSites       Site[]                 @relation("SiteUpdatedBy")
-  createdRoles       Role[]                 @relation("RoleCreatedBy")
-  updatedRoles       Role[]                 @relation("RoleUpdatedBy")
-  createdPermissions Permission[]           @relation("PermissionCreatedBy")
-  updatedPermissions Permission[]           @relation("PermissionUpdatedBy")
-  createdInvitations Invitation[]           @relation("InvitationCreatedBy")
-  updatedInvitations Invitation[]           @relation("InvitationUpdatedBy")
-  createdDepartments Department[]           @relation("DepartmentCreatedBy")
-  updatedDepartments Department[]           @relation("DepartmentUpdatedBy")
-  RefreshToken       RefreshToken[]
+  id                  String                 @id @default(uuid())
+  firstname           String
+  lastname            String
+  email               String                 @unique
+  password            String?
+  status              String
+  picture             String?
+  metadata            Json?
+  emailVerified       Boolean?               @default(false)
+  externalId          String?
+  externalProvider    String?
+  lastLogin           DateTime?
+  lastActivity        DateTime?
+  failedLoginAttempts Int                    @default(0)
+  lastFailedLoginAt   DateTime?
+  lockedUntil         DateTime?
+  createdBy           User?                  @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdById         String?
+  updatedBy           User?                  @relation("UserUpdatedBy", fields: [updatedById], references: [id])
+  updatedById         String?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+  department          Department             @relation(fields: [departmentId], references: [id])
+  departmentId        String
+  site                Site                   @relation(fields: [siteId], references: [id])
+  siteId              String
+  roles               UserRole[]
+  permissions         UserPermission[]
+  managedDepartments  Department[]           @relation("DepartmentManager")
+  groups              UserGroupMember[]
+  responsibleGroups   UserGroupResponsible[]
+  createdGroups       UserGroup[]            @relation("UserGroupCreatedBy")
+  updatedGroups       UserGroup[]            @relation("UserGroupUpdatedBy")
+  createdUsers        User[]                 @relation("UserCreatedBy")
+  updatedUsers        User[]                 @relation("UserUpdatedBy")
+  createdSites        Site[]                 @relation("SiteCreatedBy")
+  updatedSites        Site[]                 @relation("SiteUpdatedBy")
+  createdRoles        Role[]                 @relation("RoleCreatedBy")
+  updatedRoles        Role[]                 @relation("RoleUpdatedBy")
+  createdPermissions  Permission[]           @relation("PermissionCreatedBy")
+  updatedPermissions  Permission[]           @relation("PermissionUpdatedBy")
+  createdInvitations  Invitation[]           @relation("InvitationCreatedBy")
+  updatedInvitations  Invitation[]           @relation("InvitationUpdatedBy")
+  createdDepartments  Department[]           @relation("DepartmentCreatedBy")
+  updatedDepartments  Department[]           @relation("DepartmentUpdatedBy")
+  RefreshToken        RefreshToken[]
 }
 
 model Role {
@@ -211,7 +211,6 @@ model RefreshToken {
   createdAt DateTime @default(now())
 }
 
-
 model AuditLog {
   id         String   @id @default(uuid())
   timestamp  DateTime @default(now())
@@ -224,11 +223,12 @@ model AuditLog {
   ipAddress  String?
   userAgent  String?
 }
+
 model AppConfig {
-  id        Int      @id @default(autoincrement())
-  key       String   @unique
+  id        Int       @id @default(autoincrement())
+  key       String    @unique
   value     String
   type      String
-  updatedAt DateTime @updatedAt
-  updatedBy String
+  updatedAt DateTime? @updatedAt
+  updatedBy String?
 }
