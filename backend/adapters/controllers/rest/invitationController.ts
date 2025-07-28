@@ -19,6 +19,28 @@ import {User} from '../../../domain/entities/User';
  *       type: http
  *       scheme: bearer
  *       bearerFormat: JWT
+ *   schemas:
+ *     Invitation:
+ *       description: Invitation record used during onboarding.
+ *       type: object
+ *       properties:
+ *         email:
+ *           type: string
+ *           description: Email address of the invitee.
+ *         firstName:
+ *           type: string
+ *           nullable: true
+ *           description: First name of the invitee.
+ *         lastName:
+ *           type: string
+ *           nullable: true
+ *           description: Last name of the invitee.
+ *         role:
+ *           type: string
+ *           nullable: true
+ *           description: Role assigned after activation.
+ *       required:
+ *         - email
  */
 
 interface AuthedRequest extends Request {
@@ -50,22 +72,12 @@ export function createInvitationRouter(
      *           type: string
      *         description: The invitation token from the activation link.
      *     responses:
-     *       200:
-     *         description: Invitation details and onboarding info.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 email:
-     *                   type: string
-     *                 firstName:
-     *                   type: string
-     *                 lastName:
-     *                   type: string
-     *                 role:
-     *                   type: string
-     *               required: [email]
+ *       200:
+ *         description: Invitation details and onboarding info.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Invitation'
      *       404:
      *         description: Invalid or expired invitation token.
      *       400:
@@ -123,8 +135,9 @@ export function createInvitationRouter(
      * /invitations/invite:
      *   post:
      *     summary: Invite a new user by email
-     *     description: >
-     *       Sends an invitation email with an activation link to a new user. Only administrators can invite users.
+ *     description: >
+ *       Sends an invitation email with an activation link to a new user.
+ *       Requires the `create-invitation` permission.
      *     tags: [Invitation]
      *     security:
      *       - bearerAuth: []
@@ -151,15 +164,17 @@ export function createInvitationRouter(
      *             required:
      *               - email
      *     responses:
-     *       201:
-     *         description: Invitation sent successfully.
-     *       409:
-     *         description: User already exists or invitation already sent.
-     *       400:
-     *         description: Invalid request.
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
+ *       201:
+ *         description: Invitation sent successfully.
+ *       409:
+ *         description: User already exists or invitation already sent.
+ *       400:
+ *         description: Invalid request.
+ *       401:
+ *         description: Invalid or expired authentication token.
+ *       403:
+ *         description: User lacks required permission.
+ */
   router.post('/invitations/invite', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /invitations/invite', getContext());
     const {email, firstName, lastName, role} = req.body as {
