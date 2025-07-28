@@ -17,7 +17,7 @@
     "test:ci": "jest --coverage --watchAll=false",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "dev": "ts-node infrastructure/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only infrastructure/server.ts",
     "permissions:sync": "ts-node scripts/syncPermissions.ts",
     "initialize": "node scripts/init-application.js"
   },
@@ -57,6 +57,7 @@
     "supertest": "^6.3.4",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }
 }
