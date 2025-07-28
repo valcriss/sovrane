@@ -316,6 +316,8 @@ export function createUserRouter(
      *                   type: string
      *                 refreshToken:
      *                   type: string
+     *       400:
+     *         description: Validation error.
      */
     router.post('/users', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /users', getContext());
@@ -365,6 +367,8 @@ export function createUserRouter(
      *                   type: string
      *                 refreshToken:
      *                   type: string
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid credentials
      *       403:
@@ -444,6 +448,8 @@ export function createUserRouter(
      *                   type: string
      *                 refreshToken:
      *                   type: string
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired refresh token
      */
@@ -502,6 +508,10 @@ export function createUserRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/User'
+     *       400:
+     *         description: Validation error.
+     *       401:
+     *         description: Invalid provider token
      *       403:
      *         description: User account is suspended or archived
      */
@@ -545,6 +555,8 @@ export function createUserRouter(
      *     responses:
      *       204:
      *         description: Reset request processed, no content returned
+     *       400:
+     *         description: Validation error
      */
     router.post('/auth/request-reset', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/request-reset', getContext());
@@ -583,6 +595,8 @@ export function createUserRouter(
      *     responses:
      *       204:
      *         description: Password successfully changed
+     *       400:
+     *         description: Validation error
      */
     router.post('/auth/reset', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/reset', getContext());
@@ -639,6 +653,11 @@ export function createUserRouter(
      *         schema:
      *           type: string
      *         description: Filter by site identifier.
+     *       - in: query
+     *         name: roleId
+     *         schema:
+     *           type: string
+     *         description: Filter by role identifier.
      *     responses:
      *       200:
      *         description: Paginated user list
@@ -664,6 +683,8 @@ export function createUserRouter(
      *                 total: 0
      *       204:
      *         description: No content.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
      *       403:
@@ -733,6 +754,8 @@ export function createUserRouter(
      *               $ref: '#/components/schemas/User'
      *       404:
      *         description: User not found.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
      *       403:
@@ -780,6 +803,8 @@ export function createUserRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/User'
+     *       400:
+     *         description: Validation error
      *       401:
      *         description: Invalid or expired authentication token.
      *       403:
@@ -841,6 +866,8 @@ export function createUserRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/User'
+     *       400:
+     *         description: Validation error
      *       401:
      *         description: Invalid or expired authentication token.
      *       403:
@@ -904,6 +931,8 @@ export function createUserRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/User'
+     *       400:
+     *         description: Validation error
      *       401:
      *         description: Invalid or expired authentication token.
      *       403:
@@ -966,6 +995,8 @@ export function createUserRouter(
      *     responses:
      *       204:
      *         description: Avatar updated
+     *       400:
+     *         description: Validation error
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -995,6 +1026,8 @@ export function createUserRouter(
      *     responses:
      *       204:
      *         description: Avatar removed
+     *       400:
+     *         description: Validation error
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -1026,6 +1059,8 @@ export function createUserRouter(
      *     responses:
      *       204:
      *         description: User successfully removed
+     *       400:
+     *         description: Validation error
      *       401:
      *         description: Invalid or expired authentication token.
      *       403:
