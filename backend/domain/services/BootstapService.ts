@@ -32,6 +32,18 @@ export class BootstapService {
     await this.config.update(AppConfigKeys.ACCOUNT_LOCK_ON_LOGIN_FAIL, true, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_LOCK_DURATION, 900, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_LOCK_FAIL_THRESHOLD, 4, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_MIN_LENGTH, 8, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_MAX_LENGTH, 30, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_UPPERCASE, true, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_LOWERCASE, true, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_DIGIT, true, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_SPECIAL_CHAR, true, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE, true, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE_AFTER, 90, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY, true, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY_COUNT, 50, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_ALLOW_MFA, true, 'bootstrap');
+    await this.config.update(AppConfigKeys.ACCOUNT_REQUIRE_MFA, false, 'bootstrap');
 
     this.logger.info('Bootstrapping permissions');
     const keys = Object.values(PermissionKeys);
