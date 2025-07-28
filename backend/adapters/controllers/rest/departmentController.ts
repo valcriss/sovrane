@@ -219,8 +219,12 @@ export function createDepartmentRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.get('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments', getContext());
@@ -267,6 +271,10 @@ export function createDepartmentRouter(
      *               $ref: '#/components/schemas/Department'
      *       404:
      *         description: Department not found.
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -342,8 +350,12 @@ export function createDepartmentRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.get('/departments/:id/children', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/children', getContext());
@@ -393,6 +405,10 @@ export function createDepartmentRouter(
      *               $ref: '#/components/schemas/User'
      *       404:
      *         description: Manager not found.
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -436,6 +452,10 @@ export function createDepartmentRouter(
      *               $ref: '#/components/schemas/Department'
      *       404:
      *         description: Parent department not found.
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -505,8 +525,12 @@ export function createDepartmentRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.get('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/permissions', getContext());
@@ -592,8 +616,12 @@ export function createDepartmentRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.get('/departments/:id/users', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /departments/:id/users', getContext());
@@ -645,6 +673,10 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -660,7 +692,7 @@ export function createDepartmentRouter(
   /**
      * @openapi
      * /departments/{id}:
-     *   post:
+     *   put:
      *     summary: Update a department.
      *     description: Modify a department's label, parent, manager or permissions.
      *     tags:
@@ -688,8 +720,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.put('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /departments/:id', getContext());
@@ -704,7 +740,7 @@ export function createDepartmentRouter(
   /**
      * @openapi
      * /departments/{id}/children/{childId}:
-     *   post:
+     *   put:
      *     summary: Add a child department.
      *     description: |
      *       Attaches an existing department as a child of another department.
@@ -733,6 +769,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Child department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -791,6 +833,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Child department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -846,6 +894,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -889,6 +943,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -944,6 +1004,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -987,6 +1053,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -1037,6 +1109,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -1087,6 +1165,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: Department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -1136,6 +1220,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: User or department not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -1185,6 +1275,12 @@ export function createDepartmentRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Department'
+     *       400:
+     *         description: Validation error.
+     *       403:
+     *         description: User lacks required permission.
+     *       404:
+     *         description: User not found.
      *       401:
      *         description: Invalid or expired authentication token.
      */
@@ -1228,6 +1324,8 @@ export function createDepartmentRouter(
      *         description: Operation failed
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.delete('/departments/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /departments/:id', getContext());
