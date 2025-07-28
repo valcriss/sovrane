@@ -10,6 +10,10 @@ export class Permission {
    * @param id - Unique identifier for the permission.
    * @param permissionKey - Key representing the permission.
    * @param description - Human readable description of the permission.
+   * @param createdAt
+   * @param updatedAt
+   * @param createdBy
+   * @param updatedBy
    */
   constructor(
     public readonly id: string,
