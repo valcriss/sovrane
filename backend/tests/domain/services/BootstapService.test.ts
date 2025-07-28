@@ -40,4 +40,10 @@ describe('BootstapService', () => {
       expect(call?.[0]).toBeInstanceOf(Permission);
     }
   });
+  it('should skip permissions that already exist', async () => {
+    permissions.findByKey.mockResolvedValue(new Permission("1", PermissionKeys.CREATE_USER, "create"));
+    await service.initialize();
+    expect(permissions.create).not.toHaveBeenCalled();
+  });
+
 });

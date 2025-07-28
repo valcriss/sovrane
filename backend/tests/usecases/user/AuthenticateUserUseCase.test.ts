@@ -122,4 +122,24 @@ describe('AuthenticateUserUseCase', () => {
     expect(repo.update).not.toHaveBeenCalled();
     expect(audit.log).not.toHaveBeenCalled();
   });
+  it('should ignore failures when locking disabled', async () => {
+    repo.findByEmail.mockResolvedValue(user);
+    service.authenticate.mockRejectedValue(new Error("bad"));
+    getConfig.execute.mockResolvedValue(null);
+    process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL = "false";
+    await expect(useCase.execute("john@example.com", "bad")).rejects.toThrow("bad");
+    expect(repo.update).not.toHaveBeenCalled();
+  });
+
+  it('should lock account using env defaults', async () => {
+    repo.findByEmail.mockResolvedValue(user);
+    user.failedLoginAttempts = 4;
+    service.authenticate.mockRejectedValue(new Error("bad"));
+    getConfig.execute.mockResolvedValue(null);
+    process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL = "true";
+    process.env.ACCOUNT_LOCK_DURATION = "60";
+    await expect(useCase.execute("john@example.com", "bad")).rejects.toBeInstanceOf(AccountLockedError);
+    expect(repo.update.mock.calls[0][0].lockedUntil).toBeInstanceOf(Date);
+  });
+
 });
