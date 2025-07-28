@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { ConfigPort } from '../../domain/ports/ConfigPort';
 import { AppConfig } from '../../domain/entities/AppConfig';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
-import { getContext } from '../loggerContext';
+import { getContext } from '../../infrastructure/loggerContext';
 
 /**
  * Prisma implementation of {@link ConfigPort}.

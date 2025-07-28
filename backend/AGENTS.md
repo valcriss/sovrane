@@ -92,6 +92,131 @@ All logs must use the project's logging service, not direct console calls.
 
 Logs should include relevant context for traceability.
 
+### Rules for `@openapi` Documentation
+
+1. **Use Standard JSDoc Format**\
+   Every controller method must include a JSDoc block with an `@openapi` tag.
+
+2. **One Block per Endpoint**\
+   Place the `@openapi` block immediately above the function that handles the route.
+
+3. **Indentation of Asterisks is Mandatory**\
+   Each line in the JSDoc block must begin with a properly indented `*` (aligned vertically) to ensure Swagger reads the block correctly. Example:
+
+   ```ts
+   /**
+    * @openapi
+    * /api/example:
+    *   get:
+    *     summary: Example endpoint
+    */
+   ```
+
+4. **Mandatory Content in Each Block**\
+   Each `@openapi` block must include:
+
+  - **Path and Method**: Specify the HTTP method and route.
+  - **Summary & Description**: Provide a concise summary and a clear description. If the route needs one or more permissions provide the list of permissions needed.
+  - **Parameters**: Document all query, path, header, and body parameters.
+  - **Request Body**: Define the body schema if the endpoint accepts one.
+  - **Responses**: List all possible HTTP response codes with descriptions and schemas.
+  - **Security**: Define authentication requirements (e.g., `bearerAuth`) if needed.
+  - **Tags**: Group endpoints logically (e.g., `Auth`, `Users`).
+
+5. **Valid JSON Under **``\
+   The content inside the `@openapi` block must be valid YAML/JSON. Example:
+
+   ```ts
+    /**
+     * @openapi
+     * /users:
+     *   get:
+     *     summary: Get all users
+     *     description: Returns a paginated and filterable list of users. this route use the read-users permission.
+     *     tags:
+     *       - User
+     *     security:
+     *       - bearerAuth: []
+     *     parameters:
+     *       - in: query
+     *         name: page
+     *         schema:
+     *           type: integer
+     *           default: 1
+     *         description: Page number (starts at 1).
+     *       - in: query
+     *         name: limit
+     *         schema:
+     *           type: integer
+     *           default: 20
+     *         description: Number of users per page.
+     *       - in: query
+     *         name: search
+     *         schema:
+     *           type: string
+     *         description: Search term to filter users by name or email.
+     *       - in: query
+     *         name: status
+     *         schema:
+     *           type: string
+     *           enum: [active, suspended, archived]
+     *         description: Filter users by status.
+     *       - in: query
+     *         name: departmentId
+     *         schema:
+     *           type: string
+     *         description: Filter by department identifier.
+     *       - in: query
+     *         name: siteId
+     *         schema:
+     *           type: string
+     *         description: Filter by site identifier.
+     *     responses:
+     *       200:
+     *         description: Paginated user list
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 items:
+     *                   type: array
+     *                   items:
+     *                     $ref: '#/components/schemas/User'
+     *                 page:
+     *                   type: integer
+     *                 limit:
+     *                   type: integer
+     *                 total:
+     *                   type: integer
+     *               example:
+     *                 items: []
+     *                 page: 1
+     *                 limit: 20
+     *                 total: 0
+     *       204:
+     *         description: No content.
+     *       401:
+     *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
+     */
+   ```
+
+6. **Reuse Schemas with **``\
+   Always reference predefined schemas (e.g., `AuthResponse`, `ErrorResponse`) from `#/components/schemas/...` instead of duplicating structures.
+
+7. **Standardize Status Codes and Errors**\
+   At a minimum, document these responses:
+
+  - `200`: Success
+  - `400`: Validation error
+  - `401`: Unauthorized (if applicable)
+  - `403`: Forbidden (if applicable)
+
+8. **Keep Documentation Updated**\
+   Every time you add or modify an endpoint, ensure the corresponding `@openapi` block is added or updated.
+
 ---
 
 ## Guidelines for AI Agents

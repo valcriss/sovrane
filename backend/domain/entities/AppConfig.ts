@@ -17,7 +17,7 @@ export class AppConfig {
     public key: string,
     public value: string,
     public type: 'string' | 'number' | 'boolean' | 'json',
-    public updatedAt: Date,
-    public updatedBy: string,
+    public updatedAt: Date | null,
+    public updatedBy: string | null,
   ) {}
 }

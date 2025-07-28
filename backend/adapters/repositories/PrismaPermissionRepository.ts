@@ -75,7 +75,7 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
   }
 
   async create(permission: Permission): Promise<Permission> {
-    this.logger.info('Creating permission', getContext());
+    this.logger.info('Creating permission ' + permission.permissionKey, getContext());
     const record = await this.prisma.permission.create({
       data: {
         id: permission.id,
@@ -89,7 +89,7 @@ export class PrismaPermissionRepository implements PermissionRepositoryPort {
   }
 
   async update(permission: Permission): Promise<Permission> {
-    this.logger.info('Updating permission', getContext());
+    this.logger.info('Updating permission ' + permission.permissionKey, getContext());
     const record = await this.prisma.permission.update({
       where: { id: permission.id },
       data: {
