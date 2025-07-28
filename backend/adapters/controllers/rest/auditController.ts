@@ -13,6 +13,52 @@ interface AuthedRequest extends Request { user: User }
 
 /**
  * @openapi
+ * components:
+ *   securitySchemes:
+ *     bearerAuth:
+ *       type: http
+ *       scheme: bearer
+ *       bearerFormat: JWT
+ *   schemas:
+ *     AuditEvent:
+ *       description: Record of a significant action performed within the application.
+ *       type: object
+ *       properties:
+ *         timestamp:
+ *           type: string
+ *           format: date-time
+ *           description: Time when the action occurred.
+ *         actorId:
+ *           type: string
+ *           nullable: true
+ *           description: Identifier of the actor responsible for the action.
+ *         actorType:
+ *           type: string
+ *           enum: [user, system]
+ *           description: Nature of the actor who triggered the event.
+ *         action:
+ *           type: string
+ *           description: Description of the performed action.
+ *         targetType:
+ *           type: string
+ *           nullable: true
+ *           description: Type of the affected entity when applicable.
+ *         targetId:
+ *           type: string
+ *           nullable: true
+ *           description: Identifier of the affected entity when applicable.
+ *         details:
+ *           type: object
+ *           nullable: true
+ *           description: Additional event information.
+ *         ipAddress:
+ *           type: string
+ *           nullable: true
+ *           description: IP address from which the action originated.
+ *         userAgent:
+ *           type: string
+ *           nullable: true
+ *           description: User agent associated with the request.
  * tags:
  *   - name: Audit
  *     description: Access audit logs
@@ -97,14 +143,36 @@ export function createAuditRouter(
    *           type: string
    *           format: date-time
    *         description: Include events up to this date.
-   *     responses:
-   *       200:
-   *         description: Paginated audit logs
-   *       204:
-   *         description: No content
-   *       401:
-   *         description: Unauthorized
-   */
+  *     responses:
+  *       200:
+  *         description: Paginated audit logs.
+  *         content:
+  *           application/json:
+  *             schema:
+  *               type: object
+  *               properties:
+  *                 items:
+  *                   type: array
+  *                   items:
+  *                     $ref: '#/components/schemas/AuditEvent'
+  *                 page:
+  *                   type: integer
+  *                 limit:
+  *                   type: integer
+  *                 total:
+  *                   type: integer
+  *               example:
+  *                 items: []
+  *                 page: 1
+  *                 limit: 20
+  *                 total: 0
+  *       204:
+  *         description: No content.
+  *       401:
+  *         description: Invalid or expired authentication token.
+  *       403:
+  *         description: User lacks required permission.
+  */
   router.get('/audit', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /audit', getContext());
     const page = parseInt(req.query.page as string) || 1;
