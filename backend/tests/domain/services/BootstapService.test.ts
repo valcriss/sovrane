@@ -25,6 +25,18 @@ describe('BootstapService', () => {
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_LOCK_ON_LOGIN_FAIL, true, 'bootstrap');
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_LOCK_DURATION, 900, 'bootstrap');
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_LOCK_FAIL_THRESHOLD, 4, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_MIN_LENGTH, 8, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_MAX_LENGTH, 30, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_UPPERCASE, true, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_LOWERCASE, true, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_DIGIT, true, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_SPECIAL_CHAR, true, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE, true, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE_AFTER, 90, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY, true, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY_COUNT, 50, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_ALLOW_MFA, true, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_REQUIRE_MFA, false, 'bootstrap');
   });
 
   it('should create missing permissions', async () => {
