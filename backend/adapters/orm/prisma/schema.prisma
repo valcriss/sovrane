@@ -224,3 +224,11 @@ model AuditLog {
   ipAddress  String?
   userAgent  String?
 }
+model AppConfig {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  type      String
+  updatedAt DateTime @updatedAt
+  updatedBy String
+}
