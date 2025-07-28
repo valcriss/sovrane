@@ -184,6 +184,18 @@ CREATE TABLE "AuditLog" (
     CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "AppConfig" (
+    "id" SERIAL NOT NULL,
+    "key" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "updatedBy" TEXT NOT NULL,
+
+    CONSTRAINT "AppConfig_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -195,6 +207,9 @@ CREATE UNIQUE INDEX "Invitation_token_key" ON "Invitation"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "RefreshToken_token_key" ON "RefreshToken"("token");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AppConfig_key_key" ON "AppConfig"("key");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
