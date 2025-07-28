@@ -130,8 +130,12 @@ export function createGroupRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/UserGroup'
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.post('/groups', async (req, res): Promise<void> => {
     logger.debug('POST /groups', getContext());
@@ -194,8 +198,12 @@ export function createGroupRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.get('/groups', async (req, res): Promise<void> => {
     logger.debug('GET /groups', getContext());
@@ -240,8 +248,12 @@ export function createGroupRouter(
      *               $ref: '#/components/schemas/UserGroup'
      *       404:
      *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.get('/groups/:id', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id', getContext());
@@ -306,8 +318,14 @@ export function createGroupRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.get('/groups/:id/users', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/users', getContext());
@@ -380,8 +398,14 @@ export function createGroupRouter(
      *                   type: integer
      *       204:
      *         description: No content.
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: Forbidden.
      */
   router.get('/groups/:id/responsibles', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id/responsibles', getContext());
@@ -438,6 +462,10 @@ export function createGroupRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/UserGroup'
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       403:
      *         description: Forbidden.
      *       401:
@@ -482,6 +510,10 @@ export function createGroupRouter(
      *     responses:
      *       204:
      *         description: Group deleted.
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       403:
      *         description: Forbidden.
      *       401:
@@ -540,6 +572,10 @@ export function createGroupRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/UserGroup'
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       403:
      *         description: Forbidden.
      *       401:
@@ -602,6 +638,10 @@ export function createGroupRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/UserGroup'
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       403:
      *         description: Forbidden.
      *       401:
@@ -664,6 +704,10 @@ export function createGroupRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/UserGroup'
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       403:
      *         description: Forbidden.
      *       401:
@@ -726,6 +770,10 @@ export function createGroupRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/UserGroup'
+     *       404:
+     *         description: Group not found.
+     *       400:
+     *         description: Validation error.
      *       403:
      *         description: Forbidden.
      *       401:
