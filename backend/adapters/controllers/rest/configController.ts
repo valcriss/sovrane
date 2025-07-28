@@ -53,6 +53,8 @@ export function createConfigRouter(
    *     description: Return the value for the specified configuration key.
    *     tags:
    *       - Config
+   *     security:
+   *       - bearerAuth: []
    *     parameters:
    *       - in: path
    *         name: key
@@ -87,6 +89,8 @@ export function createConfigRouter(
    *     description: Update the value of a configuration entry.
    *     tags:
    *       - Config
+   *     security:
+   *       - bearerAuth: []
    *     requestBody:
    *       description: New value and user identifier performing the update.
    *       required: true

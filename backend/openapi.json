@@ -131,6 +131,90 @@
         }
       }
     },
+    "/config/{key}": {
+      "get": {
+        "summary": "Get configuration value",
+        "description": "Return the value for the specified configuration key.",
+        "tags": [
+          "Config"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the configuration entry."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Configuration value",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigEntry"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Configuration entry not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update configuration value",
+        "description": "Update the value of a configuration entry.",
+        "tags": [
+          "Config"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "New value and user identifier performing the update.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "description": "New value to store."
+                  },
+                  "updatedBy": {
+                    "type": "string",
+                    "description": "Identifier of the user updating the value."
+                  }
+                },
+                "required": [
+                  "value",
+                  "updatedBy"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Configuration updated successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
+      }
+    },
     "/departments": {
       "get": {
         "summary": "Get all departments",
@@ -202,8 +286,14 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       },
@@ -240,8 +330,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -280,15 +376,21 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           },
           "404": {
             "description": "Department not found."
           }
         }
       },
-      "post": {
+      "put": {
         "summary": "Update a department.",
         "description": "Modify a department's label, parent, manager or permissions.",
         "tags": [
@@ -332,8 +434,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       },
@@ -368,6 +476,9 @@
           },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -458,8 +569,14 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -498,15 +615,21 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           },
           "404": {
             "description": "Manager not found."
           }
         }
       },
-      "post": {
+      "put": {
         "summary": "Set department manager.",
         "description": "Assigns a user as the manager of the department. Requires\nadministrator privileges.\n",
         "tags": [
@@ -558,8 +681,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Department not found."
           }
         }
       },
@@ -596,8 +728,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Department not found."
           }
         }
       }
@@ -636,15 +777,21 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           },
           "404": {
             "description": "Parent department not found."
           }
         }
       },
-      "post": {
+      "put": {
         "summary": "Set parent department.",
         "description": "Defines the parent department for hierarchical organization. Requires\nadministrator privileges.\n",
         "tags": [
@@ -696,8 +843,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Department not found."
           }
         }
       },
@@ -734,8 +890,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Department not found."
           }
         }
       }
@@ -818,8 +983,14 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       },
@@ -867,8 +1038,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Department not found."
           }
         }
       }
@@ -977,8 +1157,14 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -1026,8 +1212,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Child department not found."
           }
         }
       },
@@ -1073,8 +1268,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Child department not found."
           }
         }
       }
@@ -1122,8 +1326,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "Department not found."
           }
         }
       }
@@ -1171,8 +1384,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "User or department not found."
           }
         }
       },
@@ -1218,8 +1440,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
+          },
+          "404": {
+            "description": "User not found."
           }
         }
       }
@@ -1276,8 +1507,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           }
         }
       },
@@ -1351,8 +1588,14 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           }
         }
       }
@@ -1391,8 +1634,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           },
           "404": {
             "description": "Group not found."
@@ -1453,11 +1702,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
           "403": {
             "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       },
@@ -1487,11 +1742,17 @@
           "204": {
             "description": "Group deleted."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
           "403": {
             "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       }
@@ -1576,8 +1837,17 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       },
@@ -1634,11 +1904,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
           "403": {
             "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       },
@@ -1695,11 +1971,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
           "403": {
             "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       }
@@ -1784,8 +2066,17 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       },
@@ -1842,11 +2133,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
           "403": {
             "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       },
@@ -1903,11 +2200,17 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
           "403": {
             "description": "Forbidden."
+          },
+          "404": {
+            "description": "Group not found."
           }
         }
       }
@@ -1936,24 +2239,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "email": {
-                      "type": "string"
-                    },
-                    "firstName": {
-                      "type": "string"
-                    },
-                    "lastName": {
-                      "type": "string"
-                    },
-                    "role": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "email"
-                  ]
+                  "$ref": "#/components/schemas/Invitation"
                 }
               }
             }
@@ -1970,7 +2256,7 @@
     "/invitations/invite": {
       "post": {
         "summary": "Invite a new user by email",
-        "description": "Sends an invitation email with an activation link to a new user. Only administrators can invite users.\n",
+        "description": "Sends an invitation email with an activation link to a new user. Requires the `create-invitation` permission.\n",
         "tags": [
           "Invitation"
         ],
@@ -2020,6 +2306,9 @@
           },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           },
           "409": {
             "description": "User already exists or invitation already sent."
@@ -2098,8 +2387,14 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           }
         }
       },
@@ -2136,8 +2431,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           }
         }
       }
@@ -2176,8 +2477,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           },
           "404": {
             "description": "Permission not found."
@@ -2228,8 +2535,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           }
         }
       },
@@ -2259,8 +2572,14 @@
           "204": {
             "description": "Permission successfully removed"
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "Forbidden."
           }
         }
       }
@@ -2338,6 +2657,9 @@
           },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       },
@@ -2374,8 +2696,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -2416,6 +2744,9 @@
           },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           },
           "404": {
             "description": "Role not found."
@@ -2466,8 +2797,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       },
@@ -2502,6 +2839,9 @@
           },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -2509,7 +2849,7 @@
     "/sites": {
       "get": {
         "summary": "Get all sites",
-        "description": "Returns the list of all sites.",
+        "description": "Returns the list of all sites. Requires the `read-sites` permission.",
         "tags": [
           "Site"
         ],
@@ -2518,37 +2858,37 @@
             "bearerAuth": []
           }
         ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            },
+            "description": "Page number (starts at 1)."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 20
+            },
+            "description": "Number of sites per page."
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term on the site label."
+          }
+        ],
         "responses": {
           "200": {
             "description": "Paginated site list.",
-            "parameters": [
-              {
-                "in": "query",
-                "name": "page",
-                "schema": {
-                  "type": "integer",
-                  "default": 1
-                },
-                "description": "Page number (starts at 1)."
-              },
-              {
-                "in": "query",
-                "name": "limit",
-                "schema": {
-                  "type": "integer",
-                  "default": 20
-                },
-                "description": "Number of sites per page."
-              },
-              {
-                "in": "query",
-                "name": "search",
-                "schema": {
-                  "type": "string"
-                },
-                "description": "Search term on the site label."
-              }
-            ],
             "content": {
               "application/json": {
                 "schema": {
@@ -2577,14 +2917,20 @@
           "204": {
             "description": "No content."
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       },
       "post": {
         "summary": "Create a site.",
-        "description": "Adds a new physical site to the system. Authentication is required and\nthe caller must have administrator privileges.\n",
+        "description": "Adds a new physical site to the system. Requires the `manage-sites` permission.\n",
         "tags": [
           "Site"
         ],
@@ -2615,8 +2961,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -2624,7 +2976,7 @@
     "/sites/{id}": {
       "get": {
         "summary": "Get site by ID",
-        "description": "Returns detailed information about a specific site.",
+        "description": "Retrieve detailed information about a specific site.",
         "tags": [
           "Site"
         ],
@@ -2655,8 +3007,14 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           },
           "404": {
             "description": "Site not found."
@@ -2665,7 +3023,7 @@
       },
       "put": {
         "summary": "Update a site.",
-        "description": "Modify the label of an existing site. Requires administrator privileges.",
+        "description": "Modify the label of an existing site. Requires the `manage-sites` permission.",
         "tags": [
           "Site"
         ],
@@ -2707,14 +3065,20 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       },
       "delete": {
         "summary": "Remove a site.",
-        "description": "Deletes a site. The operation fails when users or departments are still\nattached to it. Requires administrator privileges.\n",
+        "description": "Deletes a site. The operation fails when users or departments are still\nattached to it. Requires the `manage-sites` permission.\n",
         "tags": [
           "Site"
         ],
@@ -2743,6 +3107,9 @@
           },
           "401": {
             "description": "Invalid or expired authentication token."
+          },
+          "403": {
+            "description": "User lacks required permission."
           }
         }
       }
@@ -2786,6 +3153,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error."
           }
         }
       },
@@ -2855,6 +3225,14 @@
               "type": "string"
             },
             "description": "Filter by site identifier."
+          },
+          {
+            "in": "query",
+            "name": "roleId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by role identifier."
           }
         ],
         "responses": {
@@ -2893,6 +3271,9 @@
           },
           "204": {
             "description": "No content."
+          },
+          "400": {
+            "description": "Validation error."
           },
           "401": {
             "description": "Invalid or expired authentication token."
@@ -2955,6 +3336,9 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid credentials"
           },
@@ -3009,6 +3393,9 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
           "401": {
             "description": "Invalid or expired refresh token"
           }
@@ -3056,6 +3443,12 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error."
+          },
+          "401": {
+            "description": "Invalid provider token"
+          },
           "403": {
             "description": "User account is suspended or archived"
           }
@@ -3091,6 +3484,9 @@
         "responses": {
           "204": {
             "description": "Reset request processed, no content returned"
+          },
+          "400": {
+            "description": "Validation error"
           }
         }
       }
@@ -3128,6 +3524,9 @@
         "responses": {
           "204": {
             "description": "Password successfully changed"
+          },
+          "400": {
+            "description": "Validation error"
           }
         }
       }
@@ -3165,6 +3564,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error."
           },
           "401": {
             "description": "Invalid or expired authentication token."
@@ -3221,6 +3623,9 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error"
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
@@ -3255,6 +3660,9 @@
           "204": {
             "description": "User successfully removed"
           },
+          "400": {
+            "description": "Validation error"
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
@@ -3286,6 +3694,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Validation error"
           },
           "401": {
             "description": "Invalid or expired authentication token."
@@ -3354,6 +3765,9 @@
               }
             }
           },
+          "400": {
+            "description": "Validation error"
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           },
@@ -3409,6 +3823,9 @@
           "204": {
             "description": "Avatar updated"
           },
+          "400": {
+            "description": "Validation error"
+          },
           "401": {
             "description": "Invalid or expired authentication token."
           }
@@ -3439,6 +3856,9 @@
         "responses": {
           "204": {
             "description": "Avatar removed"
+          },
+          "400": {
+            "description": "Validation error"
           },
           "401": {
             "description": "Invalid or expired authentication token."
@@ -3508,6 +3928,37 @@
             "description": "User agent associated with the request."
           }
         }
+      },
+      "ConfigEntry": {
+        "description": "Application configuration entry.",
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "Configuration key."
+          },
+          "value": {
+            "description": "Stored configuration value.",
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ]
       },
       "Site": {
         "description": "Physical location where users and departments operate.",
@@ -3627,6 +4078,34 @@
           "name",
           "responsibleUsers",
           "members"
+        ]
+      },
+      "Invitation": {
+        "description": "Invitation record used during onboarding.",
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Email address of the invitee."
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true,
+            "description": "First name of the invitee."
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Last name of the invitee."
+          },
+          "role": {
+            "type": "string",
+            "nullable": true,
+            "description": "Role assigned after activation."
+          }
+        },
+        "required": [
+          "email"
         ]
       },
       "Role": {
@@ -3753,6 +4232,10 @@
     {
       "name": "Audit",
       "description": "Access audit logs"
+    },
+    {
+      "name": "Config",
+      "description": "Manage application configuration"
     }
   ]
 }
