@@ -18,7 +18,6 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "dev": "ts-node-dev --respawn --transpile-only infrastructure/server.ts",
-    "permissions:sync": "ts-node scripts/syncPermissions.ts",
     "initialize": "node scripts/init-application.js"
   },
   "dependencies": {

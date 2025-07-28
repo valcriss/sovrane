@@ -11,6 +11,7 @@ import { registerUserGateway } from '../adapters/controllers/websocket/userGatew
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
 import { PrismaRoleRepository } from '../adapters/repositories/PrismaRoleRepository';
+import { PrismaPermissionRepository } from '../adapters/repositories/PrismaPermissionRepository';
 import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
 import { JWTTokenServiceAdapter } from '../adapters/token/JWTTokenServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
@@ -38,6 +39,7 @@ async function bootstrap(): Promise<void> {
   const userRepository = new PrismaUserRepository(prisma, logger);
   const roleRepository = new PrismaRoleRepository(prisma, logger);
   const invitationRepository = new PrismaInvitationRepository(prisma, logger);
+  const permissionRepository = new PrismaPermissionRepository(prisma, logger);
   const emailService = new ConsoleEmailServiceAdapter(logger);
   const storage = new LocalFileStorageAdapter(process.env.STORAGE_PATH ?? './uploads', logger);
   const avatarService = new AvatarService(storage, userRepository, logger);
@@ -54,7 +56,7 @@ async function bootstrap(): Promise<void> {
   const cache = new InMemoryCacheAdapter();
   const configService = new ConfigService(cache, configRepo);
   const getConfigUseCase = new GetConfigUseCase(configService);
-  const bootstrapService = new BootstapService(configService, logger);
+  const bootstrapService = new BootstapService(configService, logger, permissionRepository);
   await bootstrapService.initialize();
 
   const authService = new JWTAuthServiceAdapter(
