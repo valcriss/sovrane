@@ -52,56 +52,60 @@ export function createSiteRouter(
   const router = express.Router();
 
   /**
-     * @openapi
-     * /sites:
-     *   get:
-     *     summary: Get all sites
-     *     description: Returns the list of all sites.
-     *     tags:
-     *       - Site
-     *     security:
-     *       - bearerAuth: []
-     *     responses:
-     *       200:
-     *         description: Paginated site list.
-     *         parameters:
-     *           - in: query
-     *             name: page
-     *             schema:
-     *               type: integer
-     *               default: 1
-     *             description: Page number (starts at 1).
-     *           - in: query
-     *             name: limit
-     *             schema:
-     *               type: integer
-     *               default: 20
-     *             description: Number of sites per page.
-     *           - in: query
-     *             name: search
-     *             schema:
-     *               type: string
-     *             description: Search term on the site label.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 items:
-     *                   type: array
-     *                   items:
-     *                     $ref: '#/components/schemas/Site'
-     *                 page:
-     *                   type: integer
-     *                 limit:
-     *                   type: integer
-     *                 total:
-     *                   type: integer
-     *       204:
-     *         description: No content.
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
+   * @openapi
+   * /sites:
+   *   get:
+   *     summary: Get all sites
+   *     description: Returns the list of all sites. Requires the `read-sites` permission.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Page number (starts at 1).
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 20
+   *         description: Number of sites per page.
+   *       - in: query
+   *         name: search
+   *         schema:
+   *           type: string
+   *         description: Search term on the site label.
+   *     responses:
+   *       200:
+   *         description: Paginated site list.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Site'
+   *                 page:
+   *                   type: integer
+   *                 limit:
+   *                   type: integer
+   *                 total:
+   *                   type: integer
+   *       204:
+   *         description: No content.
+   *       400:
+   *         description: Validation error.
+   *       401:
+   *         description: Invalid or expired authentication token.
+   *       403:
+   *         description: User lacks required permission.
+   */
   router.get('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /sites', getContext());
     const page = parseInt(req.query.page as string) || 1;
@@ -121,34 +125,38 @@ export function createSiteRouter(
   });
 
   /**
-     * @openapi
-     * /sites/{id}:
-     *   get:
-     *     summary: Get site by ID
-     *     description: Returns detailed information about a specific site.
-     *     tags:
-     *       - Site
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - name: id
-     *         in: path
-     *         required: true
-     *         schema:
-     *           type: string
-     *         description: Unique identifier of the site.
-     *     responses:
-     *       200:
-     *         description: Site details.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/Site'
-     *       404:
-     *         description: Site not found.
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
+   * @openapi
+   * /sites/{id}:
+   *   get:
+   *     summary: Get site by ID
+   *     description: Retrieve detailed information about a specific site.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - name: id
+   *         in: path
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Unique identifier of the site.
+   *     responses:
+   *       200:
+   *         description: Site details.
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Site'
+   *       400:
+   *         description: Validation error.
+   *       401:
+   *         description: Invalid or expired authentication token.
+   *       403:
+   *         description: User lacks required permission.
+   *       404:
+   *         description: Site not found.
+   */
   router.get('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /sites/:id', getContext());
     const useCase = new GetSiteUseCase(siteRepository);
@@ -163,34 +171,37 @@ export function createSiteRouter(
   });
 
   /**
-     * @openapi
-     * /sites:
-     *   post:
-     *     summary: Create a site.
-     *     description: |
-     *       Adds a new physical site to the system. Authentication is required and
-     *       the caller must have administrator privileges.
-     *     tags:
-     *       - Site
-     *     security:
-     *       - bearerAuth: []
-     *     requestBody:
-     *       description: Site information to create.
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/Site'
-     *     responses:
-     *       201:
-     *         description: Newly created site
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/Site'
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
+   * @openapi
+   * /sites:
+   *   post:
+   *     summary: Create a site.
+   *     description: |
+   *       Adds a new physical site to the system. Requires the `manage-sites` permission.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       description: Site information to create.
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Site'
+   *     responses:
+   *       201:
+   *         description: Newly created site
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Site'
+   *       400:
+   *         description: Validation error.
+   *       401:
+   *         description: Invalid or expired authentication token.
+   *       403:
+   *         description: User lacks required permission.
+   */
   router.post('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /sites', getContext());
     const {id, label} = req.body;
@@ -201,40 +212,43 @@ export function createSiteRouter(
   });
 
   /**
-     * @openapi
-     * /sites/{id}:
-     *   put:
-     *     summary: Update a site.
-     *     description: Modify the label of an existing site. Requires
-     *       administrator privileges.
-     *     tags:
-     *       - Site
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: string
-     *         description: Identifier of the site to update.
-     *     requestBody:
-     *       description: New site data.
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/Site'
-     *     responses:
-     *       200:
-     *         description: Site after update
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/Site'
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
+   * @openapi
+   * /sites/{id}:
+   *   put:
+   *     summary: Update a site.
+   *     description: Modify the label of an existing site. Requires the `manage-sites` permission.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the site to update.
+   *     requestBody:
+   *       description: New site data.
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Site'
+   *     responses:
+   *       200:
+   *         description: Site after update
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Site'
+   *       400:
+   *         description: Validation error.
+   *       401:
+   *         description: Invalid or expired authentication token.
+   *       403:
+   *         description: User lacks required permission.
+   */
   router.put('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /sites/:id', getContext());
     const {label} = req.body;
@@ -246,32 +260,34 @@ export function createSiteRouter(
   });
 
   /**
-     * @openapi
-     * /sites/{id}:
-     *   delete:
-     *     summary: Remove a site.
-     *     description: |
-     *       Deletes a site. The operation fails when users or departments are still
-     *       attached to it. Requires administrator privileges.
-     *     tags:
-     *       - Site
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: string
-     *         description: Identifier of the site to delete.
-     *     responses:
-     *       204:
-     *         description: Site successfully deleted
-     *       400:
-     *         description: Operation failed due to existing attachments
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
+   * @openapi
+   * /sites/{id}:
+   *   delete:
+   *     summary: Remove a site.
+   *     description: |
+   *       Deletes a site. The operation fails when users or departments are still
+   *       attached to it. Requires the `manage-sites` permission.
+   *     tags:
+   *       - Site
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the site to delete.
+   *     responses:
+   *       204:
+   *         description: Site successfully deleted
+   *       400:
+   *         description: Operation failed due to existing attachments
+   *       401:
+   *         description: Invalid or expired authentication token.
+   *       403:
+   *         description: User lacks required permission.
+   */
   router.delete('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /sites/:id', getContext());
     const {id} = req.params;
