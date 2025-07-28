@@ -24,8 +24,8 @@ import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
 import { setupSwagger } from './swagger';
-import { PrismaConfigAdapter } from './config/PrismaConfigAdapter';
-import { InMemoryCacheAdapter } from './cache/InMemoryCacheAdapter';
+import { PrismaConfigAdapter } from '../adapters/config/PrismaConfigAdapter';
+import { InMemoryCacheAdapter } from '../adapters/cache/InMemoryCacheAdapter';
 import { ConfigService } from '../domain/services/ConfigService';
 import { GetConfigUseCase } from '../usecases/config/GetConfigUseCase';
 import { BootstapService } from '../domain/services/BootstapService';

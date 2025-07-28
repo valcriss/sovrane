@@ -2,7 +2,7 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { UpdateConfigUseCase } from '../../../usecases/config/UpdateConfigUseCase';
 import { ConfigService } from '../../../domain/services/ConfigService';
 import { ConfigPort } from '../../../domain/ports/ConfigPort';
-import { InMemoryCacheAdapter } from '../../../infrastructure/cache/InMemoryCacheAdapter';
+import { InMemoryCacheAdapter } from '../../../adapters/cache/InMemoryCacheAdapter';
 import { AppConfig } from '../../../domain/entities/AppConfig';
 
 describe('UpdateConfigUseCase', () => {
