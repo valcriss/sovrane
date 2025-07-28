@@ -132,6 +132,8 @@ export function createRoleRouter(
      *         description: No content.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.get('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles', getContext());
@@ -179,6 +181,8 @@ export function createRoleRouter(
      *         description: Role not found.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.get('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles/:id', getContext());
@@ -219,8 +223,12 @@ export function createRoleRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Role'
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.post('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /roles', getContext());
@@ -261,8 +269,12 @@ export function createRoleRouter(
      *           application/json:
      *             schema:
      *               $ref: '#/components/schemas/Role'
+     *       400:
+     *         description: Validation error.
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.put('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /roles/:id', getContext());
@@ -299,6 +311,8 @@ export function createRoleRouter(
      *         description: Deletion failed because the role is still in use
      *       401:
      *         description: Invalid or expired authentication token.
+     *       403:
+     *         description: User lacks required permission.
      */
   router.delete('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /roles/:id', getContext());
