@@ -11,6 +11,8 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
+import { GetConfigUseCase } from '../../../usecases/config/GetConfigUseCase';
+import { AppConfigKeys } from '../../../domain/entities/AppConfigKeys';
 
 describe('AuthenticateUserUseCase', () => {
   let service: DeepMockProxy<AuthServicePort>;
@@ -18,6 +20,7 @@ describe('AuthenticateUserUseCase', () => {
   let repo: DeepMockProxy<UserRepositoryPort>;
   let audit: DeepMockProxy<AuditPort>;
   let logger: DeepMockProxy<LoggerPort>;
+  let getConfig: DeepMockProxy<GetConfigUseCase>;
   let useCase: AuthenticateUserUseCase;
   let user: User;
   let role: Role;
@@ -30,7 +33,20 @@ describe('AuthenticateUserUseCase', () => {
     repo = mockDeep<UserRepositoryPort>();
     audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
-    useCase = new AuthenticateUserUseCase(service, tokenService, repo, audit, logger);
+    getConfig = mockDeep<GetConfigUseCase>();
+    (getConfig.execute as jest.Mock).mockImplementation(async (key: string) => {
+      switch (key) {
+      case AppConfigKeys.ACCOUNT_LOCK_ON_LOGIN_FAIL:
+        return true;
+      case AppConfigKeys.ACCOUNT_LOCK_DURATION:
+        return 900;
+      case AppConfigKeys.ACCOUNT_LOCK_FAIL_THRESHOLD:
+        return 4;
+      default:
+        return null;
+      }
+    });
+    useCase = new AuthenticateUserUseCase(service, tokenService, repo, audit, logger, getConfig);
     role = new Role('role-1', 'Admin');
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
@@ -64,9 +80,8 @@ describe('AuthenticateUserUseCase', () => {
   });
 
   it('should lock account after too many failures', async () => {
-    process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL = 'true';
     repo.findByEmail.mockResolvedValue(user);
-    user.failedLoginAttempts = 5;
+    user.failedLoginAttempts = 4;
     service.authenticate.mockRejectedValue(new Error('bad'));
     await expect(
       useCase.execute('john@example.com', 'bad'),
@@ -76,7 +91,6 @@ describe('AuthenticateUserUseCase', () => {
   });
 
   it('should record failed attempt without locking', async () => {
-    process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL = 'true';
     repo.findByEmail.mockResolvedValue(user);
     user.failedLoginAttempts = 1;
     service.authenticate.mockRejectedValue(new Error('bad'));
@@ -102,7 +116,6 @@ describe('AuthenticateUserUseCase', () => {
   });
 
   it('should not update counters when user not found', async () => {
-    process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL = 'true';
     repo.findByEmail.mockResolvedValue(null);
     service.authenticate.mockRejectedValue(new Error('bad'));
     await expect(useCase.execute('missing@example.com', 'bad')).rejects.toThrow('bad');

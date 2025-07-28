@@ -6,6 +6,8 @@ import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { AccountLockedError } from '../../domain/errors/AccountLockedError';
+import { GetConfigUseCase } from '../config/GetConfigUseCase';
+import { AppConfigKeys } from '../../domain/entities/AppConfigKeys';
 
 /**
  * Use case for authenticating a user using login and password
@@ -18,6 +20,7 @@ export class AuthenticateUserUseCase {
     private readonly userRepository: UserRepositoryPort,
     private readonly audit: AuditPort,
     private readonly logger: LoggerPort,
+    private readonly config: GetConfigUseCase,
   ) {}
 
   /**
@@ -50,11 +53,18 @@ export class AuthenticateUserUseCase {
       const refreshToken = await this.tokenService.generateRefreshToken(user);
       return { user, token, refreshToken };
     } catch (err) {
-      if (existing && process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL === 'true') {
+      const lockOnFail =
+        (await this.config.execute<boolean>(AppConfigKeys.ACCOUNT_LOCK_ON_LOGIN_FAIL)) ??
+        (process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL === 'true');
+      const threshold =
+        (await this.config.execute<number>(AppConfigKeys.ACCOUNT_LOCK_FAIL_THRESHOLD)) ?? 4;
+      const lockDurationSec =
+        (await this.config.execute<number>(AppConfigKeys.ACCOUNT_LOCK_DURATION)) ??
+        parseInt(process.env.ACCOUNT_LOCK_DURATION || '900', 10);
+      if (existing && lockOnFail) {
         existing.failedLoginAttempts += 1;
         existing.lastFailedLoginAt = new Date();
-        const threshold = 5;
-        const lockDuration = parseInt(process.env.ACCOUNT_LOCK_DURATION || '900', 10) * 1000;
+        const lockDuration = lockDurationSec * 1000;
         if (existing.failedLoginAttempts > threshold) {
           existing.lockedUntil = new Date(Date.now() + lockDuration);
           await this.audit.log(
