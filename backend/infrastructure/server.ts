@@ -29,6 +29,7 @@ import { InMemoryCacheAdapter } from '../adapters/cache/InMemoryCacheAdapter';
 import { ConfigService } from '../domain/services/ConfigService';
 import { GetConfigUseCase } from '../usecases/config/GetConfigUseCase';
 import { BootstapService } from '../domain/services/BootstapService';
+import { PasswordValidator } from '../domain/services/PasswordValidator';
 
 async function bootstrap(): Promise<void> {
   const logger = new ConsoleLoggerAdapter();
@@ -55,6 +56,7 @@ async function bootstrap(): Promise<void> {
   const configRepo = new PrismaConfigAdapter(prisma, logger);
   const cache = new InMemoryCacheAdapter();
   const configService = new ConfigService(cache, configRepo);
+  const passwordValidator = new PasswordValidator(configService);
   const getConfigUseCase = new GetConfigUseCase(configService);
   const bootstrapService = new BootstapService(configService, logger, permissionRepository);
   await bootstrapService.initialize();
@@ -94,6 +96,7 @@ async function bootstrap(): Promise<void> {
       refreshRepo,
       logger,
       getConfigUseCase,
+      passwordValidator,
     ),
   );
   app.use(

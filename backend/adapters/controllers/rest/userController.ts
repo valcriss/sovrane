@@ -29,6 +29,7 @@ import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
 import {Permission} from '../../../domain/entities/Permission';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import { PasswordValidator } from '../../../domain/services/PasswordValidator';
 import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
 import {requireBodyParams} from './requestValidator';
 
@@ -204,6 +205,7 @@ export function createUserRouter(
   refreshTokenRepository: RefreshTokenRepositoryPort,
   logger: LoggerPort,
   getConfigUseCase: GetConfigUseCase,
+  passwordValidator: PasswordValidator,
 ): Router {
   const router = express.Router();
   const upload = multer();
@@ -296,12 +298,20 @@ export function createUserRouter(
      *     tags:
      *       - User
      *     requestBody:
-     *       description: Data describing the user to create.
+     *       description: Data describing the user to create including the account password.
      *       required: true
      *       content:
      *         application/json:
      *           schema:
-     *             $ref: '#/components/schemas/User'
+     *             allOf:
+     *               - $ref: '#/components/schemas/User'
+     *               - type: object
+     *                 properties:
+     *                   password:
+     *                     type: string
+     *                     description: Must comply with configured password policy
+     *                 required:
+     *                   - password
      *     responses:
      *       201:
      *         description: Newly created user profile with authentication tokens.
@@ -321,8 +331,12 @@ export function createUserRouter(
      */
     router.post('/users', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /users', getContext());
-      const useCase = new RegisterUserUseCase(userRepository, tokenService);
-      const result = await useCase.execute(parseUser(req.body));
+      const useCase = new RegisterUserUseCase(
+        userRepository,
+        tokenService,
+        passwordValidator,
+      );
+      const result = await useCase.execute(parseUser(req.body), req.body.password);
       logger.debug('User registered', getContext());
       res.status(201).json(result);
     });
@@ -589,6 +603,7 @@ export function createUserRouter(
      *                 type: string
      *               password:
      *                 type: string
+     *                 description: Must comply with configured password policy
      *             required:
      *               - token
      *               - password
@@ -601,7 +616,7 @@ export function createUserRouter(
     router.post('/auth/reset', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/reset', getContext());
       const {token, password} = req.body;
-      const useCase = new ResetPasswordUseCase(authService);
+      const useCase = new ResetPasswordUseCase(authService, passwordValidator);
       await useCase.execute(token, password);
       logger.debug('Password reset performed', getContext());
       res.status(204).end();
