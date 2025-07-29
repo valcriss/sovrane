@@ -20,6 +20,7 @@ import { RefreshToken } from '../../../../domain/entities/RefreshToken';
 import { AuditPort } from '../../../../domain/ports/AuditPort';
 import { GetConfigUseCase } from '../../../../usecases/config/GetConfigUseCase';
 import { AppConfigKeys } from '../../../../domain/entities/AppConfigKeys';
+import { PasswordValidator } from '../../../../domain/services/PasswordValidator';
 
 describe('User REST controller', () => {
   let app: express.Express;
@@ -31,6 +32,7 @@ describe('User REST controller', () => {
   let audit: DeepMockProxy<AuditPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let getConfig: DeepMockProxy<GetConfigUseCase>;
+  let passwordValidator: DeepMockProxy<PasswordValidator>;
   let user: User;
   let role: Role;
   let department: Department;
@@ -45,6 +47,8 @@ describe('User REST controller', () => {
     audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
     getConfig = mockDeep<GetConfigUseCase>();
+    passwordValidator = mockDeep<PasswordValidator>();
+    passwordValidator.validate.mockResolvedValue();
     (getConfig.execute as jest.Mock).mockImplementation(async (key: string) => {
       switch (key) {
       case AppConfigKeys.ACCOUNT_LOCK_ON_LOGIN_FAIL:
@@ -72,7 +76,20 @@ describe('User REST controller', () => {
     auth.resetPassword.mockResolvedValue();
     app = express();
     app.use(express.json());
-    app.use('/api', createUserRouter(auth, repo, audit, avatar, tokenService, refreshRepo, logger, getConfig));
+    app.use(
+      '/api',
+      createUserRouter(
+        auth,
+        repo,
+        audit,
+        avatar,
+        tokenService,
+        refreshRepo,
+        logger,
+        getConfig,
+        passwordValidator,
+      ),
+    );
   });
 
   function serializePermission(p: Permission) {
@@ -172,7 +189,7 @@ describe('User REST controller', () => {
     tokenService.generateRefreshToken.mockResolvedValue('r');
     const res = await request(app)
       .post('/api/users')
-      .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
+      .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' }, password: 'Password1!' });
 
     expect(res.status).toBe(201);
     const expectedUser = {
@@ -207,6 +224,7 @@ describe('User REST controller', () => {
       updatedBy: null,
     };
     expect(res.body).toEqual({ user: expectedUser, token: 't', refreshToken: 'r' });
+    expect(passwordValidator.validate).toHaveBeenCalledWith('Password1!');
     expect(repo.create).toHaveBeenCalled();
   });
 
@@ -361,6 +379,7 @@ describe('User REST controller', () => {
       .send({ token: 'tok', password: 'new' });
 
     expect(res.status).toBe(204);
+    expect(passwordValidator.validate).toHaveBeenCalledWith('new');
     expect(auth.resetPassword).toHaveBeenCalledWith('tok', 'new');
   });
 

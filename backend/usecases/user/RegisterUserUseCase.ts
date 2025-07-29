@@ -1,6 +1,8 @@
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { TokenServicePort } from '../../domain/ports/TokenServicePort';
 import { User } from '../../domain/entities/User';
+import { PasswordValidator } from '../../domain/services/PasswordValidator';
+import { InvalidPasswordException } from '../../domain/errors/InvalidPasswordException';
 
 /**
  * Use case responsible for registering a new {@link User}
@@ -10,6 +12,7 @@ export class RegisterUserUseCase {
   constructor(
     private readonly userRepository: UserRepositoryPort,
     private readonly tokenService: TokenServicePort,
+    private readonly passwordValidator: PasswordValidator,
   ) {}
 
   /**
@@ -18,7 +21,16 @@ export class RegisterUserUseCase {
    * @param user - The user to persist.
    * @returns The registered user profile and tokens.
    */
-  async execute(user: User): Promise<{ user: User; token: string; refreshToken: string }> {
+  async execute(
+    user: User,
+    password: string,
+  ): Promise<{ user: User; token: string; refreshToken: string }> {
+    await this.passwordValidator.validate(password).catch((err) => {
+      if (err instanceof InvalidPasswordException) {
+        throw err;
+      }
+      throw new InvalidPasswordException(err.message);
+    });
     user.createdAt = new Date();
     user.updatedAt = user.createdAt;
     user.createdBy = null;
