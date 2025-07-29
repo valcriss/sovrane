@@ -72,6 +72,19 @@ describe('AuthenticateUserUseCase', () => {
     expect(user.lockedUntil).toBeNull();
   });
 
+  it('should indicate mfa requirement', async () => {
+    repo.findByEmail.mockResolvedValue(user);
+    user.mfaEnabled = true;
+    user.mfaType = 'totp';
+    service.authenticate.mockResolvedValue(user);
+
+    const result = await useCase.execute('john@example.com', 'secret');
+
+    expect(result).toEqual({ user, mfaRequired: true, passwordWillExpireSoon: false });
+    expect(tokenService.generateAccessToken).not.toHaveBeenCalled();
+    expect(tokenService.generateRefreshToken).not.toHaveBeenCalled();
+  });
+
   it('should reject when account locked', async () => {
     user.lockedUntil = new Date(Date.now() + 1000);
     repo.findByEmail.mockResolvedValue(user);

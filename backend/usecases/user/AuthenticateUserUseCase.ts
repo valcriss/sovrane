@@ -38,8 +38,9 @@ export class AuthenticateUserUseCase {
     userAgent?: string,
   ): Promise<{
     user: User;
-    token: string;
-    refreshToken: string;
+    token?: string;
+    refreshToken?: string;
+    mfaRequired?: boolean;
     passwordWillExpireSoon?: boolean;
   }> {
     this.logger.debug('Authenticating user');
@@ -51,8 +52,6 @@ export class AuthenticateUserUseCase {
 
     try {
       const user = await this.authService.authenticate(email, password);
-      user.lastLogin = new Date();
-      user.lastActivity = user.lastLogin;
       user.failedLoginAttempts = 0;
       user.lastFailedLoginAt = null;
       user.lockedUntil = null;
@@ -68,7 +67,18 @@ export class AuthenticateUserUseCase {
         throw new PasswordExpiredException();
       }
       const willExpire = daysSinceChange >= expirationDays - warningDays;
+
+      if (!user.mfaEnabled) {
+        user.lastLogin = new Date();
+        user.lastActivity = user.lastLogin;
+      }
+
       await this.userRepository.update(user);
+
+      if (user.mfaEnabled) {
+        return { user, mfaRequired: true, passwordWillExpireSoon: willExpire };
+      }
+
       const token = this.tokenService.generateAccessToken(user);
       const refreshToken = await this.tokenService.generateRefreshToken(
         user,

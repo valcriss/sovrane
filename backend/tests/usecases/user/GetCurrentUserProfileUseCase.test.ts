@@ -55,4 +55,14 @@ describe('GetCurrentUserProfileUseCase', () => {
     await expect(useCase.execute('user-1')).rejects.toThrow('Forbidden');
     expect(repository.findById).not.toHaveBeenCalled();
   });
+
+  it('should propagate repository errors', async () => {
+    repository.findById.mockRejectedValue(new Error('oops'));
+    await expect(useCase.execute('user-1')).rejects.toThrow('oops');
+  });
+
+  it('should return null when user not found', async () => {
+    repository.findById.mockResolvedValue(null);
+    await expect(useCase.execute('nope')).resolves.toBeNull();
+  });
 });
