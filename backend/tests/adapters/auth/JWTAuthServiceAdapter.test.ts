@@ -114,6 +114,10 @@ describe('JWTAuthServiceAdapter', () => {
     await expect(adapter.resetPassword('t', 'p')).rejects.toThrow('Not implemented');
   });
 
+  it('should throw on invalid token', async () => {
+    await expect(adapter.verifyToken('invalid')).rejects.toThrow();
+  });
+
   it('should fail when user cannot be fetched after password check', async () => {
     const hash = await argon2.hash('p');
     prisma.user.findUnique.mockResolvedValue({ id: 'u', password: hash } as any);
