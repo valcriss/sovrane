@@ -35,6 +35,7 @@ import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
 import {Permission} from '../../../domain/entities/Permission';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
 import { PasswordValidator } from '../../../domain/services/PasswordValidator';
 import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
 import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
@@ -841,7 +842,8 @@ export function createUserRouter(
      */
     router.post('/auth/mfa/setup', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/mfa/setup', getContext());
-      const useCase = new SetupTotpUseCase(mfaService);
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new SetupTotpUseCase(mfaService, checker);
       const secret = await useCase.execute((req as AuthedRequest).user);
       res.json({ secret });
     });
@@ -883,7 +885,8 @@ export function createUserRouter(
       requireBodyParams({ type: { validator: 'string' } }),
       async (req: Request, res: Response): Promise<void> => {
         logger.debug('POST /auth/mfa/enable', getContext());
-        const useCase = new EnableMfaUseCase(userRepository, refreshTokenRepository);
+        const checker = new PermissionChecker((req as AuthedRequest).user);
+        const useCase = new EnableMfaUseCase(userRepository, refreshTokenRepository, checker);
         const updated = await useCase.execute(
           (req as AuthedRequest).user,
           req.body.type,
@@ -908,7 +911,8 @@ export function createUserRouter(
      */
     router.post('/auth/mfa/disable', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/mfa/disable', getContext());
-      const useCase = new DisableMfaUseCase(userRepository, mfaService, refreshTokenRepository);
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new DisableMfaUseCase(userRepository, mfaService, refreshTokenRepository, checker);
       await useCase.execute((req as AuthedRequest).user);
       res.status(204).end();
     });
@@ -1306,7 +1310,13 @@ export function createUserRouter(
      */
     router.post('/users/:id/picture', upload.single('file'), async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /users/:id/picture', getContext());
-      await avatarService.setUserAvatar(req.params.id, (req.file as Express.Multer.File).buffer, req.file!.originalname);
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      checker.check(PermissionKeys.UPDATE_USER_PICTURE);
+      await avatarService.setUserAvatar(
+        req.params.id,
+        (req.file as Express.Multer.File).buffer,
+        req.file!.originalname,
+      );
       res.status(204).end();
     });
 
@@ -1337,6 +1347,8 @@ export function createUserRouter(
      */
     router.delete('/users/:id/picture', async (req: Request, res: Response): Promise<void> => {
       logger.debug('DELETE /users/:id/picture', getContext());
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      checker.check(PermissionKeys.UPDATE_USER_PICTURE);
       await avatarService.removeUserAvatar(req.params.id);
       res.status(204).end();
     });

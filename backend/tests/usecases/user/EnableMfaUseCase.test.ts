@@ -6,21 +6,28 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { Permission } from '../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('EnableMfaUseCase', () => {
   let repo: DeepMockProxy<UserRepositoryPort>;
   let refresh: DeepMockProxy<RefreshTokenPort>;
   let useCase: EnableMfaUseCase;
+  let checker: PermissionChecker;
   let user: User;
 
   beforeEach(() => {
     repo = mockDeep<UserRepositoryPort>();
     refresh = mockDeep<RefreshTokenPort>();
-    useCase = new EnableMfaUseCase(repo, refresh);
-    const role = new Role('r', 'Role');
     const site = new Site('s', 'Site');
     const dept = new Department('d', 'Dept', null, null, site);
+    const role = new Role('r', 'Role', [
+      new Permission('p', PermissionKeys.MANAGE_MFA, 'mfa'),
+    ]);
     user = new User('u', 'A', 'B', 'a@example.com', [role], 'active', dept, site);
+    checker = new PermissionChecker(user);
+    useCase = new EnableMfaUseCase(repo, refresh, checker);
   });
 
   it('should enable mfa', async () => {
@@ -39,5 +46,16 @@ describe('EnableMfaUseCase', () => {
     expect(user.mfaRecoveryCodes).toEqual([]);
     expect(repo.update).toHaveBeenCalledWith(user);
     expect(refresh.revokeAll).toHaveBeenCalledWith(user.id);
+  });
+
+  it('should throw when permission denied', async () => {
+    const denied = mockDeep<PermissionChecker>();
+    denied.check.mockImplementation(() => {
+      throw new Error('Forbidden');
+    });
+    useCase = new EnableMfaUseCase(repo, refresh, denied);
+    await expect(useCase.execute(user, 'totp')).rejects.toThrow('Forbidden');
+    expect(repo.update).not.toHaveBeenCalled();
+    expect(refresh.revokeAll).not.toHaveBeenCalled();
   });
 });
