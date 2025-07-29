@@ -404,7 +404,9 @@ describe('User REST controller', () => {
 
     expect(res.status).toBe(204);
     expect(passwordValidator.validate).toHaveBeenCalledWith('new');
+    expect(auth.verifyToken).toHaveBeenCalledWith('tok');
     expect(auth.resetPassword).toHaveBeenCalledWith('tok', 'new');
+    expect(refreshRepo.revokeAll).toHaveBeenCalledWith('u');
   });
 
   it('should refresh tokens', async () => {
