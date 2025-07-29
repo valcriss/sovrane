@@ -427,6 +427,18 @@ describe('User REST controller', () => {
     expect(refreshRepo.markAsUsed).toHaveBeenCalled();
   });
 
+  it('should return 429 when refresh occurs too soon', async () => {
+    refreshRepo.findValidByToken.mockResolvedValue(
+      new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 600000), new Date()),
+    );
+
+    const res = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: 'old' });
+
+    expect(res.status).toBe(429);
+  });
+
   it('should logout and revoke all refresh tokens', async () => {
     refreshRepo.findValidByToken.mockResolvedValue(
       new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 1000)),

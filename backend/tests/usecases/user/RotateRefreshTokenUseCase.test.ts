@@ -10,6 +10,7 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { RefreshTokenTooSoonException } from '../../../domain/errors/RefreshTokenTooSoonException';
 
 describe('RotateRefreshTokenUseCase', () => {
   let refreshRepo: DeepMockProxy<RefreshTokenPort>;
@@ -52,5 +53,21 @@ describe('RotateRefreshTokenUseCase', () => {
     expect(event.action).toBe('auth.refresh');
     expect(event.ipAddress).toBe('1.1.1.1');
     expect(event.userAgent).toBe('agent');
+  });
+
+  it('should reject refreshes performed too soon', async () => {
+    const token = new RefreshToken(
+      '1',
+      'u',
+      'h',
+      new Date(Date.now() + 600_000),
+      new Date(),
+    );
+    refreshRepo.findValidByToken.mockResolvedValue(token);
+    userRepo.findById.mockResolvedValue(user);
+
+    await expect(useCase.execute('old')).rejects.toBeInstanceOf(
+      RefreshTokenTooSoonException,
+    );
   });
 });

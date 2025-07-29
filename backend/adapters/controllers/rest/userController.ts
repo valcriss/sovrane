@@ -33,6 +33,7 @@ import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 import { PasswordValidator } from '../../../domain/services/PasswordValidator';
 import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
 import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
+import { RefreshTokenTooSoonException } from '../../../domain/errors/RefreshTokenTooSoonException';
 import {requireBodyParams} from './requestValidator';
 
 /**
@@ -484,6 +485,8 @@ export function createUserRouter(
      *         description: Validation error.
      *       401:
      *         description: Invalid or expired refresh token
+     *       429:
+     *         description: Refresh token rotation attempted too soon
      */
     router.post(
       '/auth/refresh',
@@ -507,7 +510,11 @@ export function createUserRouter(
           res.json(result);
         } catch (err) {
           logger.warn('Refresh token failed', { ...getContext(), error: err });
-          res.status(401).json({ error: (err as Error).message });
+          if (err instanceof RefreshTokenTooSoonException) {
+            res.status(429).json({ error: err.message });
+          } else {
+            res.status(401).json({ error: (err as Error).message });
+          }
         }
       },
     );
