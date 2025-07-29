@@ -188,6 +188,19 @@ import {requireBodyParams} from './requestValidator';
  *         - email
  *         - department
  *         - site
+ *     ErrorResponse:
+ *       description: Error information when a request fails.
+ *       type: object
+ *       properties:
+ *         error:
+ *           type: string
+ *           description: Human readable error message.
+ *         code:
+ *           type: string
+ *           description: Machine readable error code.
+ *       required:
+ *         - error
+ *         - code
  */
 
 /**
@@ -486,6 +499,10 @@ export function createUserRouter(
      *         description: Validation error.
      *       401:
      *         description: Invalid or expired refresh token
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
      *       429:
      *         description: Refresh token rotation attempted too soon
      */
@@ -550,7 +567,11 @@ export function createUserRouter(
      *         description: Validation error.
      *       401:
      *         description: Invalid or expired refresh token
-     */
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/ErrorResponse'
+ */
     router.post(
       '/auth/logout',
       requireBodyParams({ refreshToken: { validator: 'string' } }),
