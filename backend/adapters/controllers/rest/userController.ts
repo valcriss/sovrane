@@ -675,8 +675,13 @@ export function createUserRouter(
     router.post('/auth/reset', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/reset', getContext());
       const {token, password} = req.body;
-      const useCase = new ResetPasswordUseCase(authService, passwordValidator);
-      await useCase.execute(token, password);
+      const user = await authService.verifyToken(token);
+      const useCase = new ResetPasswordUseCase(
+        authService,
+        passwordValidator,
+        refreshTokenRepository,
+      );
+      await useCase.execute(user.id, token, password);
       logger.debug('Password reset performed', getContext());
       res.status(204).end();
     });
@@ -1143,7 +1148,11 @@ export function createUserRouter(
     router.delete('/users/:id', async (req: Request, res: Response): Promise<void> => {
       logger.debug('DELETE /users/:id', getContext());
       const checker = new PermissionChecker((req as AuthedRequest).user);
-      const useCase = new RemoveUserUseCase(userRepository, checker);
+      const useCase = new RemoveUserUseCase(
+        userRepository,
+        checker,
+        refreshTokenRepository,
+      );
       try {
         await useCase.execute(req.params.id);
         logger.debug('User removed', getContext());
