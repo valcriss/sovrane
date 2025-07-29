@@ -34,6 +34,7 @@ import { PasswordValidator } from '../../../domain/services/PasswordValidator';
 import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
 import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 import { RefreshTokenTooSoonException } from '../../../domain/errors/RefreshTokenTooSoonException';
+import { InvalidRefreshTokenException } from '../../../domain/errors/InvalidRefreshTokenException';
 import {requireBodyParams} from './requestValidator';
 
 /**
@@ -512,6 +513,8 @@ export function createUserRouter(
           logger.warn('Refresh token failed', { ...getContext(), error: err });
           if (err instanceof RefreshTokenTooSoonException) {
             res.status(429).json({ error: err.message });
+          } else if (err instanceof InvalidRefreshTokenException) {
+            res.status(401).json({ error: err.message, code: err.code });
           } else {
             res.status(401).json({ error: (err as Error).message });
           }
@@ -561,7 +564,11 @@ export function createUserRouter(
           res.json({ message: 'Logged out successfully' });
         } catch (err) {
           logger.warn('Token revoke failed', { ...getContext(), error: err });
-          res.status(401).json({ error: (err as Error).message });
+          if (err instanceof InvalidRefreshTokenException) {
+            res.status(401).json({ error: err.message, code: err.code });
+          } else {
+            res.status(401).json({ error: (err as Error).message });
+          }
         }
       },
     );
