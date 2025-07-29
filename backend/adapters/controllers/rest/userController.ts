@@ -32,6 +32,7 @@ import {Permission} from '../../../domain/entities/Permission';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 import { PasswordValidator } from '../../../domain/services/PasswordValidator';
 import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
+import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 import {requireBodyParams} from './requestValidator';
 
 /**
@@ -281,8 +282,14 @@ export function createUserRouter(
         (req as AuthedRequest).user = user;
         logger.debug('REST auth success', getContext());
         next();
-      } catch {
-        logger.warn('REST auth failed', getContext());
+      } catch (err) {
+        logger.warn('REST auth failed', { ...getContext(), error: err });
+        if (err instanceof TokenExpiredException) {
+          res
+            .status(401)
+            .json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+          return;
+        }
         res.status(401).end();
       }
     };

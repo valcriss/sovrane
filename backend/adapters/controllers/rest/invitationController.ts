@@ -10,6 +10,7 @@ import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import {getContext} from '../../../infrastructure/loggerContext';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 import {User} from '../../../domain/entities/User';
+import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 
 /**
  * @openapi
@@ -123,7 +124,11 @@ export function createInvitationRouter(
       }
       (req as AuthedRequest).user = user;
       next();
-    } catch {
+    } catch (err) {
+      if (err instanceof TokenExpiredException) {
+        res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+        return;
+      }
       res.status(401).end();
     }
   };

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 import { JWTAuthServiceAdapter } from '../../../adapters/auth/JWTAuthServiceAdapter';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
@@ -85,6 +86,13 @@ describe('JWTAuthServiceAdapter', () => {
     repo.findById.mockResolvedValue(null);
 
     await expect(adapter.verifyToken(token)).rejects.toThrow('Invalid token');
+  });
+
+  it('should throw TokenExpiredException on expired token', async () => {
+    const expired = jwt.sign({}, secret, { subject: 'u', expiresIn: -1 });
+    await expect(adapter.verifyToken(expired)).rejects.toBeInstanceOf(
+      TokenExpiredException,
+    );
   });
 
   it('should reject suspended or archived users when verifying token', async () => {
