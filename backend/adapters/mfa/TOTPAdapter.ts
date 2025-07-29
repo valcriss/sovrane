@@ -5,6 +5,7 @@ import { User } from '../../domain/entities/User';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
+import { CachePort } from '../../domain/ports/CachePort';
 
 /**
  * MFA adapter implementing time-based one-time passwords (TOTP).
@@ -15,13 +16,19 @@ export class TOTPAdapter implements MfaServicePort {
    * Create a new adapter instance.
    *
    * @param repo - Repository used to persist updated users.
+   * @param cache - Cache used to track OTP usage and attempts.
    * @param logger - Logger instance for application logs.
    * @param encryptionKey - Hex encoded key used to encrypt secrets.
+   * @param attemptTtl - TTL in seconds for the attempt counter.
+   * @param maxAttempts - Maximum number of verification attempts.
    */
   constructor(
     private readonly repo: UserRepositoryPort,
+    private readonly cache: CachePort,
     private readonly logger: LoggerPort,
     private readonly encryptionKey: string,
+    /* istanbul ignore next */ private readonly attemptTtl = 300,
+    /* istanbul ignore next */ private readonly maxAttempts = 5,
   ) {}
 
   /** @inheritdoc */
@@ -38,8 +45,28 @@ export class TOTPAdapter implements MfaServicePort {
   /** @inheritdoc */
   async verifyTotp(user: User, token: string): Promise<boolean> {
     if (!user.mfaSecret) return false;
+    const attemptsKey = `mfa:totp:attempts:${user.id}`;
+    const usedKey = `mfa:totp:used:${user.id}:${token}`;
+
+    if (await this.cache.get(usedKey)) {
+      this.logger.warn('TOTP code reuse detected', getContext());
+      return false;
+    }
+
+    const attempts = (await this.cache.get<number>(attemptsKey)) ?? 0;
+    if (attempts >= this.maxAttempts) {
+      this.logger.warn('TOTP verification attempt limit reached', getContext());
+      return false;
+    }
+
     const secret = this.decrypt(user.mfaSecret);
     const valid = speakeasy.totp.verify({ secret, encoding: 'base32', token });
+    if (valid) {
+      await this.cache.delete(attemptsKey);
+      await this.cache.set(usedKey, true, 30);
+    } else {
+      await this.cache.set(attemptsKey, attempts + 1, this.attemptTtl);
+    }
     this.logger.debug(`TOTP verification ${valid ? 'succeeded' : 'failed'}`, getContext());
     return valid;
   }

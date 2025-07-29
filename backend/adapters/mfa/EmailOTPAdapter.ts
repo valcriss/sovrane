@@ -18,13 +18,14 @@ export class EmailOTPAdapter implements MfaServicePort {
    * @param mailer - Adapter used to send emails.
    * @param logger - Logger instance for application logs.
    * @param ttlSeconds - Code validity duration in seconds.
+   * @param maxAttempts - Maximum number of verification attempts.
    */
   constructor(
     private readonly cache: CachePort,
     private readonly mailer: NodemailerEmailServiceAdapter,
     private readonly logger: LoggerPort,
-    /* istanbul ignore next */
-    private readonly ttlSeconds = 300,
+    /* istanbul ignore next */ private readonly ttlSeconds = 300,
+    /* istanbul ignore next */ private readonly maxAttempts = 5,
   ) {}
 
   /** @inheritdoc */
@@ -57,10 +58,20 @@ export class EmailOTPAdapter implements MfaServicePort {
 
   /** @inheritdoc */
   async verifyEmailOtp(user: User, otp: string): Promise<boolean> {
+    const attemptsKey = `mfa:email:attempts:${user.id}`;
+    const attempts = (await this.cache.get<number>(attemptsKey)) ?? 0;
+    if (attempts >= this.maxAttempts) {
+      this.logger.warn('Email OTP verification attempt limit reached', getContext());
+      return false;
+    }
+
     const stored = await this.cache.get<string>(`mfa:email:${user.id}`);
     const match = stored === otp;
     if (match) {
       await this.cache.delete(`mfa:email:${user.id}`);
+      await this.cache.delete(attemptsKey);
+    } else {
+      await this.cache.set(attemptsKey, attempts + 1, this.ttlSeconds);
     }
     this.logger.debug(`Email OTP verification ${match ? 'succeeded' : 'failed'}`, getContext());
     return match;

@@ -2,6 +2,7 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { DisableMfaUseCase } from '../../../usecases/user/DisableMfaUseCase';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { MfaServicePort } from '../../../domain/ports/MfaServicePort';
+import { RefreshTokenPort } from '../../../domain/ports/RefreshTokenPort';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
@@ -10,13 +11,15 @@ import { Site } from '../../../domain/entities/Site';
 describe('DisableMfaUseCase', () => {
   let repo: DeepMockProxy<UserRepositoryPort>;
   let mfa: DeepMockProxy<MfaServicePort>;
+  let refresh: DeepMockProxy<RefreshTokenPort>;
   let useCase: DisableMfaUseCase;
   let user: User;
 
   beforeEach(() => {
     repo = mockDeep<UserRepositoryPort>();
     mfa = mockDeep<MfaServicePort>();
-    useCase = new DisableMfaUseCase(repo, mfa);
+    refresh = mockDeep<RefreshTokenPort>();
+    useCase = new DisableMfaUseCase(repo, mfa, refresh);
     const role = new Role('r', 'Role');
     const site = new Site('s', 'Site');
     const dept = new Department('d', 'Dept', null, null, site);
@@ -36,5 +39,6 @@ describe('DisableMfaUseCase', () => {
     expect(user.mfaSecret).toBeNull();
     expect(user.mfaRecoveryCodes).toEqual([]);
     expect(repo.update).toHaveBeenCalledWith(user);
+    expect(refresh.revokeAll).toHaveBeenCalledWith(user.id);
   });
 });
