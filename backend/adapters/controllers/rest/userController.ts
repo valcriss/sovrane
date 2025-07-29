@@ -825,6 +825,7 @@ export function createUserRouter(
      * /auth/mfa/setup:
      *   post:
      *     summary: Generate a TOTP secret for the authenticated user.
+     *     description: Requires the `manage-mfa` permission.
      *     tags:
      *       - User
      *     security:
@@ -853,6 +854,7 @@ export function createUserRouter(
      * /auth/mfa/enable:
      *   post:
      *     summary: Enable multi-factor authentication for the authenticated user.
+     *     description: Requires the `manage-mfa` permission.
      *     tags:
      *       - User
      *     security:
@@ -901,6 +903,7 @@ export function createUserRouter(
      * /auth/mfa/disable:
      *   post:
      *     summary: Disable multi-factor authentication for the authenticated user.
+     *     description: Requires the `manage-mfa` permission.
      *     tags:
      *       - User
      *     security:
@@ -922,7 +925,7 @@ export function createUserRouter(
      * /users:
      *   get:
      *     summary: Get all users
-     *     description: Returns a paginated and filterable list of users.
+     *     description: Returns a paginated and filterable list of users. Requires the `read-users` permission.
      *     tags:
      *       - User
      *     security:
@@ -1041,7 +1044,7 @@ export function createUserRouter(
      * /users/{id}:
      *   get:
      *     summary: Get user by ID
-     *     description: Returns detailed information about a specific user.
+     *     description: Returns detailed information about a specific user. Requires the `read-user` permission.
      *     tags:
      *       - User
      *     security:
@@ -1100,6 +1103,7 @@ export function createUserRouter(
      *     description: |
      *       Retrieves information about the authenticated user. A valid bearer
      *       token must be supplied in the `Authorization` header.
+     *       Requires the `read-user` permission.
      *     tags:
      *       - User
      *     security:
@@ -1149,6 +1153,7 @@ export function createUserRouter(
      *     description: |
      *       Updates information about an existing user. Authentication is required
      *       and only authorized administrators should call this endpoint.
+     *       Requires the `update-user` permission.
      *     tags:
      *       - User
      *     security:
@@ -1208,6 +1213,7 @@ export function createUserRouter(
      *     description: |
      *       Updates the account status (active, suspended or archived) of a user.
      *       Requires administrator privileges.
+     *       Requires the `update-user` permission.
      *     tags:
      *       - User
      *     security:
@@ -1277,6 +1283,7 @@ export function createUserRouter(
      *     summary: Upload user avatar
      *     description: |
      *       Uploads an avatar image for the specified user. Requires authentication.
+     *       Requires the `update-user-picture` permission.
      *     tags:
      *       - User
      *     security:
@@ -1325,7 +1332,7 @@ export function createUserRouter(
      * /users/{id}/picture:
      *   delete:
      *     summary: Remove user avatar
-     *     description: Deletes the avatar of the specified user if present.
+     *     description: Deletes the avatar of the specified user if present. Requires the `update-user-picture` permission.
      *     tags:
      *       - User
      *     security:
@@ -1361,6 +1368,7 @@ export function createUserRouter(
      *     description: |
      *       Permanently deletes a user account. This operation cannot be undone
      *       and requires administrative privileges.
+     *       Requires the `delete-user` permission.
      *     tags:
      *       - User
      *     security:
