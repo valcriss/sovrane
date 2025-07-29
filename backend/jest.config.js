@@ -23,14 +23,11 @@ module.exports = {
     '!**/__tests__/**',
     '!**/*.test.ts',
     '!**/*.spec.ts',
-    '!**/tests/**',
-    '!usecases/user/RotateRefreshTokenUseCase.ts',
-    '!usecases/user/RevokeRefreshTokensUseCase.ts',
-    '!usecases/user/GenerateEmailOtpUseCase.ts'
+    '!**/tests/**'
   ],
   coverageThreshold: {
     global: {
-      branches: 99,
+      branches: 100,
       functions: 100,
       lines: 100,
       statements: 100

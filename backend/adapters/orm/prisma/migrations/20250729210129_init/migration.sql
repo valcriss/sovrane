@@ -16,6 +16,10 @@ CREATE TABLE "User" (
     "failedLoginAttempts" INTEGER NOT NULL DEFAULT 0,
     "lastFailedLoginAt" TIMESTAMP(3),
     "lockedUntil" TIMESTAMP(3),
+    "mfaEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "mfaType" TEXT,
+    "mfaSecret" TEXT,
+    "mfaRecoveryCodes" JSONB,
     "passwordChangedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdById" TEXT,
     "updatedById" TEXT,
@@ -161,10 +165,15 @@ CREATE TABLE "Invitation" (
 -- CreateTable
 CREATE TABLE "RefreshToken" (
     "id" TEXT NOT NULL,
-    "token" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
-    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "tokenHash" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "revokedAt" TIMESTAMP(3),
+    "replacedBy" TEXT,
+    "usedAt" TIMESTAMP(3),
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
 
     CONSTRAINT "RefreshToken_pkey" PRIMARY KEY ("id")
 );
@@ -205,9 +214,6 @@ CREATE UNIQUE INDEX "Permission_permissionKey_key" ON "Permission"("permissionKe
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Invitation_token_key" ON "Invitation"("token");
-
--- CreateIndex
-CREATE UNIQUE INDEX "RefreshToken_token_key" ON "RefreshToken"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AppConfig_key_key" ON "AppConfig"("key");
