@@ -485,9 +485,14 @@ export function createUserRouter(
           refreshTokenRepository,
           tokenService,
           userRepository,
+          audit,
         );
         try {
-          const result = await useCase.execute(refreshToken);
+          const result = await useCase.execute(
+            refreshToken,
+            req.ip,
+            req.headers['user-agent'],
+          );
           logger.debug('Tokens rotated', getContext());
           res.json(result);
         } catch (err) {
