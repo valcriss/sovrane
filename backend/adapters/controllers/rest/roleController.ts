@@ -94,7 +94,7 @@ export function createRoleRouter(
      * /roles:
      *   get:
      *     summary: Get all roles
-     *     description: Returns a paginated list of roles.
+     *     description: Returns a paginated list of roles. Requires the `read-roles` permission.
      *     tags:
      *       - Role
      *     security:
@@ -172,7 +172,7 @@ export function createRoleRouter(
      * /roles/{id}:
      *   get:
      *     summary: Get role by ID
-     *     description: Returns detailed information about a specific role.
+     *     description: Returns detailed information about a specific role. Requires the `read-role` permission.
      *     tags:
      *       - Role
      *     security:
@@ -225,7 +225,7 @@ export function createRoleRouter(
      *     summary: Create a role.
      *     description: |
      *       Registers a new role grouping a set of permissions. Requires
-     *       authentication and administrative rights.
+     *       authentication and administrative rights. Requires the `create-role` permission.
      *     tags:
      *       - Role
      *     security:
@@ -271,7 +271,7 @@ export function createRoleRouter(
      * /roles/{id}:
      *   put:
      *     summary: Update a role.
-     *     description: Modify the label or permissions of an existing role.
+     *     description: Modify the label or permissions of an existing role. Requires the `update-role` permission.
      *     tags:
      *       - Role
      *     security:
@@ -327,7 +327,7 @@ export function createRoleRouter(
      *     summary: Remove a role.
      *     description: |
      *       Deletes a role. The operation fails if users are still associated with
-     *       it. Requires administrative privileges.
+     *       it. Requires administrative privileges. Requires the `delete-role` permission.
      *     tags:
      *       - Role
      *     security:
