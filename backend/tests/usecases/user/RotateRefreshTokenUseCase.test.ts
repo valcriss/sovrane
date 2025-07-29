@@ -40,6 +40,12 @@ describe('RotateRefreshTokenUseCase', () => {
 
     await useCase.execute('old', '1.1.1.1', 'agent');
 
+    expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(
+      user,
+      '1.1.1.1',
+      'agent',
+    );
+
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
     const event = audit.log.mock.calls[0][0] as AuditEvent;
     expect(event.actorId).toBe('u');

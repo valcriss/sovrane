@@ -37,7 +37,7 @@ describe('RefreshAccessTokenUseCase', () => {
     tokenService.generateAccessToken.mockReturnValue('newT');
     tokenService.generateRefreshToken.mockResolvedValue('newR');
 
-    const result = await useCase.execute('old');
+    const result = await useCase.execute('old', 'ip', 'agent');
 
     expect(result).toEqual({ token: 'newT', refreshToken: 'newR' });
     expect(refreshRepo.markAsUsed).toHaveBeenCalled();
@@ -45,13 +45,13 @@ describe('RefreshAccessTokenUseCase', () => {
 
   it('should throw when token missing', async () => {
     refreshRepo.findValidByToken.mockResolvedValue(null);
-    await expect(useCase.execute('bad')).rejects.toThrow('Invalid or expired refresh token');
+    await expect(useCase.execute('bad', 'ip', 'agent')).rejects.toThrow('Invalid or expired refresh token');
   });
 
   it('should throw when token expired', async () => {
     const token = new RefreshToken('1', 'u', 'h', new Date(Date.now() - 1000));
     refreshRepo.findValidByToken.mockResolvedValue(token);
-    await expect(useCase.execute('old')).rejects.toThrow('Invalid or expired refresh token');
+    await expect(useCase.execute('old', 'ip', 'agent')).rejects.toThrow('Invalid or expired refresh token');
   });
 
   it('should throw when user suspended', async () => {
@@ -59,14 +59,14 @@ describe('RefreshAccessTokenUseCase', () => {
     refreshRepo.findValidByToken.mockResolvedValue(token);
     const suspended = new User('u', 'John', 'Doe', 'john@example.com', [new Role('r', 'Role')], 'suspended', new Department('d', 'Dept', null, null, new Site('s', 'Site')), new Site('s', 'Site'));
     userRepo.findById.mockResolvedValue(suspended);
-    await expect(useCase.execute('old')).rejects.toThrow('User account is suspended or archived');
+    await expect(useCase.execute('old', 'ip', 'agent')).rejects.toThrow('User account is suspended or archived');
   });
 
   it('should throw when user not found', async () => {
     const token = new RefreshToken('1', 'u', 'h', new Date(Date.now() + 1000));
     refreshRepo.findValidByToken.mockResolvedValue(token);
     userRepo.findById.mockResolvedValue(null);
-    await expect(useCase.execute('t')).rejects.toThrow('Invalid or expired refresh token');
+    await expect(useCase.execute('t', 'ip', 'agent')).rejects.toThrow('Invalid or expired refresh token');
   });
 });
 

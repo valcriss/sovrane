@@ -24,5 +24,9 @@ export class RefreshToken {
     public revokedAt: Date | null = null,
     public replacedBy: string | null = null,
     public usedAt: Date | null = null,
+    /** Optional IP address where the token was issued. */
+    public ipAddress?: string,
+    /** Optional user agent string associated with the request. */
+    public userAgent?: string,
   ) {}
 }

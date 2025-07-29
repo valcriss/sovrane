@@ -60,13 +60,13 @@ describe('AuthenticateUserUseCase', () => {
     tokenService.generateAccessToken.mockReturnValue('t');
     tokenService.generateRefreshToken.mockResolvedValue('r');
 
-    const result = await useCase.execute('john@example.com', 'secret');
+    const result = await useCase.execute('john@example.com', 'secret', 'ip', 'agent');
 
     expect(result).toEqual({ user, token: 't', refreshToken: 'r', passwordWillExpireSoon: false });
     expect(repo.findByEmail).toHaveBeenCalledWith('john@example.com');
     expect(service.authenticate).toHaveBeenCalledWith('john@example.com', 'secret');
     expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
-    expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(user);
+    expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(user, 'ip', 'agent');
     expect(repo.update).toHaveBeenCalledWith(user);
     expect(user.failedLoginAttempts).toBe(0);
     expect(user.lockedUntil).toBeNull();
@@ -76,7 +76,7 @@ describe('AuthenticateUserUseCase', () => {
     user.lockedUntil = new Date(Date.now() + 1000);
     repo.findByEmail.mockResolvedValue(user);
     await expect(
-      useCase.execute('john@example.com', 'secret'),
+      useCase.execute('john@example.com', 'secret', 'ip', 'agent'),
     ).rejects.toBeInstanceOf(AccountLockedError);
   });
 
@@ -85,7 +85,7 @@ describe('AuthenticateUserUseCase', () => {
     user.failedLoginAttempts = 4;
     service.authenticate.mockRejectedValue(new Error('bad'));
     await expect(
-      useCase.execute('john@example.com', 'bad'),
+      useCase.execute('john@example.com', 'bad', 'ip', 'agent'),
     ).rejects.toBeInstanceOf(AccountLockedError);
     expect(repo.update.mock.calls[0][0].lockedUntil).toBeInstanceOf(Date);
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
@@ -95,7 +95,7 @@ describe('AuthenticateUserUseCase', () => {
     repo.findByEmail.mockResolvedValue(user);
     user.failedLoginAttempts = 1;
     service.authenticate.mockRejectedValue(new Error('bad'));
-    await expect(useCase.execute('john@example.com', 'bad')).rejects.toThrow('bad');
+    await expect(useCase.execute('john@example.com', 'bad', 'ip', 'agent')).rejects.toThrow('bad');
     expect(repo.update.mock.calls[0][0].failedLoginAttempts).toBe(2);
     expect(repo.update.mock.calls[0][0].lockedUntil).toBeNull();
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
@@ -108,7 +108,7 @@ describe('AuthenticateUserUseCase', () => {
     service.authenticate.mockResolvedValue(user);
     tokenService.generateAccessToken.mockReturnValue('t');
     tokenService.generateRefreshToken.mockResolvedValue('r');
-    const result = await useCase.execute('john@example.com', 'secret');
+    const result = await useCase.execute('john@example.com', 'secret', 'ip', 'agent');
     expect(result.token).toBe('t');
     expect(user.failedLoginAttempts).toBe(0);
     expect(user.lastFailedLoginAt).toBeNull();
@@ -119,7 +119,7 @@ describe('AuthenticateUserUseCase', () => {
   it('should not update counters when user not found', async () => {
     repo.findByEmail.mockResolvedValue(null);
     service.authenticate.mockRejectedValue(new Error('bad'));
-    await expect(useCase.execute('missing@example.com', 'bad')).rejects.toThrow('bad');
+    await expect(useCase.execute('missing@example.com', 'bad', 'ip', 'agent')).rejects.toThrow('bad');
     expect(repo.update).not.toHaveBeenCalled();
     expect(audit.log).not.toHaveBeenCalled();
   });
@@ -139,7 +139,7 @@ describe('AuthenticateUserUseCase', () => {
     getConfig.execute.mockResolvedValue(null);
     process.env.LOCK_ACCOUNT_ON_LOGIN_FAIL = "true";
     process.env.ACCOUNT_LOCK_DURATION = "60";
-    await expect(useCase.execute("john@example.com", "bad")).rejects.toBeInstanceOf(AccountLockedError);
+    await expect(useCase.execute('john@example.com', 'bad', 'ip', 'agent')).rejects.toBeInstanceOf(AccountLockedError);
     expect(repo.update.mock.calls[0][0].lockedUntil).toBeInstanceOf(Date);
   });
 
@@ -149,7 +149,7 @@ describe('AuthenticateUserUseCase', () => {
     tokenService.generateAccessToken.mockReturnValue('tok');
     tokenService.generateRefreshToken.mockResolvedValue('ref');
     user.passwordChangedAt = new Date(Date.now() - 85 * 24 * 60 * 60 * 1000);
-    await expect(useCase.execute('john@example.com', 'secret')).resolves.toEqual({
+    await expect(useCase.execute('john@example.com', 'secret', 'ip', 'agent')).resolves.toEqual({
       user,
       token: 'tok',
       refreshToken: 'ref',
@@ -161,7 +161,7 @@ describe('AuthenticateUserUseCase', () => {
     repo.findByEmail.mockResolvedValue(user);
     service.authenticate.mockResolvedValue(user);
     user.passwordChangedAt = new Date(Date.now() - 91 * 24 * 60 * 60 * 1000);
-    await expect(useCase.execute('john@example.com', 'secret')).rejects.toBeInstanceOf(PasswordExpiredException);
+    await expect(useCase.execute('john@example.com', 'secret', 'ip', 'agent')).rejects.toBeInstanceOf(PasswordExpiredException);
     expect(repo.update).toHaveBeenCalled();
   });
 

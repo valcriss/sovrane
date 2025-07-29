@@ -21,7 +21,11 @@ export class RefreshAccessTokenUseCase {
    * @param refreshToken - Previous refresh token issued to the user.
    * @returns Newly generated access and refresh tokens.
    */
-  async execute(refreshToken: string): Promise<{ token: string; refreshToken: string; user?: User }> {
+  async execute(
+    refreshToken: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<{ token: string; refreshToken: string; user?: User }> {
     this.logger.debug('Refreshing access token');
     const stored = await this.refreshRepo.findValidByToken(refreshToken);
     if (!stored || stored.expiresAt.getTime() <= Date.now()) {
@@ -43,7 +47,11 @@ export class RefreshAccessTokenUseCase {
     user.lastActivity = new Date();
     await this.userRepository.update(user);
     const token = this.tokenService.generateAccessToken(user);
-    const newRefresh = await this.tokenService.generateRefreshToken(user);
+    const newRefresh = await this.tokenService.generateRefreshToken(
+      user,
+      ipAddress,
+      userAgent,
+    );
     this.logger.debug('Access token refreshed');
     return { token, refreshToken: newRefresh };
   }

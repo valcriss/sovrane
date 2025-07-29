@@ -35,7 +35,11 @@ export class RotateRefreshTokenUseCase {
     const user = await this.userRepository.findById(existing.userId);
     if (!user) throw new InvalidRefreshTokenException();
 
-    const newRefresh = await this.tokenService.generateRefreshToken(user);
+    const newRefresh = await this.tokenService.generateRefreshToken(
+      user,
+      ipAddress,
+      userAgent,
+    );
     await this.refreshTokenPort.markAsUsed(existing.id, newRefresh);
 
     await this.auditPort.log(

@@ -34,6 +34,8 @@ export class AuthenticateUserUseCase {
   async execute(
     email: string,
     password: string,
+    ipAddress?: string,
+    userAgent?: string,
   ): Promise<{
     user: User;
     token: string;
@@ -68,7 +70,11 @@ export class AuthenticateUserUseCase {
       const willExpire = daysSinceChange >= expirationDays - warningDays;
       await this.userRepository.update(user);
       const token = this.tokenService.generateAccessToken(user);
-      const refreshToken = await this.tokenService.generateRefreshToken(user);
+      const refreshToken = await this.tokenService.generateRefreshToken(
+        user,
+        ipAddress,
+        userAgent,
+      );
       return { user, token, refreshToken, passwordWillExpireSoon: willExpire };
     } catch (err) {
       const lockOnFail =

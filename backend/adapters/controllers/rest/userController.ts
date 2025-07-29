@@ -344,7 +344,12 @@ export function createUserRouter(
         tokenService,
         passwordValidator,
       );
-      const result = await useCase.execute(parseUser(req.body), req.body.password);
+      const result = await useCase.execute(
+        parseUser(req.body),
+        req.body.password,
+        req.ip,
+        req.get('user-agent') || undefined,
+      );
       logger.debug('User registered', getContext());
       res.status(201).json(result);
     });
@@ -414,7 +419,12 @@ export function createUserRouter(
           getConfigUseCase,
         );
         try {
-          const result = await useCase.execute(email, password);
+          const result = await useCase.execute(
+            email,
+            password,
+            req.ip,
+            req.get('user-agent') || undefined,
+          );
           logger.debug('User authenticated', getContext());
           res.json(result);
         } catch (err) {
