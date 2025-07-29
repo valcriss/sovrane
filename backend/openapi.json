@@ -3122,12 +3122,28 @@
           "User"
         ],
         "requestBody": {
-          "description": "Data describing the user to create.",
+          "description": "Data describing the user to create including the account password.",
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/User"
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/User"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "password": {
+                        "type": "string",
+                        "description": "Must comply with configured password policy"
+                      }
+                    },
+                    "required": [
+                      "password"
+                    ]
+                  }
+                ]
               }
             }
           }
@@ -3510,7 +3526,8 @@
                     "type": "string"
                   },
                   "password": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Must comply with configured password policy"
                   }
                 },
                 "required": [
