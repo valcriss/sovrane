@@ -461,6 +461,10 @@ describe('User REST controller', () => {
       .send({ refreshToken: 'bad' });
 
     expect(res.status).toBe(401);
+    expect(res.body).toEqual({
+      error: 'Invalid or expired refresh token',
+      code: 'INVALID_REFRESH_TOKEN',
+    });
   });
 
   it('should return 401 for invalid refresh token', async () => {
@@ -471,6 +475,10 @@ describe('User REST controller', () => {
       .send({ refreshToken: 'bad' });
 
     expect(res.status).toBe(401);
+    expect(res.body).toEqual({
+      error: 'Invalid or expired refresh token',
+      code: 'INVALID_REFRESH_TOKEN',
+    });
   });
 
   it('should list users', async () => {
