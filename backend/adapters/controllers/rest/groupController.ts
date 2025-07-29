@@ -17,6 +17,7 @@ import {RemoveGroupResponsibleUseCase} from '../../../usecases/group/RemoveGroup
 import {GetGroupMembersUseCase} from '../../../usecases/group/GetGroupMembersUseCase';
 import {GetGroupResponsiblesUseCase} from '../../../usecases/group/GetGroupResponsiblesUseCase';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
 import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 
 /**
@@ -262,6 +263,13 @@ export function createGroupRouter(
      */
   router.get('/groups/:id', async (req, res): Promise<void> => {
     logger.debug('GET /groups/:id', getContext());
+    const checker = new PermissionChecker((req as unknown as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_GROUP);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     const group = await groupRepository.findById(req.params.id);
     if (!group) {
       res.status(404).end();
