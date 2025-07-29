@@ -4,6 +4,9 @@ import {PermissionRepositoryPort} from '../../../domain/ports/PermissionReposito
 import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import {getContext} from '../../../infrastructure/loggerContext';
 import {Permission} from '../../../domain/entities/Permission';
+import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
+import {User} from '../../../domain/entities/User';
 import {CreatePermissionUseCase} from '../../../usecases/permission/CreatePermissionUseCase';
 import {UpdatePermissionUseCase} from '../../../usecases/permission/UpdatePermissionUseCase';
 import {RemovePermissionUseCase} from '../../../usecases/permission/RemovePermissionUseCase';
@@ -42,6 +45,10 @@ interface PermissionPayload {
     id: string;
     permissionKey: string;
     description: string;
+}
+
+interface AuthedRequest extends Request {
+  user: User;
 }
 
 /* istanbul ignore next */
@@ -112,6 +119,14 @@ export function createPermissionRouter(
      */
   router.get('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_PERMISSIONS);
+    } catch (err) {
+      logger.warn('Permission denied listing permissions', {...getContext(), error: err});
+      res.status(403).json({error: 'Forbidden'});
+      return;
+    }
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetPermissionsUseCase(repository);
@@ -163,6 +178,14 @@ export function createPermissionRouter(
      */
   router.get('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /permissions/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_PERMISSIONS);
+    } catch (err) {
+      logger.warn('Permission denied reading permission', {...getContext(), error: err});
+      res.status(403).json({error: 'Forbidden'});
+      return;
+    }
     const useCase = new GetPermissionUseCase(repository);
     const permission = await useCase.execute(req.params.id);
     if (!permission) {
@@ -209,6 +232,14 @@ export function createPermissionRouter(
      */
   router.post('/permissions', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /permissions', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.CREATE_PERMISSION);
+    } catch (err) {
+      logger.warn('Permission denied creating permission', {...getContext(), error: err});
+      res.status(403).json({error: 'Forbidden'});
+      return;
+    }
     const useCase = new CreatePermissionUseCase(repository);
     const permission = await useCase.execute(parsePermission(req.body));
     logger.debug('Permission created', getContext());
@@ -255,6 +286,14 @@ export function createPermissionRouter(
      */
   router.put('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /permissions/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.UPDATE_PERMISSION);
+    } catch (err) {
+      logger.warn('Permission denied updating permission', {...getContext(), error: err});
+      res.status(403).json({error: 'Forbidden'});
+      return;
+    }
     const permission = parsePermission({...req.body, id: req.params.id});
     const useCase = new UpdatePermissionUseCase(repository);
     const updated = await useCase.execute(permission);
@@ -292,6 +331,14 @@ export function createPermissionRouter(
      */
   router.delete('/permissions/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /permissions/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.DELETE_PERMISSION);
+    } catch (err) {
+      logger.warn('Permission denied removing permission', {...getContext(), error: err});
+      res.status(403).json({error: 'Forbidden'});
+      return;
+    }
     const useCase = new RemovePermissionUseCase(repository);
     await useCase.execute(req.params.id);
     logger.debug('Permission removed', getContext());

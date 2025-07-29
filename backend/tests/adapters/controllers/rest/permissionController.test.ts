@@ -5,6 +5,11 @@ import { createPermissionRouter } from '../../../../adapters/controllers/rest/pe
 import { PermissionRepositoryPort } from '../../../../domain/ports/PermissionRepositoryPort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { Permission } from '../../../../domain/entities/Permission';
+import { Department } from '../../../../domain/entities/Department';
+import { Site } from '../../../../domain/entities/Site';
+import { Role } from '../../../../domain/entities/Role';
+import { User } from '../../../../domain/entities/User';
+import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Permission REST controller', () => {
   let app: express.Express;
@@ -18,9 +23,15 @@ describe('Permission REST controller', () => {
     permission = new Permission('p', 'KEY', 'desc');
     repo.create.mockResolvedValue(permission);
     repo.update.mockResolvedValue(permission);
+    const site = new Site('s', 'Site');
+    const department = new Department('d', 'Dept', null, null, site);
+    const perm = new Permission('root', PermissionKeys.ROOT, 'root');
+    const role = new Role('r', 'Role', [perm]);
+    const user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
 
     app = express();
     app.use(express.json());
+    app.use((req, _res, next) => { (req as any).user = user; next(); });
     app.use('/api', createPermissionRouter(repo, logger));
   });
 
