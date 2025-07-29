@@ -11,6 +11,9 @@ import {GetSiteUseCase} from '../../../usecases/site/GetSiteUseCase';
 import {Site} from '../../../domain/entities/Site';
 import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import {getContext} from '../../../infrastructure/loggerContext';
+import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
+import {User} from '../../../domain/entities/User';
 
 /**
  * @openapi
@@ -43,6 +46,10 @@ import {getContext} from '../../../infrastructure/loggerContext';
  * @param userRepository - Repository to check user attachments.
  * @param departmentRepository - Repository to check department attachments.
  */
+interface AuthedRequest extends Request {
+  user: User;
+}
+
 export function createSiteRouter(
   siteRepository: SiteRepositoryPort,
   userRepository: UserRepositoryPort,
@@ -108,6 +115,14 @@ export function createSiteRouter(
    */
   router.get('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /sites', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_SITES);
+    } catch (err) {
+      logger.warn('Permission denied listing sites', { ...getContext(), error: err });
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetSitesUseCase(siteRepository);
@@ -159,6 +174,14 @@ export function createSiteRouter(
    */
   router.get('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /sites/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_SITE);
+    } catch (err) {
+      logger.warn('Permission denied reading site', { ...getContext(), error: err });
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     const useCase = new GetSiteUseCase(siteRepository);
     const site = await useCase.execute(req.params.id);
     if (!site) {
@@ -201,9 +224,17 @@ export function createSiteRouter(
    *         description: Invalid or expired authentication token.
    *       403:
    *         description: User lacks required permission.
-   */
+  */
   router.post('/sites', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /sites', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.MANAGE_SITES);
+    } catch (err) {
+      logger.warn('Permission denied creating site', { ...getContext(), error: err });
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     const {id, label} = req.body;
     const useCase = new CreateSiteUseCase(siteRepository);
     const site = await useCase.execute(new Site(id, label));
@@ -251,6 +282,14 @@ export function createSiteRouter(
    */
   router.put('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /sites/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.MANAGE_SITES);
+    } catch (err) {
+      logger.warn('Permission denied updating site', { ...getContext(), error: err });
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     const {label} = req.body;
     const {id} = req.params;
     const useCase = new UpdateSiteUseCase(siteRepository);
@@ -290,6 +329,14 @@ export function createSiteRouter(
    */
   router.delete('/sites/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /sites/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.MANAGE_SITES);
+    } catch (err) {
+      logger.warn('Permission denied removing site', { ...getContext(), error: err });
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
     const {id} = req.params;
     const useCase = new RemoveSiteUseCase(siteRepository, userRepository, departmentRepository);
     try {

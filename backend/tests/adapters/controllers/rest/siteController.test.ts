@@ -7,6 +7,11 @@ import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort'
 import { DepartmentRepositoryPort } from '../../../../domain/ports/DepartmentRepositoryPort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { Site } from '../../../../domain/entities/Site';
+import { Department } from '../../../../domain/entities/Department';
+import { Role } from '../../../../domain/entities/Role';
+import { User } from '../../../../domain/entities/User';
+import { Permission } from '../../../../domain/entities/Permission';
+import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Site REST controller', () => {
   let app: express.Express;
@@ -15,6 +20,9 @@ describe('Site REST controller', () => {
   let deptRepo: DeepMockProxy<DepartmentRepositoryPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let site: Site;
+  let dept: Department;
+  let role: Role;
+  let user: User;
 
   beforeEach(() => {
     siteRepo = mockDeep<SiteRepositoryPort>();
@@ -22,11 +30,15 @@ describe('Site REST controller', () => {
     deptRepo = mockDeep<DepartmentRepositoryPort>();
     logger = mockDeep<LoggerPort>();
     site = new Site('s', 'Site');
+    dept = new Department('d', 'Dept', null, null, site);
+    role = new Role('r', 'Role');
+    user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site, undefined, [new Permission('p', PermissionKeys.ROOT, '')]);
     userRepo.findBySiteId.mockResolvedValue([]);
     deptRepo.findBySiteId.mockResolvedValue([]);
 
     app = express();
     app.use(express.json());
+    app.use('/api', (req, _res, next) => { (req as any).user = user; next(); });
     app.use('/api', createSiteRouter(siteRepo, userRepo, deptRepo, logger));
   });
 
@@ -46,6 +58,12 @@ describe('Site REST controller', () => {
     const res = await request(app).get('/api/sites?page=1&limit=20');
 
     expect(res.status).toBe(204);
+  });
+
+  it('should forbid when read permission missing', async () => {
+    user.permissions = [];
+    const res = await request(app).get('/api/sites?page=1&limit=20');
+    expect(res.status).toBe(403);
   });
 
   it('should get site by id', async () => {

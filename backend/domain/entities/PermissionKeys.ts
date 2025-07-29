@@ -118,4 +118,13 @@ export class PermissionKeys {
 
   /** Allows updating application configuration values. */
   static readonly UPDATE_CONFIG = 'update-config';
+
+  /** Allows listing available sites. */
+  static readonly READ_SITES = 'read-sites';
+
+  /** Allows reading a single site. */
+  static readonly READ_SITE = 'read-site';
+
+  /** Allows creating, updating or deleting sites. */
+  static readonly MANAGE_SITES = 'manage-sites';
 }
