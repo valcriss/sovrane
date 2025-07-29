@@ -27,6 +27,8 @@ import { withContext, getContext } from './loggerContext';
 import { setupSwagger } from './swagger';
 import { PrismaConfigAdapter } from '../adapters/config/PrismaConfigAdapter';
 import { InMemoryCacheAdapter } from '../adapters/cache/InMemoryCacheAdapter';
+import { RedisCacheAdapter } from '../adapters/cache/RedisCacheAdapter';
+import IORedis from 'ioredis';
 import { ConfigService } from '../domain/services/ConfigService';
 import { GetConfigUseCase } from '../usecases/config/GetConfigUseCase';
 import { BootstapService } from '../domain/services/BootstapService';
@@ -55,7 +57,16 @@ async function bootstrap(): Promise<void> {
   const audit = new PrismaAudit(prisma, logger);
 
   const configRepo = new PrismaConfigAdapter(prisma, logger);
-  const cache = new InMemoryCacheAdapter();
+  const cache = process.env.REDIS_HOST && process.env.REDIS_HOST.trim()
+    ? new RedisCacheAdapter(
+      new IORedis({
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+        username: process.env.REDIS_USERNAME,
+        password: process.env.REDIS_PASSWORD,
+      }),
+    )
+    : new InMemoryCacheAdapter();
   const configService = new ConfigService(cache, configRepo);
   const passwordValidator = new PasswordValidator(configService);
   const getConfigUseCase = new GetConfigUseCase(configService);
