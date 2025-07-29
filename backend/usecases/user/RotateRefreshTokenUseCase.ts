@@ -5,6 +5,10 @@ import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
 import { InvalidRefreshTokenException } from '../../domain/errors/InvalidRefreshTokenException';
+import { RefreshTokenTooSoonException } from '../../domain/errors/RefreshTokenTooSoonException';
+
+/** Minimum allowed interval between token rotations in milliseconds. */
+const MIN_ROTATION_INTERVAL_MS = 60_000;
 
 /**
  * Use case handling refresh token rotation.
@@ -31,6 +35,13 @@ export class RotateRefreshTokenUseCase {
   ): Promise<{ token: string; refreshToken: string }> {
     const existing = await this.refreshTokenPort.findValidByToken(oldToken);
     if (!existing) throw new InvalidRefreshTokenException();
+
+    const now = Date.now();
+    const age = now - existing.createdAt.getTime();
+    const timeToExpire = existing.expiresAt.getTime() - now;
+    if (age < MIN_ROTATION_INTERVAL_MS && timeToExpire > MIN_ROTATION_INTERVAL_MS) {
+      throw new RefreshTokenTooSoonException();
+    }
 
     const user = await this.userRepository.findById(existing.userId);
     if (!user) throw new InvalidRefreshTokenException();
