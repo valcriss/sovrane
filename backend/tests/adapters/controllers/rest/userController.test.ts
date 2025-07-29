@@ -410,9 +410,11 @@ describe('User REST controller', () => {
   });
 
   it('should refresh tokens', async () => {
-    refreshRepo.findValidByToken.mockResolvedValue(
-      new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 1000)),
-    );
+    refreshRepo.findValidByToken
+      .mockResolvedValueOnce(
+        new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 1000)),
+      )
+      .mockResolvedValueOnce(null);
     tokenService.generateAccessToken.mockReturnValue('newT');
     tokenService.generateRefreshToken.mockResolvedValue('newR');
 
@@ -425,6 +427,16 @@ describe('User REST controller', () => {
     expect(res.body.refreshToken).toBeDefined();
     expect(refreshRepo.findValidByToken).toHaveBeenCalledWith('old');
     expect(refreshRepo.markAsUsed).toHaveBeenCalled();
+
+    const reuse = await request(app)
+      .post('/api/auth/refresh')
+      .send({ refreshToken: 'old' });
+
+    expect(reuse.status).toBe(401);
+    expect(reuse.body).toEqual({
+      error: 'Invalid or expired refresh token',
+      code: 'INVALID_REFRESH_TOKEN',
+    });
   });
 
   it('should return 429 when refresh occurs too soon', async () => {
@@ -440,9 +452,11 @@ describe('User REST controller', () => {
   });
 
   it('should logout and revoke all refresh tokens', async () => {
-    refreshRepo.findValidByToken.mockResolvedValue(
-      new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 1000)),
-    );
+    refreshRepo.findValidByToken
+      .mockResolvedValueOnce(
+        new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 1000)),
+      )
+      .mockResolvedValueOnce(null);
 
     const res = await request(app)
       .post('/api/auth/logout')
@@ -451,6 +465,16 @@ describe('User REST controller', () => {
     expect(res.status).toBe(200);
     expect(refreshRepo.findValidByToken).toHaveBeenCalledWith('old');
     expect(refreshRepo.revokeAll).toHaveBeenCalledWith('u');
+
+    const reuse = await request(app)
+      .post('/api/auth/logout')
+      .send({ refreshToken: 'old' });
+
+    expect(reuse.status).toBe(401);
+    expect(reuse.body).toEqual({
+      error: 'Invalid or expired refresh token',
+      code: 'INVALID_REFRESH_TOKEN',
+    });
   });
 
   it('should return 401 for invalid logout token', async () => {
