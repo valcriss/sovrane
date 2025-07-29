@@ -77,6 +77,18 @@ export class PermissionKeys {
   /** Allows creating user invitations. */
   static readonly CREATE_INVITATION = 'create-invitation';
 
+  /** Allows listing existing permissions. */
+  static readonly READ_PERMISSIONS = 'read-permissions';
+
+  /** Allows registering a new permission. */
+  static readonly CREATE_PERMISSION = 'create-permission';
+
+  /** Allows modifying an existing permission. */
+  static readonly UPDATE_PERMISSION = 'update-permission';
+
+  /** Allows deleting a permission. */
+  static readonly DELETE_PERMISSION = 'delete-permission';
+
   /** Allows viewing audit log entries. */
   static readonly VIEW_AUDIT_LOGS = 'view_audit_logs';
 
