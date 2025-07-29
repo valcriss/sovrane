@@ -105,7 +105,7 @@ export function createGroupRouter(
      * /groups:
      *   post:
      *     summary: Create a new user group.
-     *     description: Creates a new user group with the authenticated user as the responsible user.
+     *     description: Creates a new user group with the authenticated user as the responsible user. Requires `create-group` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -162,7 +162,7 @@ export function createGroupRouter(
      * /groups:
      *   get:
      *     summary: List all groups.
-     *     description: Returns all user groups.
+     *     description: Returns all user groups. Requires `read-groups` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -234,7 +234,7 @@ export function createGroupRouter(
      * /groups/{id}:
      *   get:
      *     summary: Get a user group by id.
-     *     description: Retrieves a single user group.
+     *     description: Retrieves a single user group. Requires `read-group` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -283,7 +283,7 @@ export function createGroupRouter(
      * /groups/{id}/users:
      *   get:
      *     summary: List users of a group.
-     *     description: Returns the paginated members of the specified group.
+     *     description: Returns the paginated members of the specified group. Requires `read-group` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -363,7 +363,7 @@ export function createGroupRouter(
      * /groups/{id}/responsibles:
      *   get:
      *     summary: List responsible users of a group.
-     *     description: Returns the paginated list of responsible users managing the group.
+     *     description: Returns the paginated list of responsible users managing the group. Requires `read-group` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -443,7 +443,7 @@ export function createGroupRouter(
      * /groups/{id}:
      *   put:
      *     summary: Update a group.
-     *     description: Updates group information. Only the responsible user can modify it.
+     *     description: Updates group information. Only the responsible user can modify it. Requires `update-group` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -509,7 +509,7 @@ export function createGroupRouter(
      * /groups/{id}:
      *   delete:
      *     summary: Delete a group.
-     *     description: Removes a group if the requester is responsible user.
+     *     description: Removes a group if the requester is responsible user. Requires `delete-group` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -555,7 +555,7 @@ export function createGroupRouter(
      * /groups/{id}/users:
      *   post:
      *     summary: Add user to group.
-     *     description: Adds a user to the group. Only the responsible user can manage members.
+     *     description: Adds a user to the group. Only the responsible user can manage members. Requires `manage-group-members` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -621,7 +621,7 @@ export function createGroupRouter(
      * /groups/{id}/responsibles:
      *   post:
      *     summary: Add responsible user to group.
-     *     description: Adds a user as responsible for the group. Only an existing responsible user can manage responsibles.
+     *     description: Adds a user as responsible for the group. Only an existing responsible user can manage responsibles. Requires `manage-group-responsibles` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -687,7 +687,7 @@ export function createGroupRouter(
      * /groups/{id}/users:
      *   delete:
      *     summary: Remove user from group.
-     *     description: Removes a user from the group. Only the responsible user can manage members.
+     *     description: Removes a user from the group. Only the responsible user can manage members. Requires `manage-group-members` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
@@ -753,7 +753,7 @@ export function createGroupRouter(
      * /groups/{id}/responsibles:
      *   delete:
      *     summary: Remove responsible user from group.
-     *     description: Removes a responsible user from the group. Only an existing responsible user can manage responsibles.
+     *     description: Removes a responsible user from the group. Only an existing responsible user can manage responsibles. Requires `manage-group-responsibles` permission.
      *     tags: [UserGroup]
      *     security:
      *       - bearerAuth: []
