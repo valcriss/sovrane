@@ -21,6 +21,11 @@ import {ChangeUserStatusUseCase} from '../../../usecases/user/ChangeUserStatusUs
 import {RemoveUserUseCase} from '../../../usecases/user/RemoveUserUseCase';
 import {GetUsersUseCase} from '../../../usecases/user/GetUsersUseCase';
 import {GetUserUseCase} from '../../../usecases/user/GetUserUseCase';
+import {SetupTotpUseCase} from '../../../usecases/user/SetupTotpUseCase';
+import {VerifyMfaUseCase} from '../../../usecases/user/VerifyMfaUseCase';
+import {EnableMfaUseCase} from '../../../usecases/user/EnableMfaUseCase';
+import {DisableMfaUseCase} from '../../../usecases/user/DisableMfaUseCase';
+import {MfaServicePort} from '../../../domain/ports/MfaServicePort';
 import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import { GetConfigUseCase } from '../../../usecases/config/GetConfigUseCase';
 import {getContext} from '../../../infrastructure/loggerContext';
@@ -223,6 +228,7 @@ export function createUserRouter(
   logger: LoggerPort,
   getConfigUseCase: GetConfigUseCase,
   passwordValidator: PasswordValidator,
+  mfaService: MfaServicePort,
 ): Router {
   const router = express.Router();
   const upload = multer();
@@ -409,6 +415,15 @@ export function createUserRouter(
      *                   type: string
      *                 refreshToken:
      *                   type: string
+     *       202:
+     *         description: Second factor authentication required
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 user:
+     *                   $ref: '#/components/schemas/User'
      *       400:
      *         description: Validation error.
      *       401:
@@ -441,7 +456,11 @@ export function createUserRouter(
             req.get('user-agent') || undefined,
           );
           logger.debug('User authenticated', getContext());
-          res.json(result);
+          if (result.mfaRequired) {
+            res.status(202).json(result);
+          } else {
+            res.json(result);
+          }
         } catch (err) {
           logger.warn('Authentication failed', { ...getContext(), error: err });
           if (err instanceof AccountLockedError) {
@@ -458,6 +477,73 @@ export function createUserRouter(
           const status =
             message === 'User account is suspended or archived' ? 403 : 401;
           res.status(status).json({ error: message });
+        }
+      },
+    );
+
+    /**
+     * @openapi
+     * /auth/mfa/verify:
+     *   post:
+     *     summary: Verify multi-factor authentication code.
+     *     description: Completes authentication using the provided MFA code.
+     *     tags:
+     *       - User
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               userId:
+     *                 type: string
+     *               code:
+     *                 type: string
+     *             required:
+     *               - userId
+     *               - code
+     *     responses:
+     *       200:
+     *         description: MFA successfully verified.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 user:
+     *                   $ref: '#/components/schemas/User'
+     *                 token:
+     *                   type: string
+     *                 refreshToken:
+     *                   type: string
+     *       401:
+     *         description: Invalid verification code.
+     *       404:
+     *         description: User not found.
+     */
+    router.post(
+      '/auth/mfa/verify',
+      requireBodyParams({ userId: { validator: 'string' }, code: { validator: 'string' } }),
+      async (req: Request, res: Response): Promise<void> => {
+        logger.debug('POST /auth/mfa/verify', getContext());
+        const { userId, code } = req.body;
+        const user = await userRepository.findById(userId);
+        if (!user) {
+          res.status(404).end();
+          return;
+        }
+        const useCase = new VerifyMfaUseCase(mfaService, tokenService, userRepository);
+        try {
+          const result = await useCase.execute(
+            user,
+            code,
+            req.ip,
+            req.get('user-agent') || undefined,
+          );
+          res.json(result);
+        } catch (err) {
+          res.status(401).json({ error: (err as Error).message });
         }
       },
     );
@@ -732,6 +818,100 @@ export function createUserRouter(
     });
 
     router.use(authMiddleware);
+
+    /**
+     * @openapi
+     * /auth/mfa/setup:
+     *   post:
+     *     summary: Generate a TOTP secret for the authenticated user.
+     *     tags:
+     *       - User
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         description: Generated secret returned.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 secret:
+     *                   type: string
+     */
+    router.post('/auth/mfa/setup', async (req: Request, res: Response): Promise<void> => {
+      logger.debug('POST /auth/mfa/setup', getContext());
+      const useCase = new SetupTotpUseCase(mfaService);
+      const secret = await useCase.execute((req as AuthedRequest).user);
+      res.json({ secret });
+    });
+
+    /**
+     * @openapi
+     * /auth/mfa/enable:
+     *   post:
+     *     summary: Enable multi-factor authentication for the authenticated user.
+     *     tags:
+     *       - User
+     *     security:
+     *       - bearerAuth: []
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               type:
+     *                 type: string
+     *               recoveryCodes:
+     *                 type: array
+     *                 items:
+     *                   type: string
+     *             required:
+     *               - type
+     *     responses:
+     *       200:
+     *         description: Updated user profile.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/User'
+     */
+    router.post(
+      '/auth/mfa/enable',
+      requireBodyParams({ type: { validator: 'string' } }),
+      async (req: Request, res: Response): Promise<void> => {
+        logger.debug('POST /auth/mfa/enable', getContext());
+        const useCase = new EnableMfaUseCase(userRepository);
+        const updated = await useCase.execute(
+          (req as AuthedRequest).user,
+          req.body.type,
+          (req.body.recoveryCodes as string[] | undefined) ?? [],
+        );
+        res.json(updated);
+      },
+    );
+
+    /**
+     * @openapi
+     * /auth/mfa/disable:
+     *   post:
+     *     summary: Disable multi-factor authentication for the authenticated user.
+     *     tags:
+     *       - User
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       204:
+     *         description: MFA disabled.
+     */
+    router.post('/auth/mfa/disable', async (req: Request, res: Response): Promise<void> => {
+      logger.debug('POST /auth/mfa/disable', getContext());
+      const useCase = new DisableMfaUseCase(userRepository, mfaService);
+      await useCase.execute((req as AuthedRequest).user);
+      res.status(204).end();
+    });
 
     /**
      * @openapi

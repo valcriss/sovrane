@@ -7,6 +7,7 @@ import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort'
 import { AvatarServicePort } from '../../../../domain/ports/AvatarServicePort';
 import { TokenServicePort } from '../../../../domain/ports/TokenServicePort';
 import { RefreshTokenPort } from '../../../../domain/ports/RefreshTokenPort';
+import { MfaServicePort } from '../../../../domain/ports/MfaServicePort';
 
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
@@ -30,6 +31,7 @@ describe('User REST controller', () => {
   let avatar: DeepMockProxy<AvatarServicePort>;
   let tokenService: DeepMockProxy<TokenServicePort>;
   let refreshRepo: DeepMockProxy<RefreshTokenPort>;
+  let mfa: DeepMockProxy<MfaServicePort>;
   let audit: DeepMockProxy<AuditPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let getConfig: DeepMockProxy<GetConfigUseCase>;
@@ -45,6 +47,7 @@ describe('User REST controller', () => {
     avatar = mockDeep<AvatarServicePort>();
     tokenService = mockDeep<TokenServicePort>();
     refreshRepo = mockDeep<RefreshTokenPort>();
+    mfa = mockDeep<MfaServicePort>();
     audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
     getConfig = mockDeep<GetConfigUseCase>();
@@ -89,6 +92,7 @@ describe('User REST controller', () => {
         logger,
         getConfig,
         passwordValidator,
+        mfa,
       ),
     );
   });
@@ -665,6 +669,65 @@ describe('User REST controller', () => {
       .get('/api/users/unknown')
       .set('Authorization', 'Bearer token');
     expect(res.status).toBe(404);
+  });
+
+  it('should return 202 when mfa is required', async () => {
+    user.mfaEnabled = true;
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'john@example.com', password: 'secret123' });
+
+    expect(res.status).toBe(202);
+    expect(res.body.mfaRequired).toBe(true);
+  });
+
+  it('should setup totp', async () => {
+    mfa.generateTotpSecret.mockResolvedValue('sec');
+
+    const res = await request(app)
+      .post('/api/auth/mfa/setup')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(res.body.secret).toBe('sec');
+    expect(mfa.generateTotpSecret).toHaveBeenCalledWith(user);
+  });
+
+  it('should verify mfa code', async () => {
+    mfa.verifyTotp.mockResolvedValue(true);
+    tokenService.generateAccessToken.mockReturnValue('t');
+    tokenService.generateRefreshToken.mockResolvedValue('r');
+    user.mfaType = 'totp';
+    user.mfaEnabled = true;
+
+    const res = await request(app)
+      .post('/api/auth/mfa/verify')
+      .send({ userId: 'u', code: '123' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.token).toBe('t');
+    expect(mfa.verifyTotp).toHaveBeenCalledWith(user, '123');
+  });
+
+  it('should enable mfa', async () => {
+    repo.update.mockResolvedValue(user);
+
+    const res = await request(app)
+      .post('/api/auth/mfa/enable')
+      .set('Authorization', 'Bearer token')
+      .send({ type: 'email', recoveryCodes: ['1'] });
+
+    expect(res.status).toBe(200);
+    expect(repo.update).toHaveBeenCalled();
+  });
+
+  it('should disable mfa', async () => {
+    const res = await request(app)
+      .post('/api/auth/mfa/disable')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(204);
+    expect(mfa.disableMfa).toHaveBeenCalledWith(user);
   });
 
 });
