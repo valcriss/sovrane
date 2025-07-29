@@ -152,6 +152,7 @@ describe('User REST controller', () => {
       failedLoginAttempts: 0,
       lastFailedLoginAt: null,
       lockedUntil: null,
+      passwordChangedAt: user.passwordChangedAt.toISOString(),
       permissions: [],
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
@@ -218,12 +219,17 @@ describe('User REST controller', () => {
       },
       lastLogin: null,
       lastActivity: null,
+      passwordChangedAt: user.passwordChangedAt.toISOString(),
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
       createdBy: null,
       updatedBy: null,
     };
-    expect(res.body).toEqual({ user: expectedUser, token: 't', refreshToken: 'r' });
+    expect(res.body).toEqual({
+      user: expectedUser,
+      token: 't',
+      refreshToken: 'r',
+    });
     expect(passwordValidator.validate).toHaveBeenCalledWith('Password1!');
     expect(repo.create).toHaveBeenCalled();
   });
@@ -266,12 +272,18 @@ describe('User REST controller', () => {
       failedLoginAttempts: 0,
       lastFailedLoginAt: null,
       lockedUntil: null,
+      passwordChangedAt: user.passwordChangedAt.toISOString(),
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
       createdBy: null,
       updatedBy: null,
     };
-    expect(res.body).toEqual({ user: expected, token: 't', refreshToken: 'r' });
+    expect(res.body).toEqual({
+      user: expected,
+      token: 't',
+      refreshToken: 'r',
+      passwordWillExpireSoon: false,
+    });
     expect(auth.authenticate).toHaveBeenCalled();
   });
 

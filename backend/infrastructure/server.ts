@@ -34,7 +34,7 @@ import { GetConfigUseCase } from '../usecases/config/GetConfigUseCase';
 import { BootstapService } from '../domain/services/BootstapService';
 import { PasswordValidator } from '../domain/services/PasswordValidator';
 import { NodeCronScheduler } from '../adapters/scheduler/NodeCronScheduler';
-import { scheduledJobs } from '../adapters/scheduler/jobs';
+import { createScheduledJobs } from '../adapters/scheduler/jobs';
 
 async function bootstrap(): Promise<void> {
   const logger = new ConsoleLoggerAdapter();
@@ -136,7 +136,13 @@ async function bootstrap(): Promise<void> {
   registerUserGateway(io, authService, logger);
 
   const scheduler = new NodeCronScheduler(logger);
-  scheduler.registerJobs(scheduledJobs);
+  scheduler.registerJobs(
+    createScheduledJobs({
+      userRepository,
+      mailer: emailService,
+      config: getConfigUseCase,
+    }),
+  );
 
   const port = parseInt(process.env.PORT ?? '3000', 10);
   httpServer.listen(port, () => {

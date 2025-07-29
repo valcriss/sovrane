@@ -61,7 +61,7 @@ describe('AuthenticateUserUseCase', () => {
 
     const result = await useCase.execute('john@example.com', 'secret');
 
-    expect(result).toEqual({ user, token: 't', refreshToken: 'r' });
+    expect(result).toEqual({ user, token: 't', refreshToken: 'r', passwordWillExpireSoon: false });
     expect(repo.findByEmail).toHaveBeenCalledWith('john@example.com');
     expect(service.authenticate).toHaveBeenCalledWith('john@example.com', 'secret');
     expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);

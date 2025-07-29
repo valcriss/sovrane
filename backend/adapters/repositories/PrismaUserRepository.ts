@@ -73,6 +73,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
       record.failedLoginAttempts,
       record.lastFailedLoginAt ?? null,
       record.lockedUntil ?? null,
+      record.passwordChangedAt,
       record.createdAt,
       record.updatedAt,
       null,
@@ -241,6 +242,26 @@ export class PrismaUserRepository implements UserRepositoryPort {
     return records.map(r => this.mapRecord(r));
   }
 
+  async findUsersWithPasswordChangedBefore(date: Date): Promise<User[]> {
+    this.logger.debug('User findUsersWithPasswordChangedBefore', getContext());
+    const records = await this.prisma.user.findMany({
+      where: {
+        passwordChangedAt: {
+          lte: date,
+        },
+      },
+      include: {
+        roles: { include: { role: { include: { permissions: { include: { permission: true } } } } } },
+        department: { include: { site: true } },
+        site: true,
+        permissions: { include: { permission: true } },
+        createdBy: true,
+        updatedBy: true,
+      },
+    });
+    return records.map(r => this.mapRecord(r));
+  }
+
   async create(user: User): Promise<User> {
     this.logger.info('Creating user', getContext());
     const record = await this.prisma.user.create({
@@ -259,6 +280,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         failedLoginAttempts: user.failedLoginAttempts,
         lastFailedLoginAt: user.lastFailedLoginAt ?? undefined,
         lockedUntil: user.lockedUntil ?? undefined,
+        passwordChangedAt: user.passwordChangedAt,
         createdById: user.createdBy?.id,
         updatedById: user.updatedBy?.id,
         permissions: {
@@ -297,6 +319,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         failedLoginAttempts: user.failedLoginAttempts,
         lastFailedLoginAt: user.lastFailedLoginAt ?? undefined,
         lockedUntil: user.lockedUntil ?? undefined,
+        passwordChangedAt: user.passwordChangedAt,
         updatedById: user.updatedBy?.id,
         permissions: {
           deleteMany: {},

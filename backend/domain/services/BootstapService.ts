@@ -40,6 +40,11 @@ export class BootstapService {
     await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_MUST_HAVE_SPECIAL_CHAR, true, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE, true, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE_AFTER, 90, 'bootstrap');
+    await this.config.update(
+      AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE_WARNING_DAYS,
+      7,
+      'bootstrap',
+    );
     await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY, true, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY_COUNT, 50, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_ALLOW_MFA, true, 'bootstrap');
