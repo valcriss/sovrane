@@ -35,6 +35,7 @@ import { BootstapService } from '../domain/services/BootstapService';
 import { PasswordValidator } from '../domain/services/PasswordValidator';
 import { NodeCronScheduler } from '../adapters/scheduler/NodeCronScheduler';
 import { createScheduledJobs } from '../adapters/scheduler/jobs';
+import { TOTPAdapter } from '../adapters/mfa/TOTPAdapter';
 
 async function bootstrap(): Promise<void> {
   const logger = new ConsoleLoggerAdapter();
@@ -71,6 +72,12 @@ async function bootstrap(): Promise<void> {
     : new InMemoryCacheAdapter();
   const configService = new ConfigService(cache, configRepo);
   const passwordValidator = new PasswordValidator(configService);
+  const mfaService = new TOTPAdapter(
+    userRepository,
+    logger,
+    process.env.MFA_ENCRYPTION_KEY ??
+      '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'.slice(0, 64),
+  );
   const getConfigUseCase = new GetConfigUseCase(configService);
   const bootstrapService = new BootstapService(configService, logger, permissionRepository);
   await bootstrapService.initialize();
@@ -111,6 +118,7 @@ async function bootstrap(): Promise<void> {
       logger,
       getConfigUseCase,
       passwordValidator,
+      mfaService,
     ),
   );
   app.use(
