@@ -180,10 +180,10 @@ export function createPermissionRouter(
     logger.debug('GET /permissions/:id', getContext());
     const checker = new PermissionChecker((req as AuthedRequest).user);
     try {
-      checker.check(PermissionKeys.READ_PERMISSIONS);
+      checker.check(PermissionKeys.READ_PERMISSION);
     } catch (err) {
-      logger.warn('Permission denied reading permission', {...getContext(), error: err});
-      res.status(403).json({error: 'Forbidden'});
+      logger.warn('Permission denied reading permission', { ...getContext(), error: err });
+      res.status(403).json({ error: 'Forbidden' });
       return;
     }
     const useCase = new GetPermissionUseCase(repository);
