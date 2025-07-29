@@ -34,4 +34,11 @@ export interface RefreshTokenPort {
    * @param reason - Optional reason for revocation.
    */
   revoke(tokenId: string, reason?: string): Promise<void>;
+
+  /**
+   * Revoke all refresh tokens owned by a user.
+   *
+   * @param userId - Identifier of the token owner.
+   */
+  revokeAll(userId: string): Promise<void>;
 }

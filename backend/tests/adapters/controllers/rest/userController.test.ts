@@ -425,6 +425,30 @@ describe('User REST controller', () => {
     expect(refreshRepo.markAsUsed).toHaveBeenCalled();
   });
 
+  it('should logout and revoke all refresh tokens', async () => {
+    refreshRepo.findValidByToken.mockResolvedValue(
+      new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 1000)),
+    );
+
+    const res = await request(app)
+      .post('/api/auth/logout')
+      .send({ refreshToken: 'old' });
+
+    expect(res.status).toBe(200);
+    expect(refreshRepo.findValidByToken).toHaveBeenCalledWith('old');
+    expect(refreshRepo.revokeAll).toHaveBeenCalledWith('u');
+  });
+
+  it('should return 401 for invalid logout token', async () => {
+    refreshRepo.findValidByToken.mockResolvedValue(null);
+
+    const res = await request(app)
+      .post('/api/auth/logout')
+      .send({ refreshToken: 'bad' });
+
+    expect(res.status).toBe(401);
+  });
+
   it('should return 401 for invalid refresh token', async () => {
     refreshRepo.findValidByToken.mockResolvedValue(null);
 

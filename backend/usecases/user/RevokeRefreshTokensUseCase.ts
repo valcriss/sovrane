@@ -9,13 +9,14 @@ export class RevokeRefreshTokensUseCase {
   constructor(private readonly refreshTokenPort: RefreshTokenPort) {}
 
   /**
-   * Revoke the provided token.
+   * Revoke all tokens owned by the user that issued the provided refresh token.
+   *
    * @param token - Plain refresh token.
    */
   async execute(token: string): Promise<void> {
     const existing = await this.refreshTokenPort.findValidByToken(token);
     if (!existing) throw new InvalidRefreshTokenException();
 
-    await this.refreshTokenPort.revoke(existing.id, 'User logout or security event');
+    await this.refreshTokenPort.revokeAll(existing.userId);
   }
 }
