@@ -883,7 +883,7 @@ export function createUserRouter(
       requireBodyParams({ type: { validator: 'string' } }),
       async (req: Request, res: Response): Promise<void> => {
         logger.debug('POST /auth/mfa/enable', getContext());
-        const useCase = new EnableMfaUseCase(userRepository);
+        const useCase = new EnableMfaUseCase(userRepository, refreshTokenRepository);
         const updated = await useCase.execute(
           (req as AuthedRequest).user,
           req.body.type,
@@ -908,7 +908,7 @@ export function createUserRouter(
      */
     router.post('/auth/mfa/disable', async (req: Request, res: Response): Promise<void> => {
       logger.debug('POST /auth/mfa/disable', getContext());
-      const useCase = new DisableMfaUseCase(userRepository, mfaService);
+      const useCase = new DisableMfaUseCase(userRepository, mfaService, refreshTokenRepository);
       await useCase.execute((req as AuthedRequest).user);
       res.status(204).end();
     });

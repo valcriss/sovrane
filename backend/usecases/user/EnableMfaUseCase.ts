@@ -1,11 +1,16 @@
 import { User } from '../../domain/entities/User';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
+import { RefreshTokenPort } from '../../domain/ports/RefreshTokenPort';
 
 /**
  * Use case enabling multi-factor authentication for a user.
  */
 export class EnableMfaUseCase {
-  constructor(private readonly userRepository: UserRepositoryPort) {}
+  constructor(
+    private readonly userRepository: UserRepositoryPort,
+    /** Repository used to revoke existing refresh tokens. */
+    private readonly refreshTokenRepository: RefreshTokenPort,
+  ) {}
 
   /**
    * Enable MFA on the provided user.
@@ -23,6 +28,8 @@ export class EnableMfaUseCase {
     user.mfaEnabled = true;
     user.mfaType = type;
     user.mfaRecoveryCodes = recoveryCodes;
-    return this.userRepository.update(user);
+    const updated = await this.userRepository.update(user);
+    await this.refreshTokenRepository.revokeAll(user.id);
+    return updated;
   }
 }

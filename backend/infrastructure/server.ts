@@ -74,6 +74,7 @@ async function bootstrap(): Promise<void> {
   const passwordValidator = new PasswordValidator(configService);
   const mfaService = new TOTPAdapter(
     userRepository,
+    cache,
     logger,
     process.env.MFA_ENCRYPTION_KEY ??
       '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'.slice(0, 64),

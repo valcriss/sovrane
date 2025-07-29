@@ -19,7 +19,7 @@ describe('EmailOTPAdapter', () => {
     cache = new InMemoryCacheAdapter();
     mailer = mockDeep<NodemailerEmailServiceAdapter>();
     logger = mockDeep<LoggerPort>();
-    adapter = new EmailOTPAdapter(cache, mailer, logger, 5);
+    adapter = new EmailOTPAdapter(cache, mailer, logger, 5, 3);
     const role = new Role('r', 'Role');
     const site = new Site('s', 'Site');
     const dept = new Department('d', 'Dept', null, null, site);
@@ -44,6 +44,14 @@ describe('EmailOTPAdapter', () => {
     expect(await adapter.verifyEmailOtp(user, '111111')).toBe(false);
     jest.advanceTimersByTime(6000);
     expect(await adapter.verifyEmailOtp(user, code)).toBe(false);
+  });
+
+  it('should limit verification attempts', async () => {
+    await adapter.generateEmailOtp(user);
+    await adapter.verifyEmailOtp(user, '1');
+    await adapter.verifyEmailOtp(user, '2');
+    await adapter.verifyEmailOtp(user, '3');
+    expect(await adapter.verifyEmailOtp(user, '4')).toBe(false);
   });
 
   it('should clear code on disable', async () => {

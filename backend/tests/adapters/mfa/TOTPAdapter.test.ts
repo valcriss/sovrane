@@ -2,6 +2,7 @@ import { TOTPAdapter } from '../../../adapters/mfa/TOTPAdapter';
 import { mockDeep } from 'jest-mock-extended';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
+import { InMemoryCacheAdapter } from '../../../adapters/cache/InMemoryCacheAdapter';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
@@ -12,13 +13,15 @@ describe('TOTPAdapter', () => {
   const key = '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'.slice(0, 64);
   let repo: ReturnType<typeof mockDeep<UserRepositoryPort>>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
+  let cache: InMemoryCacheAdapter;
   let adapter: TOTPAdapter;
   let user: User;
 
   beforeEach(() => {
     repo = mockDeep<UserRepositoryPort>();
     logger = mockDeep<LoggerPort>();
-    adapter = new TOTPAdapter(repo, logger, key);
+    cache = new InMemoryCacheAdapter();
+    adapter = new TOTPAdapter(repo, cache, logger, key, 60, 3);
     const role = new Role('r', 'Role');
     const site = new Site('s', 'Site');
     const dept = new Department('d', 'Dept', null, null, site);
@@ -48,6 +51,21 @@ describe('TOTPAdapter', () => {
   it('should return false on wrong token', async () => {
     await adapter.generateTotpSecret(user);
     expect(await adapter.verifyTotp(user, '000000')).toBe(false);
+  });
+
+  it('should limit verification attempts', async () => {
+    await adapter.generateTotpSecret(user);
+    await adapter.verifyTotp(user, '111111');
+    await adapter.verifyTotp(user, '222222');
+    await adapter.verifyTotp(user, '333333');
+    expect(await adapter.verifyTotp(user, '444444')).toBe(false);
+  });
+
+  it('should prevent token reuse', async () => {
+    const secret = await adapter.generateTotpSecret(user);
+    const token = speakeasy.totp({ secret, encoding: 'base32' });
+    expect(await adapter.verifyTotp(user, token)).toBe(true);
+    expect(await adapter.verifyTotp(user, token)).toBe(false);
   });
 
   it('should throw on email otp operations', async () => {
