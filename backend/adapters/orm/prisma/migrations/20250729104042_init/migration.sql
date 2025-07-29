@@ -16,6 +16,7 @@ CREATE TABLE "User" (
     "failedLoginAttempts" INTEGER NOT NULL DEFAULT 0,
     "lastFailedLoginAt" TIMESTAMP(3),
     "lockedUntil" TIMESTAMP(3),
+    "passwordChangedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdById" TEXT,
     "updatedById" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
