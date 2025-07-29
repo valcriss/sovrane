@@ -33,17 +33,19 @@ describe('JWTTokenServiceAdapter', () => {
   });
 
   it('should generate refresh token and store it', async () => {
-    const token = await service.generateRefreshToken(user);
+    const token = await service.generateRefreshToken(user, '1.1.1.1', 'agent');
     expect(repo.save).toHaveBeenCalled();
     const saved = repo.save.mock.calls[0][0];
     expect(saved.userId).toBe('u');
+    expect(saved.ipAddress).toBe('1.1.1.1');
+    expect(saved.userAgent).toBe('agent');
   });
 
   it('should parse duration units', async () => {
     const units = ['1s', '1m', '1h', '1d', '1w', '10', '1y'];
     for (const u of units) {
       const svc = new JWTTokenServiceAdapter(secret, repo, logger, '15m', u);
-      await svc.generateRefreshToken(user);
+      await svc.generateRefreshToken(user, undefined, undefined);
     }
     expect(repo.save).toHaveBeenCalledTimes(units.length);
   });

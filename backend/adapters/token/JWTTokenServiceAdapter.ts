@@ -39,13 +39,30 @@ export class JWTTokenServiceAdapter implements TokenServicePort {
     );
   }
 
-  async generateRefreshToken(user: User): Promise<string> {
+  async generateRefreshToken(
+    user: User,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<string> {
     this.logger.debug('Generating refresh token', getContext());
     const token = randomUUID();
     const hash = await argon2.hash(token);
-    const expires = new Date(Date.now() + this.parseDuration(this.refreshDuration));
+    const expires = new Date(
+      Date.now() + this.parseDuration(this.refreshDuration),
+    );
     await this.refreshRepo.save(
-      new RefreshToken(randomUUID(), user.id, hash, expires),
+      new RefreshToken(
+        randomUUID(),
+        user.id,
+        hash,
+        expires,
+        new Date(),
+        null,
+        null,
+        null,
+        ipAddress,
+        userAgent,
+      ),
     );
     return token;
   }

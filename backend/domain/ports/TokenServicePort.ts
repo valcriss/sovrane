@@ -18,5 +18,9 @@ export interface TokenServicePort {
    * @param user - User owning the token.
    * @returns The created refresh token string.
    */
-  generateRefreshToken(user: User): Promise<string>;
+  generateRefreshToken(
+    user: User,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<string>;
 }

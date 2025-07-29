@@ -36,7 +36,12 @@ describe('RegisterUserUseCase', () => {
     tokenService.generateRefreshToken.mockResolvedValue('r');
 
     passwordValidator.validate.mockResolvedValue();
-    const result = await useCase.execute(user, 'Password1!');
+    const result = await useCase.execute(
+      user,
+      'Password1!',
+      '1.1.1.1',
+      'agent',
+    );
 
     expect(result).toEqual({ user, token: 't', refreshToken: 'r' });
     expect(user.createdAt).toBeInstanceOf(Date);
@@ -46,13 +51,19 @@ describe('RegisterUserUseCase', () => {
     expect(passwordValidator.validate).toHaveBeenCalledWith('Password1!');
     expect(repository.create).toHaveBeenCalledWith(user);
     expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
-    expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(user);
+    expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(
+      user,
+      '1.1.1.1',
+      'agent',
+    );
   });
 
   it('should throw when password invalid', async () => {
     passwordValidator.validate.mockRejectedValue(new InvalidPasswordException('bad'));
 
-    await expect(useCase.execute(user, 'bad')).rejects.toBeInstanceOf(
+    await expect(
+      useCase.execute(user, 'bad', undefined, undefined),
+    ).rejects.toBeInstanceOf(
       InvalidPasswordException,
     );
   });
@@ -60,7 +71,9 @@ describe('RegisterUserUseCase', () => {
   it('should convert unknown validation errors', async () => {
     passwordValidator.validate.mockRejectedValue(new Error('unexpected'));
 
-    await expect(useCase.execute(user, 'oops')).rejects.toEqual(
+    await expect(
+      useCase.execute(user, 'oops', undefined, undefined),
+    ).rejects.toEqual(
       new InvalidPasswordException('unexpected'),
     );
     expect(repository.create).not.toHaveBeenCalled();

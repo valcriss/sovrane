@@ -21,6 +21,8 @@ export class PrismaRefreshTokenRepository implements RefreshTokenPort {
         tokenHash: token.tokenHash,
         expiresAt: token.expiresAt,
         createdAt: token.createdAt,
+        ipAddress: token.ipAddress,
+        userAgent: token.userAgent,
       },
     });
   }
@@ -45,6 +47,8 @@ export class PrismaRefreshTokenRepository implements RefreshTokenPort {
           record.revokedAt,
           record.replacedBy,
           record.usedAt,
+          record.ipAddress ?? undefined,
+          record.userAgent ?? undefined,
         );
       }
     }

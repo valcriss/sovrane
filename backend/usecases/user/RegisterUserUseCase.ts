@@ -24,6 +24,8 @@ export class RegisterUserUseCase {
   async execute(
     user: User,
     password: string,
+    ipAddress?: string,
+    userAgent?: string,
   ): Promise<{ user: User; token: string; refreshToken: string }> {
     await this.passwordValidator.validate(password).catch((err) => {
       if (err instanceof InvalidPasswordException) {
@@ -37,7 +39,11 @@ export class RegisterUserUseCase {
     user.updatedBy = null;
     const created = await this.userRepository.create(user);
     const token = this.tokenService.generateAccessToken(created);
-    const refreshToken = await this.tokenService.generateRefreshToken(created);
+    const refreshToken = await this.tokenService.generateRefreshToken(
+      created,
+      ipAddress,
+      userAgent,
+    );
     return { user: created, token, refreshToken };
   }
 }
