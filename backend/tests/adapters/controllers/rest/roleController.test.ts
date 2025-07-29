@@ -7,6 +7,10 @@ import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort'
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { Role } from '../../../../domain/entities/Role';
 import { Permission } from '../../../../domain/entities/Permission';
+import { Department } from '../../../../domain/entities/Department';
+import { Site } from '../../../../domain/entities/Site';
+import { User } from '../../../../domain/entities/User';
+import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Role REST controller', () => {
   let app: express.Express;
@@ -15,6 +19,9 @@ describe('Role REST controller', () => {
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let role: Role;
   let permission: Permission;
+  let user: User;
+  let site: Site;
+  let dept: Department;
 
   beforeEach(() => {
     roleRepo = mockDeep<RoleRepositoryPort>();
@@ -27,8 +34,18 @@ describe('Role REST controller', () => {
     userRepo.findByRoleId.mockResolvedValue([]);
     roleRepo.delete.mockResolvedValue();
 
+    site = new Site('s', 'Site');
+    dept = new Department('d', 'Dept', null, null, site);
+    const rootPerm = new Permission('root', PermissionKeys.ROOT, 'root');
+    const adminRole = new Role('admin', 'Admin', [rootPerm]);
+    user = new User('u', 'John', 'Doe', 'john@example.com', [adminRole], 'active', dept, site);
+
     app = express();
     app.use(express.json());
+    app.use((req, _res, next) => {
+      (req as any).user = user;
+      next();
+    });
     app.use('/api', createRoleRouter(roleRepo, userRepo, logger));
   });
 

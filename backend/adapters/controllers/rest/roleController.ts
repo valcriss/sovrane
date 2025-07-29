@@ -6,6 +6,9 @@ import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import {getContext} from '../../../infrastructure/loggerContext';
 import {Role} from '../../../domain/entities/Role';
 import {Permission} from '../../../domain/entities/Permission';
+import {User} from '../../../domain/entities/User';
+import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
 import {CreateRoleUseCase} from '../../../usecases/role/CreateRoleUseCase';
 import {UpdateRoleUseCase} from '../../../usecases/role/UpdateRoleUseCase';
 import {RemoveRoleUseCase} from '../../../usecases/role/RemoveRoleUseCase';
@@ -62,6 +65,10 @@ interface RolePayload {
     id: string;
     label: string;
     permissions?: Array<{ id: string; permissionKey: string; description: string }>;
+}
+
+interface AuthedRequest extends Request {
+  user: User;
 }
 
 /* istanbul ignore next */
@@ -137,6 +144,13 @@ export function createRoleRouter(
      */
   router.get('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_ROLES);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const useCase = new GetRolesUseCase(roleRepository);
@@ -186,6 +200,13 @@ export function createRoleRouter(
      */
   router.get('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('GET /roles/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_ROLE);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     const useCase = new GetRoleUseCase(roleRepository);
     const role = await useCase.execute(req.params.id);
     if (!role) {
@@ -232,6 +253,13 @@ export function createRoleRouter(
      */
   router.post('/roles', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /roles', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.CREATE_ROLE);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     const useCase = new CreateRoleUseCase(roleRepository);
     const role = await useCase.execute(parseRole(req.body));
     logger.debug('Role created', getContext());
@@ -278,6 +306,13 @@ export function createRoleRouter(
      */
   router.put('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('PUT /roles/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.UPDATE_ROLE);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     const role = parseRole({...req.body, id: req.params.id});
     const useCase = new UpdateRoleUseCase(roleRepository);
     const updated = await useCase.execute(role);
@@ -316,6 +351,13 @@ export function createRoleRouter(
      */
   router.delete('/roles/:id', async (req: Request, res: Response): Promise<void> => {
     logger.debug('DELETE /roles/:id', getContext());
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.DELETE_ROLE);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     const useCase = new RemoveRoleUseCase(roleRepository, userRepository);
     try {
       await useCase.execute(req.params.id);
