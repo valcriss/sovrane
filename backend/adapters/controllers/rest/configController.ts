@@ -57,7 +57,7 @@ export function createConfigRouter(
    * /config/{key}:
    *   get:
    *     summary: Get configuration value
-   *     description: Return the value for the specified configuration key.
+   *     description: Return the value for the specified configuration key. Requires the `read-config` permission.
    *     tags:
    *       - Config
    *     security:
@@ -100,7 +100,7 @@ export function createConfigRouter(
    * /config/{key}:
    *   put:
    *     summary: Update configuration value
-   *     description: Update the value of a configuration entry.
+   *     description: Update the value of a configuration entry. Requires the `update-config` permission.
    *     tags:
    *       - Config
    *     security:
