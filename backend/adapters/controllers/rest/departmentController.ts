@@ -176,7 +176,7 @@ export function createDepartmentRouter(
      * /departments:
      *   get:
      *     summary: Get all departments
-     *     description: Returns a paginated list of departments.
+     *     description: Returns a paginated list of departments. Requires `read-departments` permission.
      *     tags:
      *       - Department
      *     security:
@@ -250,7 +250,7 @@ export function createDepartmentRouter(
      * /departments/{id}:
      *   get:
      *     summary: Get department by ID
-     *     description: Returns detailed information about a specific department.
+     *     description: Returns detailed information about a specific department. Requires `read-department` permission.
      *     tags:
      *       - Department
      *     security:
@@ -298,7 +298,7 @@ export function createDepartmentRouter(
      *   get:
      *     summary: List child departments
      *     description: >
-     *       Retrieves a paginated list of departments that have the given department as parent.
+     *       Retrieves a paginated list of departments that have the given department as parent. Requires `read-departments` permission.
      *     tags:
      *       - Department
      *     security:
@@ -384,7 +384,7 @@ export function createDepartmentRouter(
      * /departments/{id}/manager:
      *   get:
      *     summary: Get department manager
-     *     description: Returns the user managing the department.
+     *     description: Returns the user managing the department. Requires `read-department` permission.
      *     tags:
      *       - Department
      *     security:
@@ -431,7 +431,7 @@ export function createDepartmentRouter(
      * /departments/{id}/parent:
      *   get:
      *     summary: Get parent department
-     *     description: Returns the parent department if any.
+     *     description: Returns the parent department if any. Requires `read-department` permission.
      *     tags:
      *       - Department
      *     security:
@@ -478,7 +478,7 @@ export function createDepartmentRouter(
      * /departments/{id}/permissions:
      *   get:
      *     summary: List department permissions
-     *     description: Returns a paginated list of permissions attached to the department.
+     *     description: Returns a paginated list of permissions attached to the department. Requires `manage-department-permissions` permission.
      *     tags:
      *       - Department
      *     security:
@@ -556,7 +556,7 @@ export function createDepartmentRouter(
      * /departments/{id}/users:
      *   get:
      *     summary: List department users
-     *     description: Returns a paginated list of users belonging to the department.
+     *     description: Returns a paginated list of users belonging to the department. Requires `read-users` permission.
      *     tags:
      *       - Department
      *     security:
@@ -654,7 +654,7 @@ export function createDepartmentRouter(
      *     summary: Create a department.
      *     description: |
      *       Creates a new department within a site. Authentication with
-     *       administrator privileges is required.
+     *       administrator privileges is required. Requires `create-department` permission.
      *     tags:
      *       - Department
      *     security:
@@ -694,7 +694,7 @@ export function createDepartmentRouter(
      * /departments/{id}:
      *   put:
      *     summary: Update a department.
-     *     description: Modify a department's label, parent, manager or permissions.
+     *     description: Modify a department's label, parent, manager or permissions. Requires `update-department` permission.
      *     tags:
      *       - Department
      *     security:
@@ -744,7 +744,7 @@ export function createDepartmentRouter(
      *     summary: Add a child department.
      *     description: |
      *       Attaches an existing department as a child of another department.
-     *       Requires authentication with administrative rights.
+     *       Requires authentication with administrative rights. Requires `manage-department-hierarchy` permission.
      *     tags:
      *       - Department
      *     security:
@@ -808,7 +808,7 @@ export function createDepartmentRouter(
      *     summary: Remove a child department.
      *     description: |
      *       Detaches a child department from its parent. Authentication and
-     *       administrative privileges are required.
+     *       administrative privileges are required. Requires `manage-department-hierarchy` permission.
      *     tags:
      *       - Department
      *     security:
@@ -863,7 +863,7 @@ export function createDepartmentRouter(
      *     summary: Set department manager.
      *     description: |
      *       Assigns a user as the manager of the department. Requires
-     *       administrator privileges.
+     *       administrator privileges. Requires `manage-department-users` permission.
      *     tags:
      *       - Department
      *     security:
@@ -924,7 +924,7 @@ export function createDepartmentRouter(
      *     summary: Remove department manager.
      *     description: |
      *       Clears the manager of the department. The caller must be authenticated
-     *       as an administrator.
+     *       as an administrator. Requires `manage-department-users` permission.
      *     tags:
      *       - Department
      *     security:
@@ -973,7 +973,7 @@ export function createDepartmentRouter(
      *     summary: Set parent department.
      *     description: |
      *       Defines the parent department for hierarchical organization. Requires
-     *       administrator privileges.
+     *       administrator privileges. Requires `manage-department-hierarchy` permission.
      *     tags:
      *       - Department
      *     security:
@@ -1034,7 +1034,7 @@ export function createDepartmentRouter(
      *     summary: Remove parent department.
      *     description: |
      *       Detaches the department from its current parent. Administrator
-     *       authentication is required.
+     *       authentication is required. Requires `manage-department-hierarchy` permission.
      *     tags:
      *       - Department
      *     security:
@@ -1083,7 +1083,7 @@ export function createDepartmentRouter(
      *     summary: Add permission to department.
      *     description: |
      *       Grants a specific permission to the department. Administrator
-     *       authentication is required.
+     *       authentication is required. Requires `manage-department-permissions` permission.
      *     tags:
      *       - Department
      *     security:
@@ -1140,7 +1140,7 @@ export function createDepartmentRouter(
      *     summary: Remove a permission from department.
      *     description: |
      *       Revokes a previously granted permission from the department.
-     *       Administrator authentication is required.
+     *       Administrator authentication is required. Requires `manage-department-permissions` permission.
      *     tags:
      *       - Department
      *     security:
@@ -1195,7 +1195,7 @@ export function createDepartmentRouter(
      *     summary: Attach user to department.
      *     description: |
      *       Adds an existing user to the specified department. Requires
-     *       administrative privileges.
+     *       administrative privileges. Requires `manage-department-users` permission.
      *     tags:
      *       - Department
      *     security:
@@ -1250,7 +1250,7 @@ export function createDepartmentRouter(
      *     summary: Detach user from department.
      *     description: |
      *       Removes the association between a user and a department. Requires
-     *       administrator authentication.
+     *       administrator authentication. Requires `manage-department-users` permission.
      *     tags:
      *       - Department
      *     security:
@@ -1305,7 +1305,7 @@ export function createDepartmentRouter(
      *     summary: Remove a department.
      *     description: |
      *       Permanently deletes a department. The operation fails if users are
-     *       still attached. Requires administrator privileges.
+     *       still attached. Requires administrator privileges. Requires `delete-department` permission.
      *     tags:
      *       - Department
      *     security:
