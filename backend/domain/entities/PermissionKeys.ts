@@ -74,6 +74,21 @@ export class PermissionKeys {
   /** Allows managing group responsibles. */
   static readonly MANAGE_GROUP_RESPONSIBLES = 'manage-group-responsibles';
 
+  /** Allows listing roles. */
+  static readonly READ_ROLES = 'read-roles';
+
+  /** Allows reading role details. */
+  static readonly READ_ROLE = 'read-role';
+
+  /** Allows creating a role. */
+  static readonly CREATE_ROLE = 'create-role';
+
+  /** Allows updating role information. */
+  static readonly UPDATE_ROLE = 'update-role';
+
+  /** Allows deleting a role. */
+  static readonly DELETE_ROLE = 'delete-role';
+
   /** Allows creating user invitations. */
   static readonly CREATE_INVITATION = 'create-invitation';
 
