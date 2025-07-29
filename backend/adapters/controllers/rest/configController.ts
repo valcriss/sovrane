@@ -1,8 +1,15 @@
 /* istanbul ignore file */
 import express, { Request, Response, Router } from 'express';
+import { User } from '../../../domain/entities/User';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { GetConfigUseCase } from '../../../usecases/config/GetConfigUseCase';
 import { UpdateConfigUseCase } from '../../../usecases/config/UpdateConfigUseCase';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
+
+interface AuthedRequest extends Request {
+  user: User;
+}
 
 /**
  * @openapi
@@ -73,6 +80,13 @@ export function createConfigRouter(
    *         description: Configuration entry not found
    */
   router.get('/config/:key', async (req: Request, res: Response) => {
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.READ_CONFIG);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     const value = await getUseCase.execute(req.params.key);
     if (value === null) {
       res.status(404).end();
@@ -114,6 +128,13 @@ export function createConfigRouter(
    *         description: Validation error
    */
   router.put('/config/:key', async (req: Request, res: Response) => {
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.UPDATE_CONFIG);
+    } catch {
+      res.status(403).end();
+      return;
+    }
     try {
       await updateUseCase.execute(req.params.key, req.body.value, req.body.updatedBy);
       res.status(204).end();

@@ -85,4 +85,10 @@ export class PermissionKeys {
 
   /** Allows updating user profile pictures. */
   static readonly UPDATE_USER_PICTURE = 'update-user-picture';
+
+  /** Allows reading application configuration values. */
+  static readonly READ_CONFIG = 'read-config';
+
+  /** Allows updating application configuration values. */
+  static readonly UPDATE_CONFIG = 'update-config';
 }
