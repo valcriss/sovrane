@@ -79,4 +79,10 @@ export class PermissionKeys {
 
   /** Allows viewing audit log entries. */
   static readonly VIEW_AUDIT_LOGS = 'view_audit_logs';
+
+  /** Allows managing multi-factor authentication. */
+  static readonly MANAGE_MFA = 'manage-mfa';
+
+  /** Allows updating user profile pictures. */
+  static readonly UPDATE_USER_PICTURE = 'update-user-picture';
 }

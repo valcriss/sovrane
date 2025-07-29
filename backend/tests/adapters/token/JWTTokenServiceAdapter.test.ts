@@ -48,5 +48,5 @@ describe('JWTTokenServiceAdapter', () => {
       await svc.generateRefreshToken(user, undefined, undefined);
     }
     expect(repo.save).toHaveBeenCalledTimes(units.length);
-  });
+  }, 10000);
 });

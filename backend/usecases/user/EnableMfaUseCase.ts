@@ -1,6 +1,8 @@
 import { User } from '../../domain/entities/User';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { RefreshTokenPort } from '../../domain/ports/RefreshTokenPort';
+import { PermissionChecker } from '../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 
 /**
  * Use case enabling multi-factor authentication for a user.
@@ -10,6 +12,7 @@ export class EnableMfaUseCase {
     private readonly userRepository: UserRepositoryPort,
     /** Repository used to revoke existing refresh tokens. */
     private readonly refreshTokenRepository: RefreshTokenPort,
+    private readonly checker: PermissionChecker,
   ) {}
 
   /**
@@ -25,6 +28,7 @@ export class EnableMfaUseCase {
     type: string,
     recoveryCodes: string[] = [],
   ): Promise<User> {
+    this.checker.check(PermissionKeys.MANAGE_MFA);
     user.mfaEnabled = true;
     user.mfaType = type;
     user.mfaRecoveryCodes = recoveryCodes;
