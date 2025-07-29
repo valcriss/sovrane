@@ -20,6 +20,10 @@ export class User {
    * @param site - {@link Site} where the user is located.
    * @param picture - Optional profile picture URL.
    * @param permissions - Collection of {@link Permission} granted directly to the user.
+   * @param mfaEnabled - Flag indicating whether multi-factor authentication is enabled.
+   * @param mfaType - Selected type of multi-factor authentication or `null` if not configured.
+   * @param mfaSecret - Secret used for the MFA mechanism when applicable.
+   * @param mfaRecoveryCodes - Recovery codes that can be used if MFA device is unavailable.
    * @param createdAt - Date when the user was created.
    * @param updatedAt - Date when the user was last updated. Defaults to {@link createdAt}.
    * @param createdBy - User who created this record or `null` when created automatically.
@@ -56,6 +60,14 @@ export class User {
     public createdBy: User | null = null,
     /** User that last updated this record or `null` when updated automatically. */
     public updatedBy: User | null = createdBy,
+    /** Whether multi-factor authentication is enabled for the user. */
+    public mfaEnabled: boolean = false,
+    /** Type of multi-factor authentication in use (e.g., totp). */
+    public mfaType: string | null = null,
+    /** Secret associated with the configured MFA method. */
+    public mfaSecret: string | null = null,
+    /** Recovery codes allowing MFA bypass when necessary. */
+    public mfaRecoveryCodes: string[] = [],
   ) {}
 }
 

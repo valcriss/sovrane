@@ -34,6 +34,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
       department: PrismaDepartment & { site: PrismaSite };
       site: PrismaSite;
       permissions: Array<{ permission: PrismaPermission }>;
+      mfaEnabled: boolean | null;
+      mfaType: string | null;
+      mfaSecret: string | null;
+      mfaRecoveryCodes: Prisma.JsonValue | null;
     },
   ): User {
     return new User(
@@ -78,6 +82,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
       record.updatedAt,
       null,
       null,
+      record.mfaEnabled ?? false,
+      record.mfaType ?? null,
+      record.mfaSecret ?? null,
+      (record.mfaRecoveryCodes as string[] ?? []),
     );
   }
 
@@ -283,6 +291,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
         passwordChangedAt: user.passwordChangedAt,
         createdById: user.createdBy?.id,
         updatedById: user.updatedBy?.id,
+        mfaEnabled: user.mfaEnabled,
+        mfaType: user.mfaType ?? undefined,
+        mfaSecret: user.mfaSecret ?? undefined,
+        mfaRecoveryCodes: user.mfaRecoveryCodes,
         permissions: {
           create: user.permissions.map((p) => ({ permission: { connect: { id: p.id } } })),
         },
@@ -321,6 +333,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
         lockedUntil: user.lockedUntil ?? undefined,
         passwordChangedAt: user.passwordChangedAt,
         updatedById: user.updatedBy?.id,
+        mfaEnabled: user.mfaEnabled,
+        mfaType: user.mfaType ?? undefined,
+        mfaSecret: user.mfaSecret ?? undefined,
+        mfaRecoveryCodes: user.mfaRecoveryCodes,
         permissions: {
           deleteMany: {},
           create: user.permissions.map((p) => ({ permission: { connect: { id: p.id } } })),
