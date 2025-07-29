@@ -144,7 +144,8 @@ export function createSiteRouter(
    * /sites/{id}:
    *   get:
    *     summary: Get site by ID
-   *     description: Retrieve detailed information about a specific site.
+   *     description: |
+   *       Retrieve detailed information about a specific site. Requires the `read-site` permission.
    *     tags:
    *       - Site
    *     security:
