@@ -897,4 +897,32 @@ describe('PrismaUserRepository', () => {
       include: includeRelations,
     });
   });
+
+  it('should find users with password changed before date', async () => {
+    const date = new Date('2023-01-01');
+    prismaClient.user.findMany.mockResolvedValue([
+      {
+        id: 'u',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john@example.com',
+        status: 'active',
+        departmentId: 'dept-1',
+        siteId: 'site-1',
+        passwordChangedAt: new Date('2022-01-01'),
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null, siteId: 'site-1', site: { id: 'site-1', label: 'HQ' } },
+        site: { id: 'site-1', label: 'HQ' },
+        permissions: [],
+        roles: [],
+      },
+    ] as any);
+
+    const result = await repository.findUsersWithPasswordChangedBefore(date);
+
+    expect(result).toHaveLength(1);
+    expect(prismaClient.user.findMany).toHaveBeenCalledWith({
+      where: { passwordChangedAt: { lte: date } },
+      include: includeRelations,
+    });
+  });
 });
