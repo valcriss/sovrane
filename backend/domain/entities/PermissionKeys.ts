@@ -95,6 +95,9 @@ export class PermissionKeys {
   /** Allows listing existing permissions. */
   static readonly READ_PERMISSIONS = 'read-permissions';
 
+  /** Allows reading a single permission. */
+  static readonly READ_PERMISSION = 'read-permission';
+
   /** Allows registering a new permission. */
   static readonly CREATE_PERMISSION = 'create-permission';
 
