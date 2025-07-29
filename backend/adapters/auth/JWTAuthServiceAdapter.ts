@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import jwt, { TokenExpiredError } from 'jsonwebtoken';
 import argon2 from 'argon2';
 import { PrismaClient } from '@prisma/client';
 import { AuthServicePort } from '../../domain/ports/AuthServicePort';
@@ -6,6 +6,7 @@ import { User } from '../../domain/entities/User';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
+import { TokenExpiredException } from '../../domain/errors/TokenExpiredException';
 
 /**
  * Authentication adapter for verifying internally issued JWT tokens.
@@ -70,7 +71,15 @@ export class JWTAuthServiceAdapter implements AuthServicePort {
 
   async verifyToken(token: string): Promise<User> {
     this.logger.debug('Verifying JWT token', getContext());
-    const payload = jwt.verify(token, this.secret) as jwt.JwtPayload;
+    let payload: jwt.JwtPayload;
+    try {
+      payload = jwt.verify(token, this.secret) as jwt.JwtPayload;
+    } catch (err) {
+      if (err instanceof TokenExpiredError) {
+        throw new TokenExpiredException();
+      }
+      throw err;
+    }
     const userId = payload.sub as string;
     const user = await this.userRepository.findById(userId);
     if (!user) {

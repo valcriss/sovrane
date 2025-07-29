@@ -17,6 +17,7 @@ import {RemoveGroupResponsibleUseCase} from '../../../usecases/group/RemoveGroup
 import {GetGroupMembersUseCase} from '../../../usecases/group/GetGroupMembersUseCase';
 import {GetGroupResponsiblesUseCase} from '../../../usecases/group/GetGroupResponsiblesUseCase';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
+import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 
 /**
  * @openapi
@@ -87,7 +88,11 @@ export function createGroupRouter(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (req as any).user = user;
       next();
-    } catch {
+    } catch (err) {
+      if (err instanceof TokenExpiredException) {
+        res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+        return;
+      }
       res.status(401).end();
     }
   };

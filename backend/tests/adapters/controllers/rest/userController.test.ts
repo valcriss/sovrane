@@ -15,6 +15,7 @@ import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 import { AccountLockedError } from '../../../../domain/errors/AccountLockedError';
+import { TokenExpiredException } from '../../../../domain/errors/TokenExpiredException';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { RefreshToken } from '../../../../domain/entities/RefreshToken';
 import { AuditPort } from '../../../../domain/ports/AuditPort';
@@ -170,6 +171,17 @@ describe('User REST controller', () => {
       .set('Authorization', 'Bearer bad');
 
     expect(res.status).toBe(401);
+  });
+
+  it('should return token expired error when JWT expired', async () => {
+    auth.verifyToken.mockRejectedValue(new TokenExpiredException());
+
+    const res = await request(app)
+      .get('/api/users/me')
+      .set('Authorization', 'Bearer old');
+
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
   });
 
   it('should reject requests without header', async () => {
