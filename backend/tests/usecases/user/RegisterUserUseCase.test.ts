@@ -56,4 +56,14 @@ describe('RegisterUserUseCase', () => {
       InvalidPasswordException,
     );
   });
+
+  it('should convert unknown validation errors', async () => {
+    passwordValidator.validate.mockRejectedValue(new Error('unexpected'));
+
+    await expect(useCase.execute(user, 'oops')).rejects.toEqual(
+      new InvalidPasswordException('unexpected'),
+    );
+    expect(repository.create).not.toHaveBeenCalled();
+    expect(tokenService.generateAccessToken).not.toHaveBeenCalled();
+  });
 });
