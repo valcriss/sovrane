@@ -189,6 +189,7 @@ describe('User Entity', () => {
         null,
         date,
         date,
+        date,
         creator,
         updater,
       );

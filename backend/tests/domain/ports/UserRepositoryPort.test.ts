@@ -64,6 +64,16 @@ class MockUserRepository implements UserRepositoryPort {
     return result;
   }
 
+  async findUsersWithPasswordChangedBefore(date: Date): Promise<User[]> {
+    const result: User[] = [];
+    for (const user of this.users.values()) {
+      if (user.passwordChangedAt <= date) {
+        result.push(user);
+      }
+    }
+    return result;
+  }
+
   async create(user: User): Promise<User> {
     this.users.set(user.id, user);
     this.emailIndex.set(user.email, user.id);

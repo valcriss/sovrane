@@ -328,6 +328,7 @@ describe('PrismaUserRepository', () => {
           failedLoginAttempts: 0,
           lastFailedLoginAt: undefined,
           lockedUntil: undefined,
+          passwordChangedAt: expect.any(Date),
           createdById: undefined,
           updatedById: undefined,
           permissions: { create: [] },
@@ -382,6 +383,7 @@ describe('PrismaUserRepository', () => {
           failedLoginAttempts: 0,
           lastFailedLoginAt: undefined,
           lockedUntil: undefined,
+          passwordChangedAt: expect.any(Date),
           createdById: undefined,
           updatedById: undefined,
           permissions: { create: [{ permission: { connect: { id: 'perm-1' } } }] },
@@ -444,6 +446,7 @@ describe('PrismaUserRepository', () => {
           failedLoginAttempts: 0,
           lastFailedLoginAt: undefined,
           lockedUntil: undefined,
+          passwordChangedAt: expect.any(Date),
           createdById: undefined,
           updatedById: undefined,
           permissions: { create: [] },
@@ -524,6 +527,7 @@ describe('PrismaUserRepository', () => {
           failedLoginAttempts: 0,
           lastFailedLoginAt: undefined,
           lockedUntil: undefined,
+          passwordChangedAt: expect.any(Date),
           updatedById: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
@@ -599,6 +603,7 @@ describe('PrismaUserRepository', () => {
           failedLoginAttempts: 0,
           lastFailedLoginAt: undefined,
           lockedUntil: undefined,
+          passwordChangedAt: expect.any(Date),
           updatedById: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {
@@ -663,6 +668,7 @@ describe('PrismaUserRepository', () => {
           failedLoginAttempts: 0,
           lastFailedLoginAt: undefined,
           lockedUntil: undefined,
+          passwordChangedAt: expect.any(Date),
           updatedById: undefined,
           permissions: { deleteMany: {}, create: [{ permission: { connect: { id: 'perm-2' } } }] },
           roles: {
@@ -725,6 +731,7 @@ describe('PrismaUserRepository', () => {
           failedLoginAttempts: 0,
           lastFailedLoginAt: undefined,
           lockedUntil: undefined,
+          passwordChangedAt: expect.any(Date),
           updatedById: undefined,
           permissions: { deleteMany: {}, create: [] },
           roles: {

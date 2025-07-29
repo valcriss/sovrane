@@ -86,6 +86,14 @@ export interface UserRepositoryPort {
   findBySiteId(siteId: string): Promise<User[]>;
 
   /**
+   * Retrieve users having changed their password before the given date.
+   *
+   * @param date - Latest allowed password change timestamp.
+   * @returns Array of matching {@link User} instances.
+   */
+  findUsersWithPasswordChangedBefore(date: Date): Promise<User[]>;
+
+  /**
    * Persist a new user.
    *
    * @param user - User entity to create.

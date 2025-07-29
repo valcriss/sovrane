@@ -39,6 +39,10 @@ export class AppConfigKeys {
   /** Number of days before a password must be changed. */
   static readonly ACCOUNT_PASSWORD_EXPIRE_AFTER = 'account_password_expire_after';
 
+  /** Number of days before expiration when a warning email is sent. */
+  static readonly ACCOUNT_PASSWORD_EXPIRE_WARNING_DAYS =
+    'account_password_expire_warning_days';
+
   /** Enable password history check when updating password. */
   static readonly ACCOUNT_PASSWORD_HISTORY = 'account_password_history';
 

@@ -6,6 +6,7 @@ import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { AccountLockedError } from '../../domain/errors/AccountLockedError';
+import { PasswordExpiredException } from '../../domain/errors/PasswordExpiredException';
 import { GetConfigUseCase } from '../config/GetConfigUseCase';
 import { AppConfigKeys } from '../../domain/entities/AppConfigKeys';
 
@@ -33,7 +34,12 @@ export class AuthenticateUserUseCase {
   async execute(
     email: string,
     password: string,
-  ): Promise<{ user: User; token: string; refreshToken: string }> {
+  ): Promise<{
+    user: User;
+    token: string;
+    refreshToken: string;
+    passwordWillExpireSoon?: boolean;
+  }> {
     this.logger.debug('Authenticating user');
     const existing = await this.userRepository.findByEmail(email);
     if (existing && existing.lockedUntil && existing.lockedUntil.getTime() > Date.now()) {
@@ -48,10 +54,22 @@ export class AuthenticateUserUseCase {
       user.failedLoginAttempts = 0;
       user.lastFailedLoginAt = null;
       user.lockedUntil = null;
+
+      const expirationDays =
+        (await this.config.execute<number>(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE_AFTER)) ??
+        90;
+      const warningDays =
+        (await this.config.execute<number>(AppConfigKeys.ACCOUNT_PASSWORD_EXPIRE_WARNING_DAYS)) ??
+        7;
+      const daysSinceChange = this.daysBetween(user.passwordChangedAt, new Date());
+      if (daysSinceChange >= expirationDays) {
+        throw new PasswordExpiredException();
+      }
+      const willExpire = daysSinceChange >= expirationDays - warningDays;
       await this.userRepository.update(user);
       const token = this.tokenService.generateAccessToken(user);
       const refreshToken = await this.tokenService.generateRefreshToken(user);
-      return { user, token, refreshToken };
+      return { user, token, refreshToken, passwordWillExpireSoon: willExpire };
     } catch (err) {
       const lockOnFail =
         (await this.config.execute<boolean>(AppConfigKeys.ACCOUNT_LOCK_ON_LOGIN_FAIL)) ??
@@ -83,5 +101,9 @@ export class AuthenticateUserUseCase {
       /* istanbul ignore next */
       throw err;
     }
+  }
+
+  private daysBetween(a: Date, b: Date): number {
+    return Math.floor(Math.abs(b.getTime() - a.getTime()) / (1000 * 60 * 60 * 24));
   }
 }

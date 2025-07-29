@@ -46,6 +46,8 @@ export class User {
     public lastFailedLoginAt: Date | null = null,
     /** Timestamp until which the account is locked following too many failures. */
     public lockedUntil: Date | null = null,
+    /** Date when the user's password was last changed. */
+    public passwordChangedAt: Date = new Date(),
     /** Date when the user record was created. */
     public createdAt: Date = new Date(),
     /** Date when the user record was last updated. Defaults to {@link createdAt}. */
