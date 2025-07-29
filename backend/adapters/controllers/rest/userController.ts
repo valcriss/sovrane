@@ -7,12 +7,13 @@ import {UserRepositoryPort} from '../../../domain/ports/UserRepositoryPort';
 import { AuditPort } from '../../../domain/ports/AuditPort';
 import {AvatarServicePort} from '../../../domain/ports/AvatarServicePort';
 import {TokenServicePort} from '../../../domain/ports/TokenServicePort';
-import { RefreshTokenRepositoryPort } from '../../../domain/ports/RefreshTokenRepositoryPort';
+import { RefreshTokenPort } from '../../../domain/ports/RefreshTokenPort';
 import {GetCurrentUserProfileUseCase} from '../../../usecases/user/GetCurrentUserProfileUseCase';
 import {RegisterUserUseCase} from '../../../usecases/user/RegisterUserUseCase';
 import {AuthenticateUserUseCase} from '../../../usecases/user/AuthenticateUserUseCase';
 import {AuthenticateWithProviderUseCase} from '../../../usecases/user/AuthenticateWithProviderUseCase';
-import { RefreshAccessTokenUseCase } from '../../../usecases/user/RefreshAccessTokenUseCase';
+import { RotateRefreshTokenUseCase } from '../../../usecases/user/RotateRefreshTokenUseCase';
+import { RevokeRefreshTokensUseCase } from '../../../usecases/user/RevokeRefreshTokensUseCase';
 import {RequestPasswordResetUseCase} from '../../../usecases/user/RequestPasswordResetUseCase';
 import {ResetPasswordUseCase} from '../../../usecases/user/ResetPasswordUseCase';
 import {UpdateUserProfileUseCase} from '../../../usecases/user/UpdateUserProfileUseCase';
@@ -202,7 +203,7 @@ export function createUserRouter(
   audit: AuditPort,
   avatarService: AvatarServicePort,
   tokenService: TokenServicePort,
-  refreshTokenRepository: RefreshTokenRepositoryPort,
+  refreshTokenRepository: RefreshTokenPort,
   logger: LoggerPort,
   getConfigUseCase: GetConfigUseCase,
   passwordValidator: PasswordValidator,
@@ -473,18 +474,64 @@ export function createUserRouter(
       async (req: Request, res: Response): Promise<void> => {
         logger.debug('POST /auth/refresh', getContext());
         const { refreshToken } = req.body;
-        const useCase = new RefreshAccessTokenUseCase(
+        const useCase = new RotateRefreshTokenUseCase(
           refreshTokenRepository,
-          userRepository,
           tokenService,
-          logger,
+          userRepository,
         );
         try {
           const result = await useCase.execute(refreshToken);
-          logger.debug('Access token refreshed', getContext());
+          logger.debug('Tokens rotated', getContext());
           res.json(result);
         } catch (err) {
           logger.warn('Refresh token failed', { ...getContext(), error: err });
+          res.status(401).json({ error: (err as Error).message });
+        }
+      },
+    );
+
+    /**
+     * @openapi
+     * /auth/logout:
+     *   post:
+     *     summary: Revoke refresh token.
+     *     description: |
+     *       Invalidates the provided refresh token, logging the user out.
+     *     tags:
+     *       - User
+     *     requestBody:
+     *       description: Refresh token to revoke.
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               refreshToken:
+     *                 type: string
+     *             required:
+     *               - refreshToken
+     *     responses:
+     *       200:
+     *         description: Logged out successfully
+     *       400:
+     *         description: Validation error.
+     *       401:
+     *         description: Invalid or expired refresh token
+     */
+    router.post(
+      '/auth/logout',
+      requireBodyParams({ refreshToken: { validator: 'string' } }),
+      async (req: Request, res: Response): Promise<void> => {
+        logger.debug('POST /auth/logout', getContext());
+        const { refreshToken } = req.body;
+        const useCase = new RevokeRefreshTokensUseCase(refreshTokenRepository);
+        try {
+          await useCase.execute(refreshToken);
+          logger.debug('Token revoked', getContext());
+          res.json({ message: 'Logged out successfully' });
+        } catch (err) {
+          logger.warn('Token revoke failed', { ...getContext(), error: err });
           res.status(401).json({ error: (err as Error).message });
         }
       },

@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { JWTTokenServiceAdapter } from '../../../adapters/token/JWTTokenServiceAdapter';
-import { RefreshTokenRepositoryPort } from '../../../domain/ports/RefreshTokenRepositoryPort';
+import { RefreshTokenPort } from '../../../domain/ports/RefreshTokenPort';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
@@ -10,13 +10,13 @@ import { Site } from '../../../domain/entities/Site';
 
 describe('JWTTokenServiceAdapter', () => {
   const secret = 'secret';
-  let repo: DeepMockProxy<RefreshTokenRepositoryPort>;
+  let repo: DeepMockProxy<RefreshTokenPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let service: JWTTokenServiceAdapter;
   let user: User;
 
   beforeEach(() => {
-    repo = mockDeep<RefreshTokenRepositoryPort>();
+    repo = mockDeep<RefreshTokenPort>();
     logger = mockDeep<LoggerPort>();
     const role = new Role('r', 'Role');
     const site = new Site('s', 'Site');
@@ -34,9 +34,8 @@ describe('JWTTokenServiceAdapter', () => {
 
   it('should generate refresh token and store it', async () => {
     const token = await service.generateRefreshToken(user);
-    expect(repo.create).toHaveBeenCalled();
-    const saved = repo.create.mock.calls[0][0];
-    expect(saved.token).toBe(token);
+    expect(repo.save).toHaveBeenCalled();
+    const saved = repo.save.mock.calls[0][0];
     expect(saved.userId).toBe('u');
   });
 
@@ -46,6 +45,6 @@ describe('JWTTokenServiceAdapter', () => {
       const svc = new JWTTokenServiceAdapter(secret, repo, logger, '15m', u);
       await svc.generateRefreshToken(user);
     }
-    expect(repo.create).toHaveBeenCalledTimes(units.length);
+    expect(repo.save).toHaveBeenCalledTimes(units.length);
   });
 });

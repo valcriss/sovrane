@@ -6,7 +6,7 @@ import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
 import { AvatarServicePort } from '../../../../domain/ports/AvatarServicePort';
 import { TokenServicePort } from '../../../../domain/ports/TokenServicePort';
-import { RefreshTokenRepositoryPort } from '../../../../domain/ports/RefreshTokenRepositoryPort';
+import { RefreshTokenPort } from '../../../../domain/ports/RefreshTokenPort';
 
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
@@ -28,7 +28,7 @@ describe('User REST controller', () => {
   let repo: DeepMockProxy<UserRepositoryPort>;
   let avatar: DeepMockProxy<AvatarServicePort>;
   let tokenService: DeepMockProxy<TokenServicePort>;
-  let refreshRepo: DeepMockProxy<RefreshTokenRepositoryPort>;
+  let refreshRepo: DeepMockProxy<RefreshTokenPort>;
   let audit: DeepMockProxy<AuditPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let getConfig: DeepMockProxy<GetConfigUseCase>;
@@ -43,7 +43,7 @@ describe('User REST controller', () => {
     repo = mockDeep<UserRepositoryPort>();
     avatar = mockDeep<AvatarServicePort>();
     tokenService = mockDeep<TokenServicePort>();
-    refreshRepo = mockDeep<RefreshTokenRepositoryPort>();
+    refreshRepo = mockDeep<RefreshTokenPort>();
     audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
     getConfig = mockDeep<GetConfigUseCase>();
@@ -396,8 +396,8 @@ describe('User REST controller', () => {
   });
 
   it('should refresh tokens', async () => {
-    refreshRepo.findByToken.mockResolvedValue(
-      new RefreshToken('old', 'u', new Date(Date.now() + 1000)),
+    refreshRepo.findValidByToken.mockResolvedValue(
+      new RefreshToken('1', 'u', 'oldh', new Date(Date.now() + 1000)),
     );
     tokenService.generateAccessToken.mockReturnValue('newT');
     tokenService.generateRefreshToken.mockResolvedValue('newR');
@@ -407,13 +407,14 @@ describe('User REST controller', () => {
       .send({ refreshToken: 'old' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ token: 'newT', refreshToken: 'newR' });
-    expect(refreshRepo.findByToken).toHaveBeenCalledWith('old');
-    expect(refreshRepo.delete).toHaveBeenCalledWith('old');
+    expect(res.body.token).toBe('newT');
+    expect(res.body.refreshToken).toBeDefined();
+    expect(refreshRepo.findValidByToken).toHaveBeenCalledWith('old');
+    expect(refreshRepo.markAsUsed).toHaveBeenCalled();
   });
 
   it('should return 401 for invalid refresh token', async () => {
-    refreshRepo.findByToken.mockResolvedValue(null);
+    refreshRepo.findValidByToken.mockResolvedValue(null);
 
     const res = await request(app)
       .post('/api/auth/refresh')

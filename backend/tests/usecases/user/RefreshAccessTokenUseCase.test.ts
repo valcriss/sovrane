@@ -1,6 +1,6 @@
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { RefreshAccessTokenUseCase } from '../../../usecases/user/RefreshAccessTokenUseCase';
-import { RefreshTokenRepositoryPort } from '../../../domain/ports/RefreshTokenRepositoryPort';
+import { RefreshTokenPort } from '../../../domain/ports/RefreshTokenPort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { TokenServicePort } from '../../../domain/ports/TokenServicePort';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
@@ -11,7 +11,7 @@ import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 
 describe('RefreshAccessTokenUseCase', () => {
-  let refreshRepo: DeepMockProxy<RefreshTokenRepositoryPort>;
+  let refreshRepo: DeepMockProxy<RefreshTokenPort>;
   let userRepo: DeepMockProxy<UserRepositoryPort>;
   let tokenService: DeepMockProxy<TokenServicePort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
@@ -19,7 +19,7 @@ describe('RefreshAccessTokenUseCase', () => {
   let user: User;
 
   beforeEach(() => {
-    refreshRepo = mockDeep<RefreshTokenRepositoryPort>();
+    refreshRepo = mockDeep<RefreshTokenPort>();
     userRepo = mockDeep<UserRepositoryPort>();
     tokenService = mockDeep<TokenServicePort>();
     logger = mockDeep<LoggerPort>();
@@ -31,8 +31,8 @@ describe('RefreshAccessTokenUseCase', () => {
   });
 
   it('should refresh tokens', async () => {
-    const token = new RefreshToken('old', 'u', new Date(Date.now() + 1000));
-    refreshRepo.findByToken.mockResolvedValue(token);
+    const token = new RefreshToken('1', 'u', 'h', new Date(Date.now() + 1000));
+    refreshRepo.findValidByToken.mockResolvedValue(token);
     userRepo.findById.mockResolvedValue(user);
     tokenService.generateAccessToken.mockReturnValue('newT');
     tokenService.generateRefreshToken.mockResolvedValue('newR');
@@ -40,31 +40,31 @@ describe('RefreshAccessTokenUseCase', () => {
     const result = await useCase.execute('old');
 
     expect(result).toEqual({ token: 'newT', refreshToken: 'newR' });
-    expect(refreshRepo.delete).toHaveBeenCalledWith('old');
+    expect(refreshRepo.markAsUsed).toHaveBeenCalled();
   });
 
   it('should throw when token missing', async () => {
-    refreshRepo.findByToken.mockResolvedValue(null);
+    refreshRepo.findValidByToken.mockResolvedValue(null);
     await expect(useCase.execute('bad')).rejects.toThrow('Invalid or expired refresh token');
   });
 
   it('should throw when token expired', async () => {
-    const token = new RefreshToken('old', 'u', new Date(Date.now() - 1000));
-    refreshRepo.findByToken.mockResolvedValue(token);
+    const token = new RefreshToken('1', 'u', 'h', new Date(Date.now() - 1000));
+    refreshRepo.findValidByToken.mockResolvedValue(token);
     await expect(useCase.execute('old')).rejects.toThrow('Invalid or expired refresh token');
   });
 
   it('should throw when user suspended', async () => {
-    const token = new RefreshToken('old', 'u', new Date(Date.now() + 1000));
-    refreshRepo.findByToken.mockResolvedValue(token);
+    const token = new RefreshToken('1', 'u', 'h', new Date(Date.now() + 1000));
+    refreshRepo.findValidByToken.mockResolvedValue(token);
     const suspended = new User('u', 'John', 'Doe', 'john@example.com', [new Role('r', 'Role')], 'suspended', new Department('d', 'Dept', null, null, new Site('s', 'Site')), new Site('s', 'Site'));
     userRepo.findById.mockResolvedValue(suspended);
     await expect(useCase.execute('old')).rejects.toThrow('User account is suspended or archived');
   });
 
   it('should throw when user not found', async () => {
-    const token = new RefreshToken('t', 'u', new Date(Date.now() + 1000));
-    refreshRepo.findByToken.mockResolvedValue(token);
+    const token = new RefreshToken('1', 'u', 'h', new Date(Date.now() + 1000));
+    refreshRepo.findValidByToken.mockResolvedValue(token);
     userRepo.findById.mockResolvedValue(null);
     await expect(useCase.execute('t')).rejects.toThrow('Invalid or expired refresh token');
   });
