@@ -32,4 +32,12 @@ describe('EnableMfaUseCase', () => {
     expect(repo.update).toHaveBeenCalledWith(user);
     expect(refresh.revokeAll).toHaveBeenCalledWith(user.id);
   });
+
+  it('should use default recovery codes when none provided', async () => {
+    repo.update.mockResolvedValue(user);
+    await expect(useCase.execute(user, 'totp')).resolves.toBe(user);
+    expect(user.mfaRecoveryCodes).toEqual([]);
+    expect(repo.update).toHaveBeenCalledWith(user);
+    expect(refresh.revokeAll).toHaveBeenCalledWith(user.id);
+  });
 });

@@ -11,6 +11,7 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { RefreshTokenTooSoonException } from '../../../domain/errors/RefreshTokenTooSoonException';
+import { InvalidRefreshTokenException } from '../../../domain/errors/InvalidRefreshTokenException';
 
 describe('RotateRefreshTokenUseCase', () => {
   let refreshRepo: DeepMockProxy<RefreshTokenPort>;
@@ -68,6 +69,16 @@ describe('RotateRefreshTokenUseCase', () => {
 
     await expect(useCase.execute('old')).rejects.toBeInstanceOf(
       RefreshTokenTooSoonException,
+    );
+  });
+
+  it('should reject when user not found', async () => {
+    const token = new RefreshToken('1', 'u', 'h', new Date(Date.now() + 1000));
+    refreshRepo.findValidByToken.mockResolvedValue(token);
+    userRepo.findById.mockResolvedValue(null);
+
+    await expect(useCase.execute('old')).rejects.toBeInstanceOf(
+      InvalidRefreshTokenException,
     );
   });
 });
