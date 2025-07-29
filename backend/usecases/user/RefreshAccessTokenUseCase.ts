@@ -1,4 +1,4 @@
-import { RefreshTokenRepositoryPort } from '../../domain/ports/RefreshTokenRepositoryPort';
+import { RefreshTokenPort } from '../../domain/ports/RefreshTokenPort';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { TokenServicePort } from '../../domain/ports/TokenServicePort';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
@@ -9,7 +9,7 @@ import { User } from '../../domain/entities/User';
  */
 export class RefreshAccessTokenUseCase {
   constructor(
-    private readonly refreshRepo: RefreshTokenRepositoryPort,
+    private readonly refreshRepo: RefreshTokenPort,
     private readonly userRepository: UserRepositoryPort,
     private readonly tokenService: TokenServicePort,
     private readonly logger: LoggerPort,
@@ -23,7 +23,7 @@ export class RefreshAccessTokenUseCase {
    */
   async execute(refreshToken: string): Promise<{ token: string; refreshToken: string; user?: User }> {
     this.logger.debug('Refreshing access token');
-    const stored = await this.refreshRepo.findByToken(refreshToken);
+    const stored = await this.refreshRepo.findValidByToken(refreshToken);
     if (!stored || stored.expiresAt.getTime() <= Date.now()) {
       this.logger.warn('Invalid or expired refresh token');
       throw new Error('Invalid or expired refresh token');
@@ -39,7 +39,7 @@ export class RefreshAccessTokenUseCase {
       throw new Error('User account is suspended or archived');
     }
 
-    await this.refreshRepo.delete(refreshToken);
+    await this.refreshRepo.markAsUsed(stored.id);
     user.lastActivity = new Date();
     await this.userRepository.update(user);
     const token = this.tokenService.generateAccessToken(user);

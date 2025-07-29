@@ -74,7 +74,7 @@ Database repositories implementing CRUD operations for each entity:
 - **PrismaSiteRepository.ts** – Implements `SiteRepositoryPort`.
 - **PrismaUserGroupRepository.ts** – Implements `UserGroupRepositoryPort`.
 - **PrismaInvitationRepository.ts** – Implements `InvitationRepositoryPort`.
-- **PrismaRefreshTokenRepository.ts** – Implements `RefreshTokenRepositoryPort`.
+- **PrismaRefreshTokenRepository.ts** – Implements `RefreshTokenPort`.
 
 ### storage
 - **LocalFileStorageAdapter.ts** – Stores files on the local filesystem. Methods: `upload`, `download`, `delete`, `getPublicUrl`.
@@ -95,7 +95,7 @@ Each file exports a class with properties and a constructor documenting every fi
 
 ### ports
 Interfaces defining contracts between the domain and infrastructure:
-`AuthServicePort`, `TokenServicePort`, `UserRepositoryPort`, `RoleRepositoryPort`, `PermissionRepositoryPort`, `DepartmentRepositoryPort`, `SiteRepositoryPort`, `UserGroupRepositoryPort`, `InvitationRepositoryPort`, `RefreshTokenRepositoryPort`, `AuditPort`, `FileStoragePort`, `AvatarServicePort`, `EmailServicePort`, `LoggerPort`.
+`AuthServicePort`, `TokenServicePort`, `UserRepositoryPort`, `RoleRepositoryPort`, `PermissionRepositoryPort`, `DepartmentRepositoryPort`, `SiteRepositoryPort`, `UserGroupRepositoryPort`, `InvitationRepositoryPort`, `RefreshTokenPort`, `AuditPort`, `FileStoragePort`, `AvatarServicePort`, `EmailServicePort`, `LoggerPort`.
 
 ### services
 - **AvatarService.ts** – Handles avatar upload/deletion using a storage adapter and user repository.

@@ -3,10 +3,11 @@ import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { TokenServicePort } from '../../domain/ports/TokenServicePort';
 import { User } from '../../domain/entities/User';
-import { RefreshTokenRepositoryPort } from '../../domain/ports/RefreshTokenRepositoryPort';
+import { RefreshTokenPort } from '../../domain/ports/RefreshTokenPort';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { RefreshToken } from '../../domain/entities/RefreshToken';
 import { getContext } from '../../infrastructure/loggerContext';
+import argon2 from 'argon2';
 
 /**
  * Token service issuing JWT access tokens and persistent refresh tokens.
@@ -23,7 +24,7 @@ export class JWTTokenServiceAdapter implements TokenServicePort {
    */
   constructor(
     private readonly secret: string,
-    private readonly refreshRepo: RefreshTokenRepositoryPort,
+    private readonly refreshRepo: RefreshTokenPort,
     private readonly logger: LoggerPort,
     private readonly accessDuration: string = process.env.JWT_ACCESS_TOKEN_DURATION || '15m',
     private readonly refreshDuration: string = process.env.JWT_REFRESH_TOKEN_DURATION || '7d',
@@ -41,8 +42,11 @@ export class JWTTokenServiceAdapter implements TokenServicePort {
   async generateRefreshToken(user: User): Promise<string> {
     this.logger.debug('Generating refresh token', getContext());
     const token = randomUUID();
+    const hash = await argon2.hash(token);
     const expires = new Date(Date.now() + this.parseDuration(this.refreshDuration));
-    await this.refreshRepo.create(new RefreshToken(token, user.id, expires));
+    await this.refreshRepo.save(
+      new RefreshToken(randomUUID(), user.id, hash, expires),
+    );
     return token;
   }
 
