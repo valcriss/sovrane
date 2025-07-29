@@ -104,7 +104,7 @@ export function createAuditRouter(
    * /audit:
    *   get:
    *     summary: List audit events
-   *     description: Returns paginated audit log entries.
+   *     description: Returns paginated audit log entries. Requires the `view_audit_logs` permission.
    *     tags: [Audit]
    *     security:
    *       - bearerAuth: []
