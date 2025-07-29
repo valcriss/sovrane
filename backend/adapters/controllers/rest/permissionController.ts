@@ -67,7 +67,7 @@ export function createPermissionRouter(
      * /permissions:
      *   get:
      *     summary: Get all permissions
-     *     description: Returns the list of all permissions.
+     *     description: Returns the list of all permissions. Requires the `read-permissions` permission.
      *     tags:
      *       - Permission
      *     security:
@@ -148,7 +148,7 @@ export function createPermissionRouter(
      * /permissions/{id}:
      *   get:
      *     summary: Get permission by ID
-     *     description: Returns detailed information about a specific permission.
+     *     description: Returns detailed information about a specific permission. Requires the `read-permission` permission.
      *     tags:
      *       - Permission
      *     security:
@@ -203,8 +203,8 @@ export function createPermissionRouter(
      *   post:
      *     summary: Create a permission.
      *     description: |
-     *       Registers a new permission in the system. Only authenticated
-     *       administrators should use this endpoint.
+     *       Registers a new permission in the system. Requires `create-permission` permission.
+     *       Only authenticated administrators should use this endpoint.
      *     tags:
      *       - Permission
      *     security:
@@ -251,7 +251,7 @@ export function createPermissionRouter(
      * /permissions/{id}:
      *   put:
      *     summary: Update a permission.
-     *     description: Modify the key or description of an existing permission.
+     *     description: Modify the key or description of an existing permission. Requires the `update-permission` permission.
      *     tags:
      *       - Permission
      *     security:
@@ -306,8 +306,8 @@ export function createPermissionRouter(
      * /permissions/{id}:
      *   delete:
      *     summary: Remove a permission.
-     *     description: Deletes an existing permission. It should no longer be
-     *       referenced by any role before calling this endpoint.
+     *     description: Deletes an existing permission. Requires the `delete-permission` permission.
+     *       It should no longer be referenced by any role before calling this endpoint.
      *     tags:
      *       - Permission
      *     security:
