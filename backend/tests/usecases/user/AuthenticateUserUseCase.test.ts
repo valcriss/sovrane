@@ -11,6 +11,7 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { AccountLockedError } from '../../../domain/errors/AccountLockedError';
+import { PasswordExpiredException } from '../../../domain/errors/PasswordExpiredException';
 import { GetConfigUseCase } from '../../../usecases/config/GetConfigUseCase';
 import { AppConfigKeys } from '../../../domain/entities/AppConfigKeys';
 
@@ -140,6 +141,28 @@ describe('AuthenticateUserUseCase', () => {
     process.env.ACCOUNT_LOCK_DURATION = "60";
     await expect(useCase.execute("john@example.com", "bad")).rejects.toBeInstanceOf(AccountLockedError);
     expect(repo.update.mock.calls[0][0].lockedUntil).toBeInstanceOf(Date);
+  });
+
+  it('should warn when password nearing expiration', async () => {
+    repo.findByEmail.mockResolvedValue(user);
+    service.authenticate.mockResolvedValue(user);
+    tokenService.generateAccessToken.mockReturnValue('tok');
+    tokenService.generateRefreshToken.mockResolvedValue('ref');
+    user.passwordChangedAt = new Date(Date.now() - 85 * 24 * 60 * 60 * 1000);
+    await expect(useCase.execute('john@example.com', 'secret')).resolves.toEqual({
+      user,
+      token: 'tok',
+      refreshToken: 'ref',
+      passwordWillExpireSoon: true,
+    });
+  });
+
+  it('should throw when password expired', async () => {
+    repo.findByEmail.mockResolvedValue(user);
+    service.authenticate.mockResolvedValue(user);
+    user.passwordChangedAt = new Date(Date.now() - 91 * 24 * 60 * 60 * 1000);
+    await expect(useCase.execute('john@example.com', 'secret')).rejects.toBeInstanceOf(PasswordExpiredException);
+    expect(repo.update).toHaveBeenCalled();
   });
 
 });
