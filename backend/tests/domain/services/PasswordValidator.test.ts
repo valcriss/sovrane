@@ -68,4 +68,10 @@ describe('PasswordValidator', () => {
       InvalidPasswordException,
     );
   });
+
+  it('should use default config values when not provided', async () => {
+    (config.get as jest.Mock).mockResolvedValue(undefined);
+    await expect(validator.validate('Valid1!A')).resolves.toBeUndefined();
+    expect(config.get).toHaveBeenCalled();
+  });
 });

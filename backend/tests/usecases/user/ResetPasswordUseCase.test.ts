@@ -30,4 +30,12 @@ describe('ResetPasswordUseCase', () => {
       InvalidPasswordException,
     );
   });
+
+  it('should wrap unexpected errors as InvalidPasswordException', async () => {
+    validator.validate.mockRejectedValue(new Error('oops'));
+
+    await expect(useCase.execute('tok', 'bad'))
+      .rejects.toEqual(new InvalidPasswordException('oops'));
+    expect(service.resetPassword).not.toHaveBeenCalled();
+  });
 });
