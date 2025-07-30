@@ -15,6 +15,7 @@ import { registerGroupGateway } from '../adapters/controllers/websocket/groupGat
 import { registerRoleGateway } from '../adapters/controllers/websocket/roleGateway';
 import { registerInvitationGateway } from '../adapters/controllers/websocket/invitationGateway';
 import { registerSiteGateway } from '../adapters/controllers/websocket/siteGateway';
+import { registerPermissionGateway } from '../adapters/controllers/websocket/permissionGateway';
 import { SocketIORealtimeAdapter } from '../adapters/realtime/SocketIORealtimeAdapter';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -254,6 +255,13 @@ async function bootstrap(): Promise<void> {
     realtime,
     roleRepository,
     userRepository,
+  );
+  registerPermissionGateway(
+    io,
+    authService,
+    logger,
+    realtime,
+    permissionRepository,
   );
   registerInvitationGateway(
     io,
