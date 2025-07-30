@@ -10,6 +10,7 @@ import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { getContext } from '../../../infrastructure/loggerContext';
 import { User } from '../../../domain/entities/User';
 import { GetAuditLogsUseCase } from '../../../usecases/audit/GetAuditLogsUseCase';
+import { GetAuditConfigUseCase } from '../../../usecases/audit/GetAuditConfigUseCase';
 import { UpdateAuditConfigUseCase } from '../../../usecases/audit/UpdateAuditConfigUseCase';
 
 interface AuthedSocket extends Socket {
@@ -91,6 +92,23 @@ export function registerAuditGateway(
           return;
         }
         logger.error('audit-log-request failed', { ...getContext(), error: err });
+      }
+    });
+
+    socket.on('audit-config-get', async () => {
+      logger.info('audit-config-get', getContext());
+      try {
+        checker.check(PermissionKeys.READ_AUDIT_CONFIG);
+      } catch {
+        socket.emit('error', { error: 'Forbidden' });
+        return;
+      }
+      const useCase = new GetAuditConfigUseCase(configService);
+      try {
+        const cfg = await useCase.execute();
+        socket.emit('audit-config-get-response', cfg);
+      } catch (err) {
+        logger.error('audit-config-get failed', { ...getContext(), error: err });
       }
     });
 
