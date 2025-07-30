@@ -8,6 +8,7 @@ import { createUserRouter } from '../adapters/controllers/rest/userController';
 import { createInvitationRouter } from '../adapters/controllers/rest/invitationController';
 import { createRoleRouter } from '../adapters/controllers/rest/roleController';
 import { createAuditRouter } from '../adapters/controllers/rest/auditController';
+import { createAuditConfigRouter } from '../adapters/controllers/rest/auditConfigController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -22,6 +23,8 @@ import { LocalFileStorageAdapter } from '../adapters/storage/LocalFileStorageAda
 import { AvatarService } from '../domain/services/AvatarService';
 import { PrismaRefreshTokenRepository } from '../adapters/repositories/PrismaRefreshTokenRepository';
 import { PrismaAudit } from '../adapters/audit/PrismaAudit';
+import { PrismaAuditConfigAdapter } from '../adapters/audit/PrismaAuditConfigAdapter';
+import { AuditConfigService } from '../domain/services/AuditConfigService';
 import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
@@ -73,6 +76,8 @@ async function bootstrap(): Promise<void> {
       }),
     )
     : new InMemoryCacheAdapter();
+  const auditConfigRepo = new PrismaAuditConfigAdapter(prisma, logger);
+  const auditConfigService = new AuditConfigService(cache, auditConfigRepo);
   const configService = new ConfigService(cache, configRepo);
   const passwordValidator = new PasswordValidator(configService);
   const mfaService = new TOTPAdapter(
@@ -146,6 +151,14 @@ async function bootstrap(): Promise<void> {
     createAuditRouter(
       authService,
       userRepository,
+      audit,
+      logger,
+    ),
+  );
+  app.use(
+    '/api',
+    createAuditConfigRouter(
+      auditConfigService,
       audit,
       logger,
     ),
