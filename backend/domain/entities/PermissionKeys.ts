@@ -122,6 +122,9 @@ export class PermissionKeys {
   /** Allows updating application configuration values. */
   static readonly UPDATE_CONFIG = 'update-config';
 
+  /** Allows deleting application configuration values. */
+  static readonly DELETE_CONFIG = 'delete-config';
+
   /** Allows listing available sites. */
   static readonly READ_SITES = 'read-sites';
 
