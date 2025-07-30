@@ -206,6 +206,18 @@ CREATE TABLE "AppConfig" (
     CONSTRAINT "AppConfig_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "AuditConfig" (
+    "id" SERIAL NOT NULL,
+    "levels" TEXT[],
+    "categories" TEXT[],
+    "updatedAt" TIMESTAMP(3),
+    "updatedBy" TEXT,
+    "singleton" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "AuditConfig_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -217,6 +229,9 @@ CREATE UNIQUE INDEX "Invitation_token_key" ON "Invitation"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "AppConfig_key_key" ON "AppConfig"("key");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AuditConfig_singleton_key" ON "AuditConfig"("singleton");
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
