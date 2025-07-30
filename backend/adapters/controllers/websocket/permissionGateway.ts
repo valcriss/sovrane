@@ -10,6 +10,7 @@ import { getContext } from '../../../infrastructure/loggerContext';
 import { User } from '../../../domain/entities/User';
 import { Permission } from '../../../domain/entities/Permission';
 import { GetPermissionsUseCase } from '../../../usecases/permission/GetPermissionsUseCase';
+import { GetPermissionUseCase } from '../../../usecases/permission/GetPermissionUseCase';
 import { CreatePermissionUseCase } from '../../../usecases/permission/CreatePermissionUseCase';
 import { UpdatePermissionUseCase } from '../../../usecases/permission/UpdatePermissionUseCase';
 import { RemovePermissionUseCase } from '../../../usecases/permission/RemovePermissionUseCase';
@@ -86,6 +87,31 @@ export function registerPermissionGateway(
         socket.emit('permission-list-response', result);
       } catch (err) {
         logger.error('permission-list-request failed', { ...getContext(), error: err });
+      }
+    });
+
+    socket.on('permission-get', async (payload: { id: string }) => {
+      logger.info('permission-get', getContext());
+      if (!payload || typeof payload.id !== 'string') {
+        socket.emit('error', { error: 'Invalid parameters' });
+        return;
+      }
+      try {
+        checker.check(PermissionKeys.READ_PERMISSION);
+      } catch {
+        socket.emit('error', { error: 'Forbidden' });
+        return;
+      }
+      const useCase = new GetPermissionUseCase(permissionRepository);
+      try {
+        const permission = await useCase.execute(payload.id);
+        if (!permission) {
+          socket.emit('error', { error: 'Not found' });
+          return;
+        }
+        socket.emit('permission-get-response', permission);
+      } catch (err) {
+        logger.error('permission-get failed', { ...getContext(), error: err });
       }
     });
 
