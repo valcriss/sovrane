@@ -212,7 +212,7 @@ describe('User REST controller', () => {
     tokenService.generateRefreshToken.mockResolvedValue('r');
     const res = await request(app)
       .post('/api/users')
-      .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' }, password: 'Password1!' });
+      .send({ id: 'u', firstName: 'John', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ permission: { id: 'p', permissionKey: 'k', description: 'd' }, scopeId: 's1' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' }, password: 'Password1!' });
 
     expect(res.status).toBe(201);
     const expectedUser = {
@@ -592,7 +592,7 @@ describe('User REST controller', () => {
     const res = await request(app)
       .put('/api/users/u')
       .set('Authorization', 'Bearer token')
-      .send({ firstName: 'Jane', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ id: 'p', permissionKey: 'k', description: 'd' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
+      .send({ firstName: 'Jane', lastName: 'Doe', email: 'john@example.com', roles: [{ id: 'r', label: 'Role' }], status: 'active', permissions: [{ permission: { id: 'p', permissionKey: 'k', description: 'd' }, scopeId: 's1' }], department: { id: 'd', label: 'Dept', site: { id: 's', label: 'Site' } }, site: { id: 's', label: 'Site' } });
 
     expect(res.status).toBe(200);
     expect(repo.update).toHaveBeenCalled();

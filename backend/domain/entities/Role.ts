@@ -1,7 +1,7 @@
 /**
  * Describes a role that can be assigned to a user.
  */
-import { Permission } from './Permission';
+import { RolePermissionAssignment } from './RolePermissionAssignment';
 import { User } from './User';
 
 export class Role {
@@ -10,12 +10,12 @@ export class Role {
    *
    * @param id - Unique identifier of the role.
    * @param label - Human readable label for the role.
-   * @param permissions - Collection of {@link Permission} associated with the role.
+   * @param permissions - Collection of permission assignments associated with the role.
    */
   constructor(
     public readonly id: string,
     public label: string,
-    public permissions: Permission[] = [],
+    public permissions: RolePermissionAssignment[] = [],
     /** Date when the role was created. */
     public createdAt: Date = new Date(),
     /** Date when the role was last updated. Defaults to {@link createdAt}. */

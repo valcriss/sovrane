@@ -35,6 +35,7 @@ import {Role} from '../../../domain/entities/Role';
 import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
 import {Permission} from '../../../domain/entities/Permission';
+import {UserPermissionAssignment} from '../../../domain/entities/UserPermissionAssignment';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
 import { PasswordValidator } from '../../../domain/services/PasswordValidator';
@@ -252,7 +253,11 @@ export function createUserRouter(
         };
         site: { id: string; label: string };
         picture?: string;
-        permissions?: Array<{ id: string; permissionKey: string; description: string }>;
+        permissions?: Array<{
+            permission: { id: string; permissionKey: string; description: string };
+            scopeId?: string;
+            denyPermission?: boolean;
+        }>;
     }
 
     /* istanbul ignore next */
@@ -274,7 +279,16 @@ export function createUserRouter(
         new Site(body.site.id, body.site.label),
         body.picture,
         (body.permissions ?? []).map(
-          (p) => new Permission(p.id, p.permissionKey, p.description),
+          (p) =>
+            new UserPermissionAssignment(
+              new Permission(
+                p.permission.id,
+                p.permission.permissionKey,
+                p.permission.description,
+              ),
+              p.scopeId,
+              p.denyPermission ?? false,
+            ),
         ),
       );
     }

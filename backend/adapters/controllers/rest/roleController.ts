@@ -7,6 +7,7 @@ import {getContext} from '../../../infrastructure/loggerContext';
 import {Role} from '../../../domain/entities/Role';
 import {Permission} from '../../../domain/entities/Permission';
 import {User} from '../../../domain/entities/User';
+import {RolePermissionAssignment} from '../../../domain/entities/RolePermissionAssignment';
 import {PermissionChecker} from '../../../domain/services/PermissionChecker';
 import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
 import {CreateRoleUseCase} from '../../../usecases/role/CreateRoleUseCase';
@@ -64,7 +65,10 @@ import {GetRoleUseCase} from '../../../usecases/role/GetRoleUseCase';
 interface RolePayload {
     id: string;
     label: string;
-    permissions?: Array<{ id: string; permissionKey: string; description: string }>;
+    permissions?: Array<{
+        permission: { id: string; permissionKey: string; description: string };
+        scopeId?: string;
+    }>;
 }
 
 interface AuthedRequest extends Request {
@@ -77,7 +81,11 @@ function parseRole(body: RolePayload): Role {
     body.id,
     body.label,
     (body.permissions ?? []).map(
-      (p) => new Permission(p.id, p.permissionKey, p.description),
+      (p) =>
+        new RolePermissionAssignment(
+          new Permission(p.permission.id, p.permission.permissionKey, p.permission.description),
+          p.scopeId,
+        ),
     ),
   );
 }
