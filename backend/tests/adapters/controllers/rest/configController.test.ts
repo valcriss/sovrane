@@ -108,4 +108,17 @@ describe('Config REST controller', () => {
 
     expect(res.status).toBe(403);
   });
+
+  it('should return 400 when delete use case fails', async () => {
+    role.permissions.push(new Permission('p3', PermissionKeys.DELETE_CONFIG, ''));
+    deleteUseCase.execute.mockRejectedValue(new Error('boom'));
+
+    const res = await request(app)
+      .delete('/api/config/key')
+      .send({ deletedBy: 'u' });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ message: 'boom' });
+    expect(logger.warn).toHaveBeenCalled();
+  });
 });

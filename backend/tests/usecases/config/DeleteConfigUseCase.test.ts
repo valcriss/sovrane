@@ -36,6 +36,10 @@ describe('DeleteConfigUseCase', () => {
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
     const event = audit.log.mock.calls[0][0] as AuditEvent;
     expect(event.action).toBe(AuditEventType.CONFIG_DELETED);
+    expect(event.actorId).toBe('u');
+    expect(event.actorType).toBe('user');
+    expect(event.targetType).toBe('config');
+    expect(event.targetId).toBe('foo');
     expect(event.details).toEqual({ key: 'foo', oldValue: 'bar', newValue: null });
   });
 
