@@ -10,7 +10,6 @@ import { getContext } from '../../../infrastructure/loggerContext';
 import { User } from '../../../domain/entities/User';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
-import { Permission } from '../../../domain/entities/Permission';
 import {
   GetDepartmentsUseCase,
 } from '../../../usecases/department/GetDepartmentsUseCase';
@@ -22,9 +21,6 @@ import { RemoveDepartmentManagerUseCase } from '../../../usecases/department/Rem
 import { GetDepartmentParentUseCase } from '../../../usecases/department/GetDepartmentParentUseCase';
 import { SetDepartmentParentDepartmentUseCase } from '../../../usecases/department/SetDepartmentParentDepartmentUseCase';
 import { RemoveDepartmentParentDepartmentUseCase } from '../../../usecases/department/RemoveDepartmentParentDepartmentUseCase';
-import { GetDepartmentPermissionsUseCase } from '../../../usecases/department/GetDepartmentPermissionsUseCase';
-import { SetDepartmentPermissionUseCase } from '../../../usecases/department/SetDepartmentPermissionUseCase';
-import { RemoveDepartmentPermissionUseCase } from '../../../usecases/department/RemoveDepartmentPermissionUseCase';
 import { AddChildDepartmentUseCase } from '../../../usecases/department/AddChildDepartmentUseCase';
 import { RemoveChildDepartmentUseCase } from '../../../usecases/department/RemoveChildDepartmentUseCase';
 import { AddDepartmentUserUseCase } from '../../../usecases/department/AddDepartmentUserUseCase';
@@ -49,7 +45,6 @@ interface DepartmentPayload {
   parentDepartmentId?: string | null;
   managerUserId?: string | null;
   site: { id: string; label: string };
-  permissions?: Array<{ id: string; permissionKey: string; description: string }>;
 }
 
 export function registerDepartmentGateway(
@@ -145,7 +140,6 @@ export function registerDepartmentGateway(
         payload.parentDepartmentId ?? null,
         payload.managerUserId ?? null,
         new Site(payload.site.id, payload.site.label),
-        (payload.permissions ?? []).map((p) => new Permission(p.id, p.permissionKey, p.description)),
       );
       const useCase = new CreateDepartmentUseCase(
         departmentRepository,
@@ -177,7 +171,6 @@ export function registerDepartmentGateway(
         payload.parentDepartmentId ?? null,
         payload.managerUserId ?? null,
         new Site(payload.site.id, payload.site.label),
-        (payload.permissions ?? []).map((p) => new Permission(p.id, p.permissionKey, p.description)),
       );
       const useCase = new UpdateDepartmentUseCase(departmentRepository, checker);
       try {
@@ -389,83 +382,6 @@ export function registerDepartmentGateway(
       }
     });
 
-    socket.on('department-permissions-request', async (payload: { id: string } & ListParams & { search?: string }) => {
-      logger.info('department-permissions-request', getContext());
-      const page = Number(payload?.page ?? 1);
-      const limit = Number(payload?.limit ?? 20);
-      if (!payload || typeof payload.id !== 'string' || Number.isNaN(page) || page < 1 || Number.isNaN(limit) || limit < 1) {
-        socket.emit('error', { error: 'Invalid parameters' });
-        return;
-      }
-      const useCase = new GetDepartmentPermissionsUseCase(departmentRepository, checker);
-      try {
-        const result = await useCase.execute(payload.id, {
-          page,
-          limit,
-          filters: { search: payload.search },
-        });
-        socket.emit('department-permissions-response', result);
-      } catch (err) {
-        if ((err as Error).message === 'Forbidden') {
-          socket.emit('error', { error: 'Forbidden' });
-          return;
-        }
-        logger.error('department-permissions-request failed', { ...getContext(), error: err });
-      }
-    });
-
-    socket.on('department-permission-add', async (payload: { id: string; permission: { id: string; permissionKey: string; description: string } }) => {
-      logger.info('department-permission-add', getContext());
-      if (!payload || typeof payload.id !== 'string' || !payload.permission || typeof payload.permission.id !== 'string' || typeof payload.permission.permissionKey !== 'string' || typeof payload.permission.description !== 'string') {
-        socket.emit('error', { error: 'Invalid parameters' });
-        return;
-      }
-      const useCase = new SetDepartmentPermissionUseCase(departmentRepository, checker);
-      const perm = new Permission(
-        payload.permission.id,
-        payload.permission.permissionKey,
-        payload.permission.description,
-      );
-      try {
-        const updated = await useCase.execute(payload.id, perm);
-        if (!updated) {
-          socket.emit('error', { error: 'Not found' });
-          return;
-        }
-        socket.emit('department-permission-add-response', updated);
-        await realtime.broadcast('department-changed', { id: updated.id });
-      } catch (err) {
-        if ((err as Error).message === 'Forbidden') {
-          socket.emit('error', { error: 'Forbidden' });
-          return;
-        }
-        logger.error('department-permission-add failed', { ...getContext(), error: err });
-      }
-    });
-
-    socket.on('department-permission-remove', async (payload: { id: string; permissionId: string }) => {
-      logger.info('department-permission-remove', getContext());
-      if (!payload || typeof payload.id !== 'string' || typeof payload.permissionId !== 'string') {
-        socket.emit('error', { error: 'Invalid parameters' });
-        return;
-      }
-      const useCase = new RemoveDepartmentPermissionUseCase(departmentRepository, checker);
-      try {
-        const updated = await useCase.execute(payload.id, payload.permissionId);
-        if (!updated) {
-          socket.emit('error', { error: 'Not found' });
-          return;
-        }
-        socket.emit('department-permission-remove-response', updated);
-        await realtime.broadcast('department-changed', { id: updated.id });
-      } catch (err) {
-        if ((err as Error).message === 'Forbidden') {
-          socket.emit('error', { error: 'Forbidden' });
-          return;
-        }
-        logger.error('department-permission-remove failed', { ...getContext(), error: err });
-      }
-    });
 
     socket.on('department-add-child', async (payload: { id: string; childId: string }) => {
       logger.info('department-add-child', getContext());

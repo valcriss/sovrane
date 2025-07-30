@@ -112,11 +112,6 @@ describe('Department REST controller', () => {
     expect(res.status).toBe(404);
   });
 
-  it('should list department permissions', async () => {
-    deptRepo.findById.mockResolvedValue(department);
-    const res = await request(app).get('/api/departments/d/permissions?page=1&limit=20');
-    expect(res.status).toBe(204);
-  });
 
   it('should list department users', async () => {
     userRepo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
@@ -241,39 +236,6 @@ describe('Department REST controller', () => {
     expect(res.status).toBe(404);
   });
 
-  it('should add permission', async () => {
-    const res = await request(app)
-      .post('/api/departments/d/permissions')
-      .send({ id: 'p', permissionKey: 'P', description: 'desc' });
-
-    expect(res.status).toBe(200);
-    expect(deptRepo.update).toHaveBeenCalled();
-  });
-
-  it('should return 404 when adding permission to missing department', async () => {
-    deptRepo.findById.mockResolvedValueOnce(null);
-
-    const res = await request(app)
-      .post('/api/departments/d/permissions')
-      .send({ id: 'p', permissionKey: 'P', description: 'desc' });
-
-    expect(res.status).toBe(404);
-  });
-
-  it('should remove permission', async () => {
-    const res = await request(app).delete('/api/departments/d/permissions/p');
-
-    expect(res.status).toBe(200);
-    expect(deptRepo.update).toHaveBeenCalled();
-  });
-
-  it('should return 404 when removing permission from missing department', async () => {
-    deptRepo.findById.mockResolvedValueOnce(null);
-
-    const res = await request(app).delete('/api/departments/d/permissions/p');
-
-    expect(res.status).toBe(404);
-  });
 
   it('should add user to department', async () => {
     const res = await request(app).post('/api/departments/d/users/u');

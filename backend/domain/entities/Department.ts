@@ -1,7 +1,6 @@
 /**
  * Represents a department or service within the organization.
  */
-import { Permission } from './Permission';
 import { Site } from './Site';
 import { User } from './User';
 
@@ -14,7 +13,6 @@ export class Department {
    * @param parentDepartmentId - Identifier of the parent department, if any.
    * @param managerUserId - Identifier of the user managing the department, if any.
    * @param site - {@link Site} where the department is located.
-   * @param permissions - Collection of {@link Permission} associated with the department.
    * @param createdAt - Date when the department was created.
    * @param updatedAt - Date when the department was last updated. Defaults to {@link createdAt}.
    * @param createdBy - User who created the department or `null` if created automatically.
@@ -26,7 +24,6 @@ export class Department {
     public parentDepartmentId: string | null = null,
     public managerUserId: string | null = null,
     public site: Site,
-    public permissions: Permission[] = [],
     /** Date when the department was created. */
     public createdAt: Date = new Date(),
     /** Date when the department was last updated. Defaults to {@link createdAt}. */

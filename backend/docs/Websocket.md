@@ -76,9 +76,6 @@ Les évènements sont regroupés par type de ressource. Chaque requête reçoit 
 | `department-parent-get` | `department-parent-response` |
 | `department-parent-set` | `department-parent-set-response` |
 | `department-parent-remove` | `department-parent-remove-response` |
-| `department-permissions-request` | `department-permissions-response` |
-| `department-permission-add` | `department-permission-add-response` |
-| `department-permission-remove` | `department-permission-remove-response` |
 | `department-add-child` | `department-add-child-response` |
 | `department-remove-child` | `department-remove-child-response` |
 | `department-add-user` | `department-add-user-response` |
