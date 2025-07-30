@@ -2,11 +2,10 @@ import request from 'supertest';
 import express from 'express';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { createAuditConfigRouter } from '../../../../adapters/controllers/rest/auditConfigController';
-import { AuditConfigService } from '../../../../domain/services/AuditConfigService';
-import { AuditPort } from '../../../../domain/ports/AuditPort';
+import { GetAuditConfigUseCase } from '../../../../usecases/audit/GetAuditConfigUseCase';
+import { UpdateAuditConfigUseCase } from '../../../../usecases/audit/UpdateAuditConfigUseCase';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { AuditConfig } from '../../../../domain/entities/AuditConfig';
-import { AuditEventType } from '../../../../domain/entities/AuditEventType';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
 import { Permission } from '../../../../domain/entities/Permission';
@@ -16,8 +15,8 @@ import { Department } from '../../../../domain/entities/Department';
 
 describe('AuditConfig REST controller', () => {
   let app: express.Express;
-  let service: DeepMockProxy<AuditConfigService>;
-  let audit: DeepMockProxy<AuditPort>;
+  let getUseCase: DeepMockProxy<GetAuditConfigUseCase>;
+  let updateUseCase: DeepMockProxy<UpdateAuditConfigUseCase>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let site: Site;
   let dept: Department;
@@ -25,8 +24,8 @@ describe('AuditConfig REST controller', () => {
   let user: User;
 
   beforeEach(() => {
-    service = mockDeep<AuditConfigService>();
-    audit = mockDeep<AuditPort>();
+    getUseCase = mockDeep<GetAuditConfigUseCase>();
+    updateUseCase = mockDeep<UpdateAuditConfigUseCase>();
     logger = mockDeep<LoggerPort>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
@@ -36,22 +35,21 @@ describe('AuditConfig REST controller', () => {
     app = express();
     app.use(express.json());
     app.use('/api', (req, _res, next) => { (req as any).user = user; next(); });
-    app.use('/api', createAuditConfigRouter(service, audit, logger));
+    app.use('/api', createAuditConfigRouter(getUseCase, updateUseCase, logger));
   });
 
   it('should return audit config', async () => {
     const cfg = new AuditConfig(1, ['info'], ['auth'], new Date('2024-01-01T00:00:00Z'), 'u');
-    service.get.mockResolvedValue(cfg);
+    getUseCase.execute.mockResolvedValue(cfg);
 
     const res = await request(app).get('/api/audit/config');
 
     expect(res.status).toBe(200);
     expect(res.body.levels).toEqual(['info']);
-    expect(audit.log).toHaveBeenCalledWith(expect.objectContaining({ action: AuditEventType.AUDIT_CONFIG_UPDATED }));
   });
 
   it('should return 204 when none', async () => {
-    service.get.mockResolvedValue(null);
+    getUseCase.execute.mockResolvedValue(null);
 
     const res = await request(app).get('/api/audit/config');
 
@@ -69,15 +67,18 @@ describe('AuditConfig REST controller', () => {
   it('should update audit config', async () => {
     role.permissions.push(new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, ''));
     const cfg = new AuditConfig(1, ['warn'], ['system'], new Date('2024-01-02T00:00:00Z'), 'u');
-    service.update.mockResolvedValue(cfg);
+    updateUseCase.execute.mockResolvedValue(cfg);
 
     const res = await request(app)
       .put('/api/audit/config')
       .send({ levels: ['warn'], categories: ['system'], updatedBy: 'u' });
 
     expect(res.status).toBe(200);
-    expect(service.update).toHaveBeenCalledWith(['warn'], ['system'], 'u');
-    expect(audit.log).toHaveBeenCalledWith(expect.objectContaining({ action: AuditEventType.AUDIT_CONFIG_UPDATED }));
+    expect(updateUseCase.execute).toHaveBeenCalledWith(
+      ['warn'],
+      ['system'],
+      'u',
+    );
   });
 
   it('should forbid update without permission', async () => {
@@ -92,7 +93,7 @@ describe('AuditConfig REST controller', () => {
 
   it('should return 400 when service fails', async () => {
     role.permissions.push(new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, ''));
-    service.update.mockRejectedValue(new Error('boom'));
+    updateUseCase.execute.mockRejectedValue(new Error('boom'));
 
     const res = await request(app)
       .put('/api/audit/config')
