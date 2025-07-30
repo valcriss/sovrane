@@ -54,18 +54,7 @@
             "in": "query",
             "name": "action",
             "schema": {
-              "type": "string",
-              "enum": [
-                "user.updateProfile",
-                "auth.refresh",
-                "user.accountLocked",
-                "user.loginFailed",
-                "config.created",
-                "config.updated",
-                "config.deleted",
-                "auditConfig.updated",
-                "sensitiveRoute.accessed"
-              ]
+              "type": "string"
             },
             "description": "Filter by action name."
           },
@@ -147,7 +136,7 @@
         "summary": "Get audit configuration",
         "description": "Returns the audit logging configuration. Requires the `read-audit-config` permission.",
         "tags": [
-          "Audit Config"
+          "Audit"
         ],
         "security": [
           {
@@ -163,8 +152,14 @@
                   "$ref": "#/components/schemas/AuditConfig"
                 },
                 "example": {
-                  "levels": ["info", "warn"],
-                  "categories": ["auth", "config"],
+                  "levels": [
+                    "info",
+                    "warn"
+                  ],
+                  "categories": [
+                    "auth",
+                    "config"
+                  ],
                   "updatedAt": "2024-01-01T00:00:00.000Z",
                   "updatedBy": "user1"
                 }
@@ -181,9 +176,9 @@
       },
       "put": {
         "summary": "Update audit configuration",
-        "description": "Update the audit logging configuration. Requires the `write-audit-config` permission. Generates an audit event with action `auditConfig.updated`.",
+        "description": "Update the audit logging configuration. Requires the `write-audit-config` permission.\nGenerates an audit event with action `auditConfig.updated`.\n",
         "tags": [
-          "Audit Config"
+          "Audit"
         ],
         "security": [
           {
@@ -200,23 +195,35 @@
                 "properties": {
                   "levels": {
                     "type": "array",
-                    "items": { "type": "string" }
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "categories": {
                     "type": "array",
-                    "items": { "type": "string" }
+                    "items": {
+                      "type": "string"
+                    }
                   },
                   "updatedBy": {
                     "type": "string"
                   }
                 },
-                "required": ["levels", "categories", "updatedBy"]
+                "required": [
+                  "levels",
+                  "categories",
+                  "updatedBy"
+                ]
               },
-                "example": {
-                  "levels": ["info"],
-                  "categories": ["auth"],
-                  "updatedBy": "user1"
-                }
+              "example": {
+                "levels": [
+                  "info"
+                ],
+                "categories": [
+                  "auth"
+                ],
+                "updatedBy": "user1"
+              }
             }
           }
         },
@@ -224,17 +231,21 @@
           "200": {
             "description": "Updated configuration",
             "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/AuditConfig"
-                  },
-                  "example": {
-                    "levels": ["info"],
-                    "categories": ["auth"],
-                    "updatedAt": "2024-01-01T00:00:00.000Z",
-                    "updatedBy": "user1"
-                  }
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditConfig"
+                },
+                "example": {
+                  "levels": [
+                    "info"
+                  ],
+                  "categories": [
+                    "auth"
+                  ],
+                  "updatedAt": "2024-01-01T00:00:00.000Z",
+                  "updatedBy": "user1"
                 }
+              }
             }
           },
           "400": {
@@ -331,7 +342,7 @@
       },
       "delete": {
         "summary": "Delete configuration value",
-        "description": "Remove a configuration entry. Requires the `delete-config` permission. Generates an audit event with action `config.deleted`.",
+        "description": "Remove a configuration entry. Requires the `delete-config` permission.\nGenerates an audit event with action `config.deleted`.\n",
         "tags": [
           "Config"
         ],
@@ -4314,17 +4325,6 @@
           },
           "action": {
             "type": "string",
-            "enum": [
-              "user.updateProfile",
-              "auth.refresh",
-              "user.accountLocked",
-              "user.loginFailed",
-              "config.created",
-              "config.updated",
-              "config.deleted",
-              "auditConfig.updated",
-              "sensitiveRoute.accessed"
-            ],
             "description": "Description of the performed action."
           },
           "targetType": {
@@ -4351,6 +4351,37 @@
             "type": "string",
             "nullable": true,
             "description": "User agent associated with the request."
+          }
+        }
+      },
+      "AuditConfig": {
+        "description": "Settings controlling which audit events are recorded.",
+        "type": "object",
+        "properties": {
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Enabled audit levels."
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Event categories to log."
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Time of last update."
+          },
+          "updatedBy": {
+            "type": "string",
+            "nullable": true,
+            "description": "Identifier of the user who last modified the config."
           }
         }
       },
@@ -4384,39 +4415,6 @@
           "key",
           "value"
         ]
-      },
-      "AuditConfig": {
-        "description": "Settings controlling which audit events are recorded.",
-        "type": "object",
-        "properties": {
-          "levels": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "Enabled audit levels."
-          },
-          "categories": {
-            "type": "array",
-            "items": { "type": "string" },
-            "description": "Event categories to log."
-          },
-          "updatedAt": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true,
-            "description": "Time of last update."
-          },
-          "updatedBy": {
-            "type": "string",
-            "nullable": true,
-            "description": "Identifier of the user who last modified the config."
-          }
-        },
-        "example": {
-          "levels": ["info"],
-          "categories": ["auth"],
-          "updatedAt": "2024-01-01T00:00:00.000Z",
-          "updatedBy": "user1"
-        }
       },
       "Site": {
         "description": "Physical location where users and departments operate.",
