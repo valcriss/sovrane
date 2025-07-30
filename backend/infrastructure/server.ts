@@ -88,7 +88,12 @@ async function bootstrap(): Promise<void> {
       '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'.slice(0, 64),
   );
   const getConfigUseCase = new GetConfigUseCase(configService);
-  const bootstrapService = new BootstapService(configService, logger, permissionRepository);
+  const bootstrapService = new BootstapService(
+    configService,
+    logger,
+    permissionRepository,
+    auditConfigService,
+  );
   await bootstrapService.initialize();
 
   const authService = new JWTAuthServiceAdapter(

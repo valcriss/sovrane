@@ -5,6 +5,7 @@ import { PermissionRepositoryPort } from '../ports/PermissionRepositoryPort';
 import { Permission } from '../entities/Permission';
 import { PermissionKeys } from '../entities/PermissionKeys';
 import { randomUUID } from 'crypto';
+import { AuditConfigService } from './AuditConfigService';
 
 /**
  * Service initializing default application configuration values and
@@ -17,11 +18,13 @@ export class BootstapService {
    * @param config - Service used to persist configuration values.
    * @param logger - Logger instance for runtime information.
    * @param permissions - Repository managing permission entities.
+   * @param auditConfig - Service handling audit configuration persistence.
    */
   constructor(
     private readonly config: ConfigService,
     private readonly logger: LoggerPort,
     private readonly permissions: PermissionRepositoryPort,
+    private readonly auditConfig: AuditConfigService,
   ) {}
 
   /**
@@ -65,6 +68,12 @@ export class BootstapService {
       if (!existing) {
         await this.permissions.create(new Permission(randomUUID(), key, key));
       }
+    }
+
+    const currentAuditConfig = await this.auditConfig.get();
+    if (!currentAuditConfig) {
+      this.logger.info('Creating default audit configuration');
+      await this.auditConfig.update([], [], 'bootstrap');
     }
   }
 }

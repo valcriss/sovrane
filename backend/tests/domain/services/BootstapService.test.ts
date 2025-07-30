@@ -6,18 +6,23 @@ import { PermissionRepositoryPort } from '../../../domain/ports/PermissionReposi
 import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { AppConfigKeys } from '../../../domain/entities/AppConfigKeys';
+import { AuditConfigService } from '../../../domain/services/AuditConfigService';
+import { AuditConfig } from '../../../domain/entities/AuditConfig';
 
 describe('BootstapService', () => {
   let config: DeepMockProxy<ConfigService>;
   let logger: DeepMockProxy<LoggerPort>;
   let permissions: DeepMockProxy<PermissionRepositoryPort>;
+  let auditConfig: DeepMockProxy<AuditConfigService>;
   let service: BootstapService;
 
   beforeEach(() => {
     config = mockDeep<ConfigService>();
     logger = mockDeep<LoggerPort>();
     permissions = mockDeep<PermissionRepositoryPort>();
-    service = new BootstapService(config, logger, permissions);
+    auditConfig = mockDeep<AuditConfigService>();
+    auditConfig.get.mockResolvedValue(null);
+    service = new BootstapService(config, logger, permissions, auditConfig);
   });
 
   it('should initialize configuration keys', async () => {
@@ -45,6 +50,7 @@ describe('BootstapService', () => {
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.LOCKOUT_ALERT_THRESHOLD, 5, 'bootstrap');
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.FAILED_LOGIN_ALERT_THRESHOLD, 10, 'bootstrap');
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.FAILED_LOGIN_TIME_WINDOW, 15, 'bootstrap');
+    expect(auditConfig.update).toHaveBeenCalledWith([], [], 'bootstrap');
   });
 
   it('should create missing permissions', async () => {
@@ -64,6 +70,12 @@ describe('BootstapService', () => {
     permissions.findByKey.mockResolvedValue(new Permission("1", PermissionKeys.CREATE_USER, "create"));
     await service.initialize();
     expect(permissions.create).not.toHaveBeenCalled();
+  });
+
+  it('should not create audit config when existing', async () => {
+    auditConfig.get.mockResolvedValue(new AuditConfig(1, [], [], new Date(), 'u'));
+    await service.initialize();
+    expect(auditConfig.update).not.toHaveBeenCalled();
   });
 
 });
