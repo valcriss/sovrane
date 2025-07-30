@@ -203,7 +203,14 @@ async function bootstrap(): Promise<void> {
     io.adapter(createSocketIORedisAdapter(pubClient, subClient));
     logger.info('Socket.IO Redis adapter configured', getContext());
   }
-  registerUserGateway(io, authService, logger, realtime);
+  registerUserGateway(
+    io,
+    authService,
+    logger,
+    realtime,
+    userRepository,
+    audit,
+  );
 
   const scheduler = new NodeCronScheduler(logger);
   scheduler.registerJobs(
