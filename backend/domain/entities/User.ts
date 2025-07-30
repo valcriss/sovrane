@@ -1,6 +1,6 @@
 import { Role } from './Role';
 import { Department } from './Department';
-import { Permission } from './Permission';
+import { UserPermissionAssignment } from './UserPermissionAssignment';
 import { Site } from './Site';
 
 /**
@@ -19,7 +19,7 @@ export class User {
    * @param department - {@link Department} the user belongs to.
    * @param site - {@link Site} where the user is located.
    * @param picture - Optional profile picture URL.
-   * @param permissions - Collection of {@link Permission} granted directly to the user.
+   * @param permissions - Collection of permission assignments granted directly to the user.
    * @param mfaEnabled - Flag indicating whether multi-factor authentication is enabled.
    * @param mfaType - Selected type of multi-factor authentication or `null` if not configured.
    * @param mfaSecret - Secret used for the MFA mechanism when applicable.
@@ -39,7 +39,7 @@ export class User {
     public department: Department,
     public site: Site,
     public picture?: string,
-    public permissions: Permission[] = [],
+    public permissions: UserPermissionAssignment[] = [],
     /** Date and time of the user's last successful login. */
     public lastLogin: Date | null = null,
     /** Date and time of the user's last activity (login or token refresh). */

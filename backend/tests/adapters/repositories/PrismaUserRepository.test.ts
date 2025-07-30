@@ -5,6 +5,7 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { Site } from '../../../domain/entities/Site';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
@@ -347,7 +348,7 @@ describe('PrismaUserRepository', () => {
 
     it('should create user with permissions', async () => {
       const perm = new Permission('perm-1', 'READ', 'read');
-      mockUser.permissions = [perm];
+      mockUser.permissions = [new UserPermissionAssignment(perm, 's1')];
 
       const mockPrismaCreatedUserPerm = {
         id: 'user-123',
@@ -394,7 +395,7 @@ describe('PrismaUserRepository', () => {
           passwordChangedAt: expect.any(Date),
           createdById: undefined,
           updatedById: undefined,
-          permissions: { create: [{ permission: { connect: { id: 'perm-1' } } }] },
+          permissions: { create: [{ scopeId: 's1', permission: { connect: { id: 'perm-1' } } }] },
           status: 'active',
           roles: {
             create: [{ role: { connect: { id: 'role-123' } } }],
@@ -647,7 +648,7 @@ describe('PrismaUserRepository', () => {
         department,
         site,
         undefined,
-        [perm]
+        [new UserPermissionAssignment(perm, 's2')]
       );
 
       const mockPrismaUpdatedPermUser = {
@@ -694,7 +695,7 @@ describe('PrismaUserRepository', () => {
           mfaRecoveryCodes: [],
           passwordChangedAt: expect.any(Date),
           updatedById: undefined,
-          permissions: { deleteMany: {}, create: [{ permission: { connect: { id: 'perm-2' } } }] },
+          permissions: { deleteMany: {}, create: [{ scopeId: 's2', permission: { connect: { id: 'perm-2' } } }] },
           roles: {
             deleteMany: {},
             create: [{ role: { connect: { id: 'role-123' } } }],

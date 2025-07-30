@@ -1,8 +1,10 @@
 /* istanbul ignore file */
-import { PrismaClient, Prisma, Role as PrismaRole } from '@prisma/client';
+import { PrismaClient, Prisma, Role as PrismaRole, Permission as PrismaPermission } from '@prisma/client';
 import { RoleRepositoryPort, RoleFilters } from '../../domain/ports/RoleRepositoryPort';
 import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { Role } from '../../domain/entities/Role';
+import { RolePermissionAssignment } from '../../domain/entities/RolePermissionAssignment';
+import { Permission } from '../../domain/entities/Permission';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
 
@@ -15,11 +17,19 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
     private readonly logger: LoggerPort,
   ) {}
 
-  private mapRecord(record: PrismaRole): Role {
+  private mapRecord(
+    record: PrismaRole & { permissions: Array<{ permission: PrismaPermission; scopeId: string | null }> },
+  ): Role {
     return new Role(
       record.id,
       record.label,
-      [],
+      record.permissions.map(
+        (rp) =>
+          new RolePermissionAssignment(
+            new Permission(rp.permission.id, rp.permission.permissionKey, rp.permission.description),
+            rp.scopeId ?? undefined,
+          ),
+      ),
       record.createdAt,
       record.updatedAt,
       null,
@@ -29,13 +39,18 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
 
   async findById(id: string): Promise<Role | null> {
     this.logger.debug('Role findById', getContext());
-    const record = await this.prisma.role.findUnique({ where: { id } });
+    const record = await this.prisma.role.findUnique({
+      where: { id },
+      include: { permissions: { include: { permission: true } } },
+    });
     return record ? this.mapRecord(record) : null;
   }
 
   async findAll(): Promise<Role[]> {
     this.logger.debug('Role findAll', getContext());
-    const records = await this.prisma.role.findMany();
+    const records = await this.prisma.role.findMany({
+      include: { permissions: { include: { permission: true } } },
+    });
     return records.map(r => this.mapRecord(r));
   }
 
@@ -52,6 +67,7 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
       skip: (params.page - 1) * params.limit,
       take: params.limit,
       where,
+      include: { permissions: { include: { permission: true } } },
     });
     const total = await this.prisma.role.count({ where });
     return {
@@ -64,7 +80,10 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
 
   async findByLabel(label: string): Promise<Role | null> {
     this.logger.debug('Role findByLabel', getContext());
-    const record = await this.prisma.role.findFirst({ where: { label } });
+    const record = await this.prisma.role.findFirst({
+      where: { label },
+      include: { permissions: { include: { permission: true } } },
+    });
     return record ? this.mapRecord(record) : null;
   }
 
@@ -76,7 +95,14 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
         label: role.label,
         createdById: role.createdBy?.id,
         updatedById: role.updatedBy?.id,
+        permissions: {
+          create: role.permissions.map((p) => ({
+            scopeId: p.scopeId ?? undefined,
+            permission: { connect: { id: p.permission.id } },
+          })),
+        },
       },
+      include: { permissions: { include: { permission: true } } },
     });
     return this.mapRecord(record);
   }
@@ -85,7 +111,18 @@ export class PrismaRoleRepository implements RoleRepositoryPort {
     this.logger.info('Updating role', getContext());
     const record = await this.prisma.role.update({
       where: { id: role.id },
-      data: { label: role.label, updatedById: role.updatedBy?.id },
+      data: {
+        label: role.label,
+        updatedById: role.updatedBy?.id,
+        permissions: {
+          deleteMany: {},
+          create: role.permissions.map((p) => ({
+            scopeId: p.scopeId ?? undefined,
+            permission: { connect: { id: p.permission.id } },
+          })),
+        },
+      },
+      include: { permissions: { include: { permission: true } } },
     });
     return this.mapRecord(record);
   }

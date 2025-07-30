@@ -15,6 +15,8 @@ import { Role } from '../../domain/entities/Role';
 import { Department } from '../../domain/entities/Department';
 import { Site } from '../../domain/entities/Site';
 import { Permission } from '../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../domain/entities/RolePermissionAssignment';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
 
@@ -28,12 +30,12 @@ export class PrismaUserRepository implements UserRepositoryPort {
     record: PrismaUser & {
       roles: Array<{
         role: PrismaRole & {
-          permissions: Array<{ permission: PrismaPermission }>;
+          permissions: Array<{ permission: PrismaPermission; scopeId: string | null }>;
         };
       }>;
       department: PrismaDepartment & { site: PrismaSite };
       site: PrismaSite;
-      permissions: Array<{ permission: PrismaPermission }>;
+      permissions: Array<{ permission: PrismaPermission; scopeId: string | null }>;
       mfaEnabled: boolean | null;
       mfaType: string | null;
       mfaSecret: string | null;
@@ -50,12 +52,16 @@ export class PrismaUserRepository implements UserRepositoryPort {
           new Role(
             ur.role.id,
             ur.role.label,
-            ur.role.permissions.map((rp) =>
-              new Permission(
-                rp.permission.id,
-                rp.permission.permissionKey,
-                rp.permission.description,
-              ),
+            ur.role.permissions.map(
+              (rp) =>
+                new RolePermissionAssignment(
+                  new Permission(
+                    rp.permission.id,
+                    rp.permission.permissionKey,
+                    rp.permission.description,
+                  ),
+                  rp.scopeId ?? undefined,
+                ),
             ),
           ),
       ),
@@ -69,8 +75,12 @@ export class PrismaUserRepository implements UserRepositoryPort {
       ),
       new Site(record.site.id, record.site.label),
       record.picture ?? undefined,
-      record.permissions.map((up) =>
-        new Permission(up.permission.id, up.permission.permissionKey, up.permission.description),
+      record.permissions.map(
+        (up) =>
+          new UserPermissionAssignment(
+            new Permission(up.permission.id, up.permission.permissionKey, up.permission.description),
+            up.scopeId ?? undefined,
+          ),
       ),
       record.lastLogin ?? null,
       record.lastActivity ?? null,
@@ -296,7 +306,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
         mfaSecret: user.mfaSecret ?? undefined,
         mfaRecoveryCodes: user.mfaRecoveryCodes,
         permissions: {
-          create: user.permissions.map((p) => ({ permission: { connect: { id: p.id } } })),
+          create: user.permissions.map((p) => ({
+            scopeId: p.scopeId ?? undefined,
+            permission: { connect: { id: p.permission.id } },
+          })),
         },
         roles: {
           create: user.roles.map(r => ({ role: { connect: { id: r.id } } })),
@@ -339,7 +352,10 @@ export class PrismaUserRepository implements UserRepositoryPort {
         mfaRecoveryCodes: user.mfaRecoveryCodes,
         permissions: {
           deleteMany: {},
-          create: user.permissions.map((p) => ({ permission: { connect: { id: p.id } } })),
+          create: user.permissions.map((p) => ({
+            scopeId: p.scopeId ?? undefined,
+            permission: { connect: { id: p.permission.id } },
+          })),
         },
         roles: {
           deleteMany: {},

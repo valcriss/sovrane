@@ -28,17 +28,17 @@ export class PermissionChecker {
    * @returns `true` if the user has the permission.
    */
   has(key: string): boolean {
-    if (this.user.permissions.some(p => p.permissionKey === PermissionKeys.ROOT)) {
+    if (this.user.permissions.some(p => !p.denyPermission && p.permission.permissionKey === PermissionKeys.ROOT)) {
       return true;
     }
-    if (this.user.permissions.some(p => p.permissionKey === key)) {
+    if (this.user.permissions.some(p => !p.denyPermission && p.permission.permissionKey === key)) {
       return true;
     }
     for (const role of this.user.roles) {
-      if (role.permissions.some(p => p.permissionKey === PermissionKeys.ROOT)) {
+      if (role.permissions.some(p => p.permission.permissionKey === PermissionKeys.ROOT)) {
         return true;
       }
-      if (role.permissions.some(p => p.permissionKey === key)) {
+      if (role.permissions.some(p => p.permission.permissionKey === key)) {
         return true;
       }
     }

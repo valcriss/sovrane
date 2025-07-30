@@ -83,7 +83,7 @@ describe('Role REST controller', () => {
       .send({
         id: 'r',
         label: 'Role',
-        permissions: [{ id: 'p', permissionKey: 'P', description: 'desc' }],
+        permissions: [{ permission: { id: 'p', permissionKey: 'P', description: 'desc' }, scopeId: 's1' }],
       });
 
     expect(res.status).toBe(201);
@@ -95,7 +95,7 @@ describe('Role REST controller', () => {
       .put('/api/roles/r')
       .send({
         label: 'Role',
-        permissions: [{ id: 'p', permissionKey: 'P', description: 'desc' }],
+        permissions: [{ permission: { id: 'p', permissionKey: 'P', description: 'desc' }, scopeId: 's1' }],
       });
 
     expect(res.status).toBe(200);

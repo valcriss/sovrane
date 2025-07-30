@@ -121,6 +121,7 @@ model UserPermission {
   userId       String
   permission   Permission @relation(fields: [permissionId], references: [id])
   permissionId String
+  scopeId      String?
 
   @@id([userId, permissionId])
 }
@@ -130,6 +131,7 @@ model RolePermission {
   roleId       String
   permission   Permission @relation(fields: [permissionId], references: [id])
   permissionId String
+  scopeId      String?
 
   @@id([roleId, permissionId])
 }
