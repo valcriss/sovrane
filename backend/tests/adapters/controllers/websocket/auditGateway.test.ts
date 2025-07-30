@@ -45,6 +45,7 @@ describe('Audit WebSocket gateway', () => {
     role = new Role('r', 'Role', [
       new Permission('p1', PermissionKeys.VIEW_AUDIT_LOGS, ''),
       new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, ''),
+      new Permission('p3', PermissionKeys.READ_AUDIT_CONFIG, ''),
     ]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     event = new AuditEvent(new Date('2024-01-01T00:00:00Z'), 'u', 'user', 'test');
@@ -120,6 +121,20 @@ describe('Audit WebSocket gateway', () => {
     });
   });
 
+  it('emits audit config when permitted', (done) => {
+    const cfg = new AuditConfig(1, ['info'], ['auth'], new Date('2024-01-01T00:00:00Z'), 'u');
+    config.get.mockResolvedValue(cfg);
+    const client = ioClient.connect(url, { auth: { token: 'token' } });
+    client.on('connect', () => {
+      client.emit('audit-config-get');
+    });
+    client.on('audit-config-get-response', (data: any) => {
+      expect(data.levels).toEqual(['info']);
+      client.close();
+      done();
+    });
+  });
+
   it('rejects invalid list parameters', (done) => {
     const client = ioClient.connect(url, { auth: { token: 'token' } });
     client.on('connect', () => {
@@ -127,6 +142,19 @@ describe('Audit WebSocket gateway', () => {
     });
     client.on('error', (err: { error: string }) => {
       expect(err.error).toBe('Invalid parameters');
+      client.close();
+      done();
+    });
+  });
+
+  it('rejects audit config get when permission missing', (done) => {
+    auth.verifyToken.mockResolvedValue(new User('x', 'A', 'B', 'a@b.c', [], 'active', department, site));
+    const client = ioClient.connect(url, { auth: { token: 'token' } });
+    client.on('connect', () => {
+      client.emit('audit-config-get');
+    });
+    client.on('error', (err: { error: string }) => {
+      expect(err.error).toBe('Forbidden');
       client.close();
       done();
     });
