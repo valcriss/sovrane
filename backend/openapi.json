@@ -161,6 +161,12 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/AuditConfig"
+                },
+                "example": {
+                  "levels": ["info", "warn"],
+                  "categories": ["auth", "config"],
+                  "updatedAt": "2024-01-01T00:00:00.000Z",
+                  "updatedBy": "user1"
                 }
               }
             }
@@ -205,7 +211,12 @@
                   }
                 },
                 "required": ["levels", "categories", "updatedBy"]
-              }
+              },
+                "example": {
+                  "levels": ["info"],
+                  "categories": ["auth"],
+                  "updatedBy": "user1"
+                }
             }
           }
         },
@@ -213,11 +224,17 @@
           "200": {
             "description": "Updated configuration",
             "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuditConfig"
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AuditConfig"
+                  },
+                  "example": {
+                    "levels": ["info"],
+                    "categories": ["auth"],
+                    "updatedAt": "2024-01-01T00:00:00.000Z",
+                    "updatedBy": "user1"
+                  }
                 }
-              }
             }
           },
           "400": {
@@ -4393,6 +4410,12 @@
             "nullable": true,
             "description": "Identifier of the user who last modified the config."
           }
+        },
+        "example": {
+          "levels": ["info"],
+          "categories": ["auth"],
+          "updatedAt": "2024-01-01T00:00:00.000Z",
+          "updatedBy": "user1"
         }
       },
       "Site": {
