@@ -7,6 +7,7 @@ import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort'
 import { AuditPort } from '../../../../domain/ports/AuditPort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { AuditEvent } from '../../../../domain/entities/AuditEvent';
+import { AuditConfigService } from '../../../../domain/services/AuditConfigService';
 import { User } from '../../../../domain/entities/User';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
@@ -20,12 +21,14 @@ describe('Audit REST controller', () => {
   let users: DeepMockProxy<UserRepositoryPort>;
   let audit: DeepMockProxy<AuditPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
+  let config: DeepMockProxy<AuditConfigService>;
 
   beforeEach(() => {
     auth = mockDeep<AuthServicePort>();
     users = mockDeep<UserRepositoryPort>();
     audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
+    config = mockDeep<AuditConfigService>();
 
     auth.verifyToken.mockResolvedValue({ id: 'u' } as any);
     const site = new Site('s', 'Site');
@@ -37,7 +40,7 @@ describe('Audit REST controller', () => {
 
     app = express();
     app.use(express.json());
-    app.use('/api', createAuditRouter(auth, users, audit, logger));
+    app.use('/api', createAuditRouter(auth, users, audit, logger, config));
   });
 
   it('should list audit logs', async () => {
