@@ -17,6 +17,7 @@ import { registerInvitationGateway } from '../adapters/controllers/websocket/inv
 import { registerSiteGateway } from '../adapters/controllers/websocket/siteGateway';
 import { registerPermissionGateway } from '../adapters/controllers/websocket/permissionGateway';
 import { registerConfigGateway } from '../adapters/controllers/websocket/configGateway';
+import { registerAuditGateway } from '../adapters/controllers/websocket/auditGateway';
 import { SocketIORealtimeAdapter } from '../adapters/realtime/SocketIORealtimeAdapter';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -276,6 +277,14 @@ async function bootstrap(): Promise<void> {
     getConfigUseCase,
     updateConfigUseCase,
     deleteConfigUseCase,
+  );
+  registerAuditGateway(
+    io,
+    authService,
+    logger,
+    realtime,
+    audit,
+    auditConfigService,
   );
   registerInvitationGateway(
     io,
