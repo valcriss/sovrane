@@ -54,4 +54,9 @@ export class AppConfigKeys {
 
   /** Require users to enable multi-factor authentication. */
   static readonly ACCOUNT_REQUIRE_MFA = 'account_require_mfa';
+
+  /**
+   * Path patterns considered sensitive and therefore audited when accessed.
+   */
+  static readonly AUDIT_SENSITIVE_ROUTES = 'audit_sensitive_routes';
 }

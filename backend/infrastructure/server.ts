@@ -36,6 +36,7 @@ import { PasswordValidator } from '../domain/services/PasswordValidator';
 import { NodeCronScheduler } from '../adapters/scheduler/NodeCronScheduler';
 import { createScheduledJobs } from '../adapters/scheduler/jobs';
 import { TOTPAdapter } from '../adapters/mfa/TOTPAdapter';
+import { createSensitiveRouteAuditMiddleware } from './sensitiveRouteAuditMiddleware';
 
 async function bootstrap(): Promise<void> {
   const logger = new ConsoleLoggerAdapter();
@@ -90,6 +91,13 @@ async function bootstrap(): Promise<void> {
     logger,
   );
 
+  const auditMiddleware = createSensitiveRouteAuditMiddleware(
+    audit,
+    authService,
+    getConfigUseCase,
+    logger,
+  );
+
   const app = express();
   app.use(express.json());
   app.use((req, _res, next) => {
@@ -97,6 +105,7 @@ async function bootstrap(): Promise<void> {
   });
 
   setupSwagger(app);
+  app.use('/api', auditMiddleware);
   app.use(
     '/api',
     createInvitationRouter(
