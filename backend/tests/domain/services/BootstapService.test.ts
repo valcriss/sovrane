@@ -37,6 +37,11 @@ describe('BootstapService', () => {
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY_COUNT, 50, 'bootstrap');
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_ALLOW_MFA, true, 'bootstrap');
     expect(config.update).toHaveBeenCalledWith(AppConfigKeys.ACCOUNT_REQUIRE_MFA, false, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(
+      AppConfigKeys.AUDIT_SENSITIVE_ROUTES,
+      ['/api/admin/*', '/api/audit', '/api/config/*'],
+      'bootstrap',
+    );
   });
 
   it('should create missing permissions', async () => {

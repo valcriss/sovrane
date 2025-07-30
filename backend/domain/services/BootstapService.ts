@@ -49,6 +49,11 @@ export class BootstapService {
     await this.config.update(AppConfigKeys.ACCOUNT_PASSWORD_HISTORY_COUNT, 50, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_ALLOW_MFA, true, 'bootstrap');
     await this.config.update(AppConfigKeys.ACCOUNT_REQUIRE_MFA, false, 'bootstrap');
+    await this.config.update(
+      AppConfigKeys.AUDIT_SENSITIVE_ROUTES,
+      ['/api/admin/*', '/api/audit', '/api/config/*'],
+      'bootstrap',
+    );
 
     this.logger.info('Bootstrapping permissions');
     const keys = Object.values(PermissionKeys);
