@@ -10,3 +10,17 @@ Le nombre de tentatives de vérification est limité.
 Consultez [backend/docs/MFA.md](backend/docs/MFA.md) pour plus de détails sur la configuration.
 
 Consultez [backend/docs/Audit.md](backend/docs/Audit.md) pour la configuration de l'audit des routes sensibles.
+
+## Temps réel via WebSocket
+
+Le serveur expose une API WebSocket basée sur Socket.IO. Connectez-vous en fournissant un jeton JWT :
+
+```ts
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3000', {
+  auth: { token: '<JWT>' }
+});
+```
+
+La liste des événements disponibles est décrite dans [backend/docs/Websocket.md](backend/docs/Websocket.md).
