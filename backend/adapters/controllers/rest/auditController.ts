@@ -7,6 +7,7 @@ import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { getContext } from '../../../infrastructure/loggerContext';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { GetAuditLogsUseCase } from '../../../usecases/audit/GetAuditLogsUseCase';
+import { AuditConfigService } from '../../../domain/services/AuditConfigService';
 import { User } from '../../../domain/entities/User';
 import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 
@@ -69,6 +70,7 @@ export function createAuditRouter(
   users: UserRepositoryPort,
   audit: AuditPort,
   logger: LoggerPort,
+  configService: AuditConfigService,
 ): Router {
   const router = express.Router();
 
@@ -183,7 +185,7 @@ export function createAuditRouter(
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const checker = new PermissionChecker((req as AuthedRequest).user);
-    const useCase = new GetAuditLogsUseCase(audit, checker);
+    const useCase = new GetAuditLogsUseCase(audit, checker, configService);
     const result = await useCase.execute({
       page,
       limit,
