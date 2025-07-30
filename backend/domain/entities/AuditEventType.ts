@@ -26,4 +26,7 @@ export class AuditEventType {
 
   /** Event recorded when a sensitive route is accessed. */
   static readonly SENSITIVE_ROUTE_ACCESSED = 'sensitiveRoute.accessed';
+
+  /** Event recorded when a security alert is triggered. */
+  static readonly SECURITY_ALERT = 'security.alert';
 }
