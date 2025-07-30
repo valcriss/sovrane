@@ -14,7 +14,7 @@
     "/audit": {
       "get": {
         "summary": "List audit events",
-        "description": "Returns paginated audit log entries.",
+        "description": "Returns paginated audit log entries. Requires the `view_audit_logs` permission.",
         "tags": [
           "Audit"
         ],
@@ -134,7 +134,7 @@
     "/config/{key}": {
       "get": {
         "summary": "Get configuration value",
-        "description": "Return the value for the specified configuration key.",
+        "description": "Return the value for the specified configuration key. Requires the `read-config` permission.",
         "tags": [
           "Config"
         ],
@@ -172,7 +172,7 @@
       },
       "put": {
         "summary": "Update configuration value",
-        "description": "Update the value of a configuration entry.",
+        "description": "Update the value of a configuration entry. Requires the `update-config` permission.",
         "tags": [
           "Config"
         ],
@@ -213,12 +213,63 @@
             "description": "Validation error"
           }
         }
+      },
+      "delete": {
+        "summary": "Delete configuration value",
+        "description": "Remove a configuration entry. Requires the `delete-config` permission.",
+        "tags": [
+          "Config"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Identifier of the configuration entry."
+          }
+        ],
+        "requestBody": {
+          "description": "Identifier of the user performing the deletion.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deletedBy": {
+                    "type": "string",
+                    "description": "Identifier of the user deleting the value."
+                  }
+                },
+                "required": [
+                  "deletedBy"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Configuration deleted successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          }
+        }
       }
     },
     "/departments": {
       "get": {
         "summary": "Get all departments",
-        "description": "Returns a paginated list of departments.",
+        "description": "Returns a paginated list of departments. Requires `read-departments` permission.",
         "tags": [
           "Department"
         ],
@@ -299,7 +350,7 @@
       },
       "post": {
         "summary": "Create a department.",
-        "description": "Creates a new department within a site. Authentication with\nadministrator privileges is required.\n",
+        "description": "Creates a new department within a site. Authentication with\nadministrator privileges is required. Requires `create-department` permission.\n",
         "tags": [
           "Department"
         ],
@@ -345,7 +396,7 @@
     "/departments/{id}": {
       "get": {
         "summary": "Get department by ID",
-        "description": "Returns detailed information about a specific department.",
+        "description": "Returns detailed information about a specific department. Requires `read-department` permission.",
         "tags": [
           "Department"
         ],
@@ -392,7 +443,7 @@
       },
       "put": {
         "summary": "Update a department.",
-        "description": "Modify a department's label, parent, manager or permissions.",
+        "description": "Modify a department's label, parent, manager or permissions. Requires `update-department` permission.",
         "tags": [
           "Department"
         ],
@@ -447,7 +498,7 @@
       },
       "delete": {
         "summary": "Remove a department.",
-        "description": "Permanently deletes a department. The operation fails if users are\nstill attached. Requires administrator privileges.\n",
+        "description": "Permanently deletes a department. The operation fails if users are\nstill attached. Requires administrator privileges. Requires `delete-department` permission.\n",
         "tags": [
           "Department"
         ],
@@ -486,7 +537,7 @@
     "/departments/{id}/children": {
       "get": {
         "summary": "List child departments",
-        "description": "Retrieves a paginated list of departments that have the given department as parent.\n",
+        "description": "Retrieves a paginated list of departments that have the given department as parent. Requires `read-departments` permission.\n",
         "tags": [
           "Department"
         ],
@@ -584,7 +635,7 @@
     "/departments/{id}/manager": {
       "get": {
         "summary": "Get department manager",
-        "description": "Returns the user managing the department.",
+        "description": "Returns the user managing the department. Requires `read-department` permission.",
         "tags": [
           "Department"
         ],
@@ -631,7 +682,7 @@
       },
       "put": {
         "summary": "Set department manager.",
-        "description": "Assigns a user as the manager of the department. Requires\nadministrator privileges.\n",
+        "description": "Assigns a user as the manager of the department. Requires\nadministrator privileges. Requires `manage-department-users` permission.\n",
         "tags": [
           "Department"
         ],
@@ -697,7 +748,7 @@
       },
       "delete": {
         "summary": "Remove department manager.",
-        "description": "Clears the manager of the department. The caller must be authenticated\nas an administrator.\n",
+        "description": "Clears the manager of the department. The caller must be authenticated\nas an administrator. Requires `manage-department-users` permission.\n",
         "tags": [
           "Department"
         ],
@@ -746,7 +797,7 @@
     "/departments/{id}/parent": {
       "get": {
         "summary": "Get parent department",
-        "description": "Returns the parent department if any.",
+        "description": "Returns the parent department if any. Requires `read-department` permission.",
         "tags": [
           "Department"
         ],
@@ -793,7 +844,7 @@
       },
       "put": {
         "summary": "Set parent department.",
-        "description": "Defines the parent department for hierarchical organization. Requires\nadministrator privileges.\n",
+        "description": "Defines the parent department for hierarchical organization. Requires\nadministrator privileges. Requires `manage-department-hierarchy` permission.\n",
         "tags": [
           "Department"
         ],
@@ -859,7 +910,7 @@
       },
       "delete": {
         "summary": "Remove parent department.",
-        "description": "Detaches the department from its current parent. Administrator\nauthentication is required.\n",
+        "description": "Detaches the department from its current parent. Administrator\nauthentication is required. Requires `manage-department-hierarchy` permission.\n",
         "tags": [
           "Department"
         ],
@@ -908,7 +959,7 @@
     "/departments/{id}/permissions": {
       "get": {
         "summary": "List department permissions",
-        "description": "Returns a paginated list of permissions attached to the department.",
+        "description": "Returns a paginated list of permissions attached to the department. Requires `manage-department-permissions` permission.",
         "tags": [
           "Department"
         ],
@@ -996,7 +1047,7 @@
       },
       "post": {
         "summary": "Add permission to department.",
-        "description": "Grants a specific permission to the department. Administrator\nauthentication is required.\n",
+        "description": "Grants a specific permission to the department. Administrator\nauthentication is required. Requires `manage-department-permissions` permission.\n",
         "tags": [
           "Department"
         ],
@@ -1056,7 +1107,7 @@
     "/departments/{id}/users": {
       "get": {
         "summary": "List department users",
-        "description": "Returns a paginated list of users belonging to the department.",
+        "description": "Returns a paginated list of users belonging to the department. Requires `read-users` permission.",
         "tags": [
           "Department"
         ],
@@ -1172,7 +1223,7 @@
     "/departments/{id}/children/{childId}": {
       "post": {
         "summary": "Add a child department.",
-        "description": "Attaches an existing department as a child of another department.\nRequires authentication with administrative rights.\n",
+        "description": "Attaches an existing department as a child of another department.\nRequires authentication with administrative rights. Requires `manage-department-hierarchy` permission.\n",
         "tags": [
           "Department"
         ],
@@ -1228,7 +1279,7 @@
       },
       "delete": {
         "summary": "Remove a child department.",
-        "description": "Detaches a child department from its parent. Authentication and\nadministrative privileges are required.\n",
+        "description": "Detaches a child department from its parent. Authentication and\nadministrative privileges are required. Requires `manage-department-hierarchy` permission.\n",
         "tags": [
           "Department"
         ],
@@ -1286,7 +1337,7 @@
     "/departments/{id}/permissions/{permissionId}": {
       "delete": {
         "summary": "Remove a permission from department.",
-        "description": "Revokes a previously granted permission from the department.\nAdministrator authentication is required.\n",
+        "description": "Revokes a previously granted permission from the department.\nAdministrator authentication is required. Requires `manage-department-permissions` permission.\n",
         "tags": [
           "Department"
         ],
@@ -1344,7 +1395,7 @@
     "/departments/{id}/users/{userId}": {
       "post": {
         "summary": "Attach user to department.",
-        "description": "Adds an existing user to the specified department. Requires\nadministrative privileges.\n",
+        "description": "Adds an existing user to the specified department. Requires\nadministrative privileges. Requires `manage-department-users` permission.\n",
         "tags": [
           "Department"
         ],
@@ -1400,7 +1451,7 @@
       },
       "delete": {
         "summary": "Detach user from department.",
-        "description": "Removes the association between a user and a department. Requires\nadministrator authentication.\n",
+        "description": "Removes the association between a user and a department. Requires\nadministrator authentication. Requires `manage-department-users` permission.\n",
         "tags": [
           "Department"
         ],
@@ -1458,7 +1509,7 @@
     "/groups": {
       "post": {
         "summary": "Create a new user group.",
-        "description": "Creates a new user group with the authenticated user as the responsible user.",
+        "description": "Creates a new user group with the authenticated user as the responsible user. Requires `create-group` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1520,7 +1571,7 @@
       },
       "get": {
         "summary": "List all groups.",
-        "description": "Returns all user groups.",
+        "description": "Returns all user groups. Requires `read-groups` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1603,7 +1654,7 @@
     "/groups/{id}": {
       "get": {
         "summary": "Get a user group by id.",
-        "description": "Retrieves a single user group.",
+        "description": "Retrieves a single user group. Requires `read-group` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1650,7 +1701,7 @@
       },
       "put": {
         "summary": "Update a group.",
-        "description": "Updates group information. Only the responsible user can modify it.",
+        "description": "Updates group information. Only the responsible user can modify it. Requires `update-group` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1718,7 +1769,7 @@
       },
       "delete": {
         "summary": "Delete a group.",
-        "description": "Removes a group if the requester is responsible user.",
+        "description": "Removes a group if the requester is responsible user. Requires `delete-group` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1760,7 +1811,7 @@
     "/groups/{id}/users": {
       "get": {
         "summary": "List users of a group.",
-        "description": "Returns the paginated members of the specified group.",
+        "description": "Returns the paginated members of the specified group. Requires `read-group` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1853,7 +1904,7 @@
       },
       "post": {
         "summary": "Add user to group.",
-        "description": "Adds a user to the group. Only the responsible user can manage members.",
+        "description": "Adds a user to the group. Only the responsible user can manage members. Requires `manage-group-members` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1920,7 +1971,7 @@
       },
       "delete": {
         "summary": "Remove user from group.",
-        "description": "Removes a user from the group. Only the responsible user can manage members.",
+        "description": "Removes a user from the group. Only the responsible user can manage members. Requires `manage-group-members` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -1989,7 +2040,7 @@
     "/groups/{id}/responsibles": {
       "get": {
         "summary": "List responsible users of a group.",
-        "description": "Returns the paginated list of responsible users managing the group.",
+        "description": "Returns the paginated list of responsible users managing the group. Requires `read-group` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -2082,7 +2133,7 @@
       },
       "post": {
         "summary": "Add responsible user to group.",
-        "description": "Adds a user as responsible for the group. Only an existing responsible user can manage responsibles.",
+        "description": "Adds a user as responsible for the group. Only an existing responsible user can manage responsibles. Requires `manage-group-responsibles` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -2149,7 +2200,7 @@
       },
       "delete": {
         "summary": "Remove responsible user from group.",
-        "description": "Removes a responsible user from the group. Only an existing responsible user can manage responsibles.",
+        "description": "Removes a responsible user from the group. Only an existing responsible user can manage responsibles. Requires `manage-group-responsibles` permission.",
         "tags": [
           "UserGroup"
         ],
@@ -2319,7 +2370,7 @@
     "/permissions": {
       "get": {
         "summary": "Get all permissions",
-        "description": "Returns the list of all permissions.",
+        "description": "Returns the list of all permissions. Requires the `read-permissions` permission.",
         "tags": [
           "Permission"
         ],
@@ -2400,7 +2451,7 @@
       },
       "post": {
         "summary": "Create a permission.",
-        "description": "Registers a new permission in the system. Only authenticated\nadministrators should use this endpoint.\n",
+        "description": "Registers a new permission in the system. Requires `create-permission` permission.\nOnly authenticated administrators should use this endpoint.\n",
         "tags": [
           "Permission"
         ],
@@ -2446,7 +2497,7 @@
     "/permissions/{id}": {
       "get": {
         "summary": "Get permission by ID",
-        "description": "Returns detailed information about a specific permission.",
+        "description": "Returns detailed information about a specific permission. Requires the `read-permission` permission.",
         "tags": [
           "Permission"
         ],
@@ -2493,7 +2544,7 @@
       },
       "put": {
         "summary": "Update a permission.",
-        "description": "Modify the key or description of an existing permission.",
+        "description": "Modify the key or description of an existing permission. Requires the `update-permission` permission.",
         "tags": [
           "Permission"
         ],
@@ -2548,7 +2599,7 @@
       },
       "delete": {
         "summary": "Remove a permission.",
-        "description": "Deletes an existing permission. It should no longer be referenced by any role before calling this endpoint.",
+        "description": "Deletes an existing permission. Requires the `delete-permission` permission. It should no longer be referenced by any role before calling this endpoint.",
         "tags": [
           "Permission"
         ],
@@ -2587,7 +2638,7 @@
     "/roles": {
       "get": {
         "summary": "Get all roles",
-        "description": "Returns a paginated list of roles.",
+        "description": "Returns a paginated list of roles. Requires the `read-roles` permission.",
         "tags": [
           "Role"
         ],
@@ -2665,7 +2716,7 @@
       },
       "post": {
         "summary": "Create a role.",
-        "description": "Registers a new role grouping a set of permissions. Requires\nauthentication and administrative rights.\n",
+        "description": "Registers a new role grouping a set of permissions. Requires\nauthentication and administrative rights. Requires the `create-role` permission.\n",
         "tags": [
           "Role"
         ],
@@ -2711,7 +2762,7 @@
     "/roles/{id}": {
       "get": {
         "summary": "Get role by ID",
-        "description": "Returns detailed information about a specific role.",
+        "description": "Returns detailed information about a specific role. Requires the `read-role` permission.",
         "tags": [
           "Role"
         ],
@@ -2755,7 +2806,7 @@
       },
       "put": {
         "summary": "Update a role.",
-        "description": "Modify the label or permissions of an existing role.",
+        "description": "Modify the label or permissions of an existing role. Requires the `update-role` permission.",
         "tags": [
           "Role"
         ],
@@ -2810,7 +2861,7 @@
       },
       "delete": {
         "summary": "Remove a role.",
-        "description": "Deletes a role. The operation fails if users are still associated with\nit. Requires administrative privileges.\n",
+        "description": "Deletes a role. The operation fails if users are still associated with\nit. Requires administrative privileges. Requires the `delete-role` permission.\n",
         "tags": [
           "Role"
         ],
@@ -2976,7 +3027,7 @@
     "/sites/{id}": {
       "get": {
         "summary": "Get site by ID",
-        "description": "Retrieve detailed information about a specific site.",
+        "description": "Retrieve detailed information about a specific site. Requires the `read-site` permission.\n",
         "tags": [
           "Site"
         ],
@@ -3177,7 +3228,7 @@
       },
       "get": {
         "summary": "Get all users",
-        "description": "Returns a paginated and filterable list of users.",
+        "description": "Returns a paginated and filterable list of users. Requires the `read-users` permission.",
         "tags": [
           "User"
         ],
@@ -3682,6 +3733,7 @@
     "/auth/mfa/setup": {
       "post": {
         "summary": "Generate a TOTP secret for the authenticated user.",
+        "description": "Requires the `manage-mfa` permission.",
         "tags": [
           "User"
         ],
@@ -3712,6 +3764,7 @@
     "/auth/mfa/enable": {
       "post": {
         "summary": "Enable multi-factor authentication for the authenticated user.",
+        "description": "Requires the `manage-mfa` permission.",
         "tags": [
           "User"
         ],
@@ -3761,6 +3814,7 @@
     "/auth/mfa/disable": {
       "post": {
         "summary": "Disable multi-factor authentication for the authenticated user.",
+        "description": "Requires the `manage-mfa` permission.",
         "tags": [
           "User"
         ],
@@ -3779,7 +3833,7 @@
     "/users/{id}": {
       "get": {
         "summary": "Get user by ID",
-        "description": "Returns detailed information about a specific user.",
+        "description": "Returns detailed information about a specific user. Requires the `read-user` permission.",
         "tags": [
           "User"
         ],
@@ -3826,7 +3880,7 @@
       },
       "put": {
         "summary": "Update a user profile.",
-        "description": "Updates information about an existing user. Authentication is required\nand only authorized administrators should call this endpoint.\n",
+        "description": "Updates information about an existing user. Authentication is required\nand only authorized administrators should call this endpoint.\nRequires the `update-user` permission.\n",
         "tags": [
           "User"
         ],
@@ -3881,7 +3935,7 @@
       },
       "delete": {
         "summary": "Remove a user.",
-        "description": "Permanently deletes a user account. This operation cannot be undone\nand requires administrative privileges.\n",
+        "description": "Permanently deletes a user account. This operation cannot be undone\nand requires administrative privileges.\nRequires the `delete-user` permission.\n",
         "tags": [
           "User"
         ],
@@ -3920,7 +3974,7 @@
     "/users/me": {
       "get": {
         "summary": "Returns the current user profile.",
-        "description": "Retrieves information about the authenticated user. A valid bearer\ntoken must be supplied in the `Authorization` header.\n",
+        "description": "Retrieves information about the authenticated user. A valid bearer\ntoken must be supplied in the `Authorization` header.\nRequires the `read-user` permission.\n",
         "tags": [
           "User"
         ],
@@ -3955,7 +4009,7 @@
     "/users/{id}/status": {
       "put": {
         "summary": "Change user status.",
-        "description": "Updates the account status (active, suspended or archived) of a user.\nRequires administrator privileges.\n",
+        "description": "Updates the account status (active, suspended or archived) of a user.\nRequires administrator privileges.\nRequires the `update-user` permission.\n",
         "tags": [
           "User"
         ],
@@ -4025,7 +4079,7 @@
     "/users/{id}/picture": {
       "post": {
         "summary": "Upload user avatar",
-        "description": "Uploads an avatar image for the specified user. Requires authentication.\n",
+        "description": "Uploads an avatar image for the specified user. Requires authentication.\nRequires the `update-user-picture` permission.\n",
         "tags": [
           "User"
         ],
@@ -4078,7 +4132,7 @@
       },
       "delete": {
         "summary": "Remove user avatar",
-        "description": "Deletes the avatar of the specified user if present.",
+        "description": "Deletes the avatar of the specified user if present. Requires the `update-user-picture` permission.",
         "tags": [
           "User"
         ],

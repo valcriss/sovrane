@@ -4,6 +4,7 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { createConfigRouter } from '../../../../adapters/controllers/rest/configController';
 import { GetConfigUseCase } from '../../../../usecases/config/GetConfigUseCase';
 import { UpdateConfigUseCase } from '../../../../usecases/config/UpdateConfigUseCase';
+import { DeleteConfigUseCase } from '../../../../usecases/config/DeleteConfigUseCase';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
@@ -16,6 +17,7 @@ describe('Config REST controller', () => {
   let app: express.Express;
   let getUseCase: DeepMockProxy<GetConfigUseCase>;
   let updateUseCase: DeepMockProxy<UpdateConfigUseCase>;
+  let deleteUseCase: DeepMockProxy<DeleteConfigUseCase>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let site: Site;
   let dept: Department;
@@ -25,6 +27,7 @@ describe('Config REST controller', () => {
   beforeEach(() => {
     getUseCase = mockDeep<GetConfigUseCase>();
     updateUseCase = mockDeep<UpdateConfigUseCase>();
+    deleteUseCase = mockDeep<DeleteConfigUseCase>();
     logger = mockDeep<LoggerPort>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
@@ -34,7 +37,7 @@ describe('Config REST controller', () => {
     app = express();
     app.use(express.json());
     app.use('/api', (req, _res, next) => { (req as any).user = user; next(); });
-    app.use('/api', createConfigRouter(getUseCase, updateUseCase, logger));
+    app.use('/api', createConfigRouter(getUseCase, updateUseCase, deleteUseCase, logger));
   });
 
   it('should return configuration value', async () => {
@@ -80,6 +83,28 @@ describe('Config REST controller', () => {
     const res = await request(app)
       .put('/api/config/key')
       .send({ value: 'v', updatedBy: 'u' });
+
+    expect(res.status).toBe(403);
+  });
+
+  it('should delete configuration value', async () => {
+    role.permissions.push(new Permission('p3', PermissionKeys.DELETE_CONFIG, ''));
+    deleteUseCase.execute.mockResolvedValue();
+
+    const res = await request(app)
+      .delete('/api/config/key')
+      .send({ deletedBy: 'u' });
+
+    expect(res.status).toBe(204);
+    expect(deleteUseCase.execute).toHaveBeenCalledWith('key', 'u');
+  });
+
+  it('should forbid delete when permission missing', async () => {
+    role.permissions = [];
+
+    const res = await request(app)
+      .delete('/api/config/key')
+      .send({ deletedBy: 'u' });
 
     expect(res.status).toBe(403);
   });

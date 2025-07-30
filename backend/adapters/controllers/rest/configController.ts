@@ -5,6 +5,7 @@ import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { GetConfigUseCase } from '../../../usecases/config/GetConfigUseCase';
 import { UpdateConfigUseCase } from '../../../usecases/config/UpdateConfigUseCase';
+import { DeleteConfigUseCase } from '../../../usecases/config/DeleteConfigUseCase';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 
 interface AuthedRequest extends Request {
@@ -48,6 +49,7 @@ interface AuthedRequest extends Request {
 export function createConfigRouter(
   getUseCase: GetConfigUseCase,
   updateUseCase: UpdateConfigUseCase,
+  deleteUseCase: DeleteConfigUseCase,
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
@@ -140,6 +142,59 @@ export function createConfigRouter(
       res.status(204).end();
     } catch (err) {
       logger.warn('Failed to update config', { error: err });
+      res.status(400).json({ message: (err as Error).message });
+    }
+  });
+
+  /**
+   * @openapi
+   * /config/{key}:
+   *   delete:
+   *     summary: Delete configuration value
+   *     description: Remove a configuration entry. Requires the `delete-config` permission.
+   *     tags:
+   *       - Config
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: key
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Identifier of the configuration entry.
+   *     requestBody:
+   *       description: Identifier of the user performing the deletion.
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               deletedBy:
+   *                 type: string
+   *                 description: Identifier of the user deleting the value.
+   *             required:
+   *               - deletedBy
+   *     responses:
+   *       204:
+   *         description: Configuration deleted successfully
+   *       400:
+   *         description: Validation error
+   */
+  router.delete('/config/:key', async (req: Request, res: Response) => {
+    const checker = new PermissionChecker((req as AuthedRequest).user);
+    try {
+      checker.check(PermissionKeys.DELETE_CONFIG);
+    } catch {
+      res.status(403).end();
+      return;
+    }
+    try {
+      await deleteUseCase.execute(req.params.key, req.body.deletedBy);
+      res.status(204).end();
+    } catch (err) {
+      logger.warn('Failed to delete config', { error: err });
       res.status(400).json({ message: (err as Error).message });
     }
   });
