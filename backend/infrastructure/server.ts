@@ -10,11 +10,13 @@ import { createInvitationRouter } from '../adapters/controllers/rest/invitationC
 import { createRoleRouter } from '../adapters/controllers/rest/roleController';
 import { createAuditRouter } from '../adapters/controllers/rest/auditController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
+import { registerDepartmentGateway } from '../adapters/controllers/websocket/departmentGateway';
 import { SocketIORealtimeAdapter } from '../adapters/realtime/SocketIORealtimeAdapter';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
 import { PrismaRoleRepository } from '../adapters/repositories/PrismaRoleRepository';
 import { PrismaPermissionRepository } from '../adapters/repositories/PrismaPermissionRepository';
+import { PrismaDepartmentRepository } from '../adapters/repositories/PrismaDepartmentRepository';
 import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
 import { JWTTokenServiceAdapter } from '../adapters/token/JWTTokenServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
@@ -56,6 +58,7 @@ async function bootstrap(): Promise<void> {
   const roleRepository = new PrismaRoleRepository(prisma, logger);
   const invitationRepository = new PrismaInvitationRepository(prisma, logger);
   const permissionRepository = new PrismaPermissionRepository(prisma, logger);
+  const departmentRepository = new PrismaDepartmentRepository(prisma, logger);
   const emailService = process.env.SMTP_HOST && process.env.SMTP_HOST.trim()
     ? new NodemailerEmailServiceAdapter(
       {
@@ -210,6 +213,14 @@ async function bootstrap(): Promise<void> {
     realtime,
     userRepository,
     audit,
+  );
+  registerDepartmentGateway(
+    io,
+    authService,
+    logger,
+    realtime,
+    departmentRepository,
+    userRepository,
   );
 
   const scheduler = new NodeCronScheduler(logger);
