@@ -53,6 +53,22 @@ export class ConfigService {
   }
 
   /**
+   * Delete a configuration value and invalidate the cache.
+   *
+   * @param key - Configuration key to remove.
+   * @returns The removed configuration or `null` if it does not exist.
+   */
+  async delete(key: string): Promise<AppConfig | null> {
+    const record = await this.repository.findByKey(key);
+    if (!record) {
+      return null;
+    }
+    await this.repository.delete(key);
+    await this.invalidate(key);
+    return record;
+  }
+
+  /**
    * Remove a cached configuration entry.
    *
    * @param key - Key of the cache entry to invalidate.

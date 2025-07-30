@@ -92,4 +92,24 @@ describe('ConfigService', () => {
     await service.invalidate('k');
     expect(await cache.get('k')).toBeNull();
   });
+
+  it('should return null when deleting unknown key', async () => {
+    repo.findByKey.mockResolvedValue(null);
+    const result = await service.delete('missing');
+    expect(result).toBeNull();
+    expect(repo.delete).not.toHaveBeenCalled();
+  });
+
+  it('should delete existing config and invalidate cache', async () => {
+    const record = new AppConfig(1, 'foo', 'bar', 'string', new Date(), 'u');
+    repo.findByKey.mockResolvedValue(record);
+    repo.delete.mockResolvedValue(record);
+    await cache.set('foo', 'bar');
+
+    const result = await service.delete('foo');
+
+    expect(result).toBe(record);
+    expect(repo.delete).toHaveBeenCalledWith('foo');
+    expect(await cache.get('foo')).toBeNull();
+  });
 });
