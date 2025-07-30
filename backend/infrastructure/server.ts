@@ -17,6 +17,7 @@ import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
 import { JWTTokenServiceAdapter } from '../adapters/token/JWTTokenServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
 import { ConsoleEmailServiceAdapter } from '../adapters/email/ConsoleEmailServiceAdapter';
+import { NodemailerEmailServiceAdapter } from '../adapters/email/NodemailerEmailServiceAdapter';
 import { EmailNotificationAdapter } from '../adapters/notification/EmailNotificationAdapter';
 import { LocalFileStorageAdapter } from '../adapters/storage/LocalFileStorageAdapter';
 import { AvatarService } from '../domain/services/AvatarService';
@@ -53,7 +54,23 @@ async function bootstrap(): Promise<void> {
   const roleRepository = new PrismaRoleRepository(prisma, logger);
   const invitationRepository = new PrismaInvitationRepository(prisma, logger);
   const permissionRepository = new PrismaPermissionRepository(prisma, logger);
-  const emailService = new ConsoleEmailServiceAdapter(logger);
+  const emailService = process.env.SMTP_HOST && process.env.SMTP_HOST.trim()
+    ? new NodemailerEmailServiceAdapter(
+      {
+        host: process.env.SMTP_HOST,
+        port: parseInt(process.env.SMTP_PORT ?? '587', 10),
+        secure: process.env.SMTP_SECURE === 'true',
+        auth: process.env.SMTP_USERNAME
+          ? {
+            user: process.env.SMTP_USERNAME,
+            pass: process.env.SMTP_PASSWORD,
+          }
+          : undefined,
+      },
+      process.env.EMAIL_TEMPLATES_PATH ?? 'templates',
+      logger,
+    )
+    : new ConsoleEmailServiceAdapter(logger);
   const notificationService = new EmailNotificationAdapter(emailService, logger);
   const storage = new LocalFileStorageAdapter(process.env.STORAGE_PATH ?? './uploads', logger);
   const avatarService = new AvatarService(storage, userRepository, logger);
