@@ -14,6 +14,7 @@ import { registerDepartmentGateway } from '../adapters/controllers/websocket/dep
 import { registerGroupGateway } from '../adapters/controllers/websocket/groupGateway';
 import { registerRoleGateway } from '../adapters/controllers/websocket/roleGateway';
 import { registerInvitationGateway } from '../adapters/controllers/websocket/invitationGateway';
+import { registerSiteGateway } from '../adapters/controllers/websocket/siteGateway';
 import { SocketIORealtimeAdapter } from '../adapters/realtime/SocketIORealtimeAdapter';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -21,6 +22,7 @@ import { PrismaRoleRepository } from '../adapters/repositories/PrismaRoleReposit
 import { PrismaPermissionRepository } from '../adapters/repositories/PrismaPermissionRepository';
 import { PrismaDepartmentRepository } from '../adapters/repositories/PrismaDepartmentRepository';
 import { PrismaUserGroupRepository } from '../adapters/repositories/PrismaUserGroupRepository';
+import { PrismaSiteRepository } from '../adapters/repositories/PrismaSiteRepository';
 import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
 import { JWTTokenServiceAdapter } from '../adapters/token/JWTTokenServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
@@ -64,6 +66,7 @@ async function bootstrap(): Promise<void> {
   const permissionRepository = new PrismaPermissionRepository(prisma, logger);
   const departmentRepository = new PrismaDepartmentRepository(prisma, logger);
   const groupRepository = new PrismaUserGroupRepository(prisma, logger);
+  const siteRepository = new PrismaSiteRepository(prisma, logger);
   const emailService = process.env.SMTP_HOST && process.env.SMTP_HOST.trim()
     ? new NodemailerEmailServiceAdapter(
       {
@@ -226,6 +229,15 @@ async function bootstrap(): Promise<void> {
     realtime,
     departmentRepository,
     userRepository,
+  );
+  registerSiteGateway(
+    io,
+    authService,
+    logger,
+    realtime,
+    siteRepository,
+    userRepository,
+    departmentRepository,
   );
   registerGroupGateway(
     io,
