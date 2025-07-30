@@ -2,6 +2,7 @@
 import express from 'express';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
+import { createAdapter as createSocketIORedisAdapter } from '@socket.io/redis-adapter';
 import { randomUUID } from 'crypto';
 
 import { createUserRouter } from '../adapters/controllers/rest/userController';
@@ -9,6 +10,7 @@ import { createInvitationRouter } from '../adapters/controllers/rest/invitationC
 import { createRoleRouter } from '../adapters/controllers/rest/roleController';
 import { createAuditRouter } from '../adapters/controllers/rest/auditController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
+import { SocketIORealtimeAdapter } from '../adapters/realtime/SocketIORealtimeAdapter';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
 import { PrismaRoleRepository } from '../adapters/repositories/PrismaRoleRepository';
@@ -189,7 +191,19 @@ async function bootstrap(): Promise<void> {
   
   const httpServer = http.createServer(app);
   const io = new SocketIOServer(httpServer);
-  registerUserGateway(io, authService, logger);
+  const realtime = new SocketIORealtimeAdapter(io, logger);
+  if (process.env.REDIS_HOST && process.env.REDIS_HOST.trim()) {
+    const pubClient = new IORedis({
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+      username: process.env.REDIS_USERNAME,
+      password: process.env.REDIS_PASSWORD,
+    });
+    const subClient = pubClient.duplicate();
+    io.adapter(createSocketIORedisAdapter(pubClient, subClient));
+    logger.info('Socket.IO Redis adapter configured', getContext());
+  }
+  registerUserGateway(io, authService, logger, realtime);
 
   const scheduler = new NodeCronScheduler(logger);
   scheduler.registerJobs(

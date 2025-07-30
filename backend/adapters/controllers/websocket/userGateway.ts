@@ -2,6 +2,7 @@ import { Server, Socket } from 'socket.io';
 import { AuthServicePort } from '../../../domain/ports/AuthServicePort';
 import { User } from '../../../domain/entities/User';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
+import { RealtimePort } from '../../../domain/ports/RealtimePort';
 import { getContext } from '../../../infrastructure/loggerContext';
 
 /**
@@ -9,6 +10,7 @@ import { getContext } from '../../../infrastructure/loggerContext';
  *
  * @param io - Socket.IO server instance.
  * @param authService - Service used to authenticate sockets.
+ * @param realtime - Adapter used for emitting socket events.
  */
 interface AuthedSocket extends Socket {
   user: User;
@@ -18,7 +20,9 @@ export function registerUserGateway(
   io: Server,
   authService: AuthServicePort,
   logger: LoggerPort,
+  _realtime: RealtimePort,
 ): void {
+  void _realtime;
   io.use(async (socket, next): Promise<void> => {
     logger.debug('WebSocket auth middleware', getContext());
     const token = socket.handshake.auth?.token;

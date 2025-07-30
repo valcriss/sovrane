@@ -2,6 +2,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import * as ioClient from 'socket.io-client';
 import { registerUserGateway } from '../../../../adapters/controllers/websocket/userGateway';
+import { SocketIORealtimeAdapter } from '../../../../adapters/realtime/SocketIORealtimeAdapter';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { User } from '../../../../domain/entities/User';
@@ -16,6 +17,7 @@ describe('User WebSocket gateway', () => {
   let url: string;
   let auth: DeepMockProxy<AuthServicePort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
+  let realtime: SocketIORealtimeAdapter;
   let user: User;
   let role: Role;
   let department: Department;
@@ -26,12 +28,13 @@ describe('User WebSocket gateway', () => {
     io = new Server(httpServer);
     auth = mockDeep<AuthServicePort>();
     logger = mockDeep<LoggerPort>();
+    realtime = new SocketIORealtimeAdapter(io, logger);
     role = new Role('r', 'Role');
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
-    registerUserGateway(io, auth, logger);
+    registerUserGateway(io, auth, logger, realtime);
     httpServer.listen(() => {
       const address = httpServer.address() as any;
       url = `http://localhost:${address.port}`;
