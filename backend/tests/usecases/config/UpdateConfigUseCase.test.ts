@@ -36,6 +36,10 @@ describe('UpdateConfigUseCase', () => {
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
     const event = audit.log.mock.calls[0][0] as AuditEvent;
     expect(event.action).toBe(AuditEventType.CONFIG_CREATED);
+    expect(event.actorId).toBe('u');
+    expect(event.actorType).toBe('user');
+    expect(event.targetType).toBe('config');
+    expect(event.targetId).toBe('maxAttempts');
     expect(event.details).toEqual({ key: 'maxAttempts', oldValue: null, newValue: 5 });
   });
 
@@ -50,6 +54,10 @@ describe('UpdateConfigUseCase', () => {
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
     const event = audit.log.mock.calls[0][0] as AuditEvent;
     expect(event.action).toBe(AuditEventType.CONFIG_UPDATED);
+    expect(event.actorId).toBe('u');
+    expect(event.actorType).toBe('user');
+    expect(event.targetType).toBe('config');
+    expect(event.targetId).toBe('maxAttempts');
     expect(event.details).toEqual({ key: 'maxAttempts', oldValue: 5, newValue: 6 });
   });
 
