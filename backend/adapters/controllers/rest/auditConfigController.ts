@@ -71,6 +71,11 @@ export function createAuditConfigRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/AuditConfig'
+   *             example:
+   *               levels: [info, warn]
+   *               categories: [auth, config]
+   *               updatedAt: '2024-01-01T00:00:00.000Z'
+   *               updatedBy: user1
    *       204:
    *         description: No content.
    *       403:
@@ -133,6 +138,10 @@ export function createAuditConfigRouter(
    *               - levels
    *               - categories
    *               - updatedBy
+   *           example:
+   *             levels: [info]
+   *             categories: [auth]
+   *             updatedBy: user1
    *     responses:
    *       200:
    *         description: Updated configuration
@@ -140,6 +149,11 @@ export function createAuditConfigRouter(
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/AuditConfig'
+   *             example:
+   *               levels: [info]
+   *               categories: [auth]
+   *               updatedAt: '2024-01-01T00:00:00.000Z'
+   *               updatedBy: user1
    *       400:
    *         description: Validation error
    *       403:
