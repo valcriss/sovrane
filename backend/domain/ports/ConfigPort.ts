@@ -22,4 +22,12 @@ export interface ConfigPort {
    * @returns Persisted configuration.
    */
   upsert(key: string, value: string, type: string, updatedBy: string): Promise<AppConfig>;
+
+  /**
+   * Delete a configuration entry by key.
+   *
+   * @param key - Unique configuration key.
+   * @returns The deleted {@link AppConfig} or `null` when not found.
+   */
+  delete(key: string): Promise<AppConfig | null>;
 }

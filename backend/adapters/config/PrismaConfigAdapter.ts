@@ -41,4 +41,27 @@ export class PrismaConfigAdapter implements ConfigPort {
       record.updatedBy,
     );
   }
+
+  /**
+   * Delete a configuration entry.
+   *
+   * @param key - Configuration key to remove.
+   * @returns The removed configuration or `null` if it did not exist.
+   */
+  async delete(key: string): Promise<AppConfig | null> {
+    this.logger.debug(`Deleting config ${key}`, getContext());
+    try {
+      const record = await this.prisma.appConfig.delete({ where: { key } });
+      return new AppConfig(
+        record.id,
+        record.key,
+        record.value,
+        record.type as AppConfig['type'],
+        record.updatedAt,
+        record.updatedBy,
+      );
+    } catch {
+      return null;
+    }
+  }
 }
