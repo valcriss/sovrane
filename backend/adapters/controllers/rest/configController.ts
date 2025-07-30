@@ -151,7 +151,9 @@ export function createConfigRouter(
    * /config/{key}:
    *   delete:
    *     summary: Delete configuration value
-   *     description: Remove a configuration entry. Requires the `delete-config` permission.
+   *     description: |
+   *       Remove a configuration entry. Requires the `delete-config` permission.
+   *       Generates an audit event with action `config.deleted`.
    *     tags:
    *       - Config
    *     security:

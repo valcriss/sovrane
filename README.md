@@ -8,3 +8,5 @@ Les OTP sont stockés dans le cache configuré (Redis ou mémoire) et expirent a
 Le nombre de tentatives de vérification est limité.
 
 Consultez [backend/docs/MFA.md](backend/docs/MFA.md) pour plus de détails sur la configuration.
+
+Consultez [backend/docs/Audit.md](backend/docs/Audit.md) pour la configuration de l'audit des routes sensibles.
