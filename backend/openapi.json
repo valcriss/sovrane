@@ -54,7 +54,17 @@
             "in": "query",
             "name": "action",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "user.updateProfile",
+                "auth.refresh",
+                "user.accountLocked",
+                "user.loginFailed",
+                "config.created",
+                "config.updated",
+                "config.deleted",
+                "sensitiveRoute.accessed"
+              ]
             },
             "description": "Filter by action name."
           },
@@ -216,7 +226,7 @@
       },
       "delete": {
         "summary": "Delete configuration value",
-        "description": "Remove a configuration entry. Requires the `delete-config` permission.",
+        "description": "Remove a configuration entry. Requires the `delete-config` permission. Generates an audit event with action `config.deleted`.",
         "tags": [
           "Config"
         ],
@@ -4199,6 +4209,16 @@
           },
           "action": {
             "type": "string",
+            "enum": [
+              "user.updateProfile",
+              "auth.refresh",
+              "user.accountLocked",
+              "user.loginFailed",
+              "config.created",
+              "config.updated",
+              "config.deleted",
+              "sensitiveRoute.accessed"
+            ],
             "description": "Description of the performed action."
           },
           "targetType": {
