@@ -1,7 +1,7 @@
 import { EmailServicePort } from '../../domain/ports/EmailServicePort';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { getContext } from '../../infrastructure/loggerContext';
-import nodemailer, { Transporter, TransportOptions } from 'nodemailer';
+import nodemailer, { Transporter } from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
 import Email from 'email-templates';
 
