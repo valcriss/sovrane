@@ -25,6 +25,8 @@ import { PrismaRefreshTokenRepository } from '../adapters/repositories/PrismaRef
 import { PrismaAudit } from '../adapters/audit/PrismaAudit';
 import { PrismaAuditConfigAdapter } from '../adapters/audit/PrismaAuditConfigAdapter';
 import { AuditConfigService } from '../domain/services/AuditConfigService';
+import { GetAuditConfigUseCase } from '../usecases/audit/GetAuditConfigUseCase';
+import { UpdateAuditConfigUseCase } from '../usecases/audit/UpdateAuditConfigUseCase';
 import { createPrisma } from './createPrisma';
 import { withContext, getContext } from './loggerContext';
 
@@ -78,6 +80,11 @@ async function bootstrap(): Promise<void> {
     : new InMemoryCacheAdapter();
   const auditConfigRepo = new PrismaAuditConfigAdapter(prisma, logger);
   const auditConfigService = new AuditConfigService(cache, auditConfigRepo);
+  const getAuditConfigUseCase = new GetAuditConfigUseCase(auditConfigService);
+  const updateAuditConfigUseCase = new UpdateAuditConfigUseCase(
+    auditConfigService,
+    audit,
+  );
   const configService = new ConfigService(cache, configRepo);
   const passwordValidator = new PasswordValidator(configService);
   const mfaService = new TOTPAdapter(
@@ -163,8 +170,8 @@ async function bootstrap(): Promise<void> {
   app.use(
     '/api',
     createAuditConfigRouter(
-      auditConfigService,
-      audit,
+      getAuditConfigUseCase,
+      updateAuditConfigUseCase,
       logger,
     ),
   );

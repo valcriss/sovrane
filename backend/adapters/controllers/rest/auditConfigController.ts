@@ -1,12 +1,10 @@
 import express, { Request, Response, Router } from 'express';
-import { AuditConfigService } from '../../../domain/services/AuditConfigService';
-import { AuditPort } from '../../../domain/ports/AuditPort';
+import { GetAuditConfigUseCase } from '../../../usecases/audit/GetAuditConfigUseCase';
+import { UpdateAuditConfigUseCase } from '../../../usecases/audit/UpdateAuditConfigUseCase';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';
 import { User } from '../../../domain/entities/User';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
-import { AuditEvent } from '../../../domain/entities/AuditEvent';
-import { AuditEventType } from '../../../domain/entities/AuditEventType';
 import { getContext } from '../../../infrastructure/loggerContext';
 
 interface AuthedRequest extends Request { user: User }
@@ -48,8 +46,8 @@ interface AuthedRequest extends Request { user: User }
  *     description: Manage audit logging settings
  */
 export function createAuditConfigRouter(
-  service: AuditConfigService,
-  audit: AuditPort,
+  getUseCase: GetAuditConfigUseCase,
+  updateUseCase: UpdateAuditConfigUseCase,
   logger: LoggerPort,
 ): Router {
   const router = express.Router();
@@ -90,8 +88,7 @@ export function createAuditConfigRouter(
       res.status(403).end();
       return;
     }
-    const cfg = await service.get();
-    await audit.log(new AuditEvent(new Date(), (req as AuthedRequest).user.id, 'user', AuditEventType.AUDIT_CONFIG_UPDATED, 'audit-config'));
+    const cfg = await getUseCase.execute();
     if (!cfg) {
       res.status(204).end();
       return;
@@ -169,8 +166,11 @@ export function createAuditConfigRouter(
       return;
     }
     try {
-      const cfg = await service.update(req.body.levels, req.body.categories, req.body.updatedBy);
-      await audit.log(new AuditEvent(new Date(), req.body.updatedBy, 'user', AuditEventType.AUDIT_CONFIG_UPDATED, 'audit-config'));
+      const cfg = await updateUseCase.execute(
+        req.body.levels,
+        req.body.categories,
+        req.body.updatedBy,
+      );
       res.json({
         levels: cfg.levels,
         categories: cfg.categories,
