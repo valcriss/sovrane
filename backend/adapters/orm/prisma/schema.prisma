@@ -208,10 +208,10 @@ model Invitation {
 }
 
 model RefreshToken {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   userId     String
   tokenHash  String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
   expiresAt  DateTime
   revokedAt  DateTime?
   replacedBy String?
@@ -242,4 +242,13 @@ model AppConfig {
   type      String
   updatedAt DateTime? @updatedAt
   updatedBy String?
+}
+
+model AuditConfig {
+  id         Int       @id @default(autoincrement())
+  levels     String[]
+  categories String[]
+  updatedAt  DateTime? @updatedAt
+  updatedBy  String?
+  singleton  Int       @unique @default(1)
 }
