@@ -59,4 +59,13 @@ export class AppConfigKeys {
    * Path patterns considered sensitive and therefore audited when accessed.
    */
   static readonly AUDIT_SENSITIVE_ROUTES = 'audit_sensitive_routes';
+
+  /** Number of lock events before sending an alert. */
+  static readonly LOCKOUT_ALERT_THRESHOLD = 'lockout_alert_threshold';
+
+  /** Consecutive failed logins before issuing an alert. */
+  static readonly FAILED_LOGIN_ALERT_THRESHOLD = 'failed_login_alert_threshold';
+
+  /** Time window in minutes for counting failed logins. */
+  static readonly FAILED_LOGIN_TIME_WINDOW = 'failed_login_time_window';
 }

@@ -42,6 +42,9 @@ describe('BootstapService', () => {
       ['/api/admin/*', '/api/audit', '/api/config/*'],
       'bootstrap',
     );
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.LOCKOUT_ALERT_THRESHOLD, 5, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.FAILED_LOGIN_ALERT_THRESHOLD, 10, 'bootstrap');
+    expect(config.update).toHaveBeenCalledWith(AppConfigKeys.FAILED_LOGIN_TIME_WINDOW, 15, 'bootstrap');
   });
 
   it('should create missing permissions', async () => {

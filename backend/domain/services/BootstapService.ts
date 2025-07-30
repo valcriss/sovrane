@@ -54,6 +54,9 @@ export class BootstapService {
       ['/api/admin/*', '/api/audit', '/api/config/*'],
       'bootstrap',
     );
+    await this.config.update(AppConfigKeys.LOCKOUT_ALERT_THRESHOLD, 5, 'bootstrap');
+    await this.config.update(AppConfigKeys.FAILED_LOGIN_ALERT_THRESHOLD, 10, 'bootstrap');
+    await this.config.update(AppConfigKeys.FAILED_LOGIN_TIME_WINDOW, 15, 'bootstrap');
 
     this.logger.info('Bootstrapping permissions');
     const keys = Object.values(PermissionKeys);
