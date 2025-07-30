@@ -44,6 +44,10 @@ describe('Department WebSocket gateway', () => {
       new Permission('p2', PermissionKeys.CREATE_DEPARTMENT, ''),
       new Permission('p3', PermissionKeys.UPDATE_DEPARTMENT, ''),
       new Permission('p4', PermissionKeys.DELETE_DEPARTMENT, ''),
+      new Permission('p5', PermissionKeys.READ_DEPARTMENT, ''),
+      new Permission('p6', PermissionKeys.MANAGE_DEPARTMENT_USERS, ''),
+      new Permission('p7', PermissionKeys.MANAGE_DEPARTMENT_HIERARCHY, ''),
+      new Permission('p8', PermissionKeys.MANAGE_DEPARTMENT_PERMISSIONS, ''),
     ]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
@@ -189,6 +193,33 @@ describe('Department WebSocket gateway', () => {
     });
     client.on('error', (err: { error: string }) => {
       expect(err.error).toBe('Invalid parameters');
+      client.close();
+      done();
+    });
+  });
+
+  it('emits department children', (done) => {
+    deptRepo.findAll.mockResolvedValue([department]);
+    const client = ioClient.connect(url, { auth: { token: 'token' } });
+    client.on('connect', () => {
+      client.emit('department-children-request', { id: 'd', page: 1, limit: 20 });
+    });
+    client.on('department-children-response', (data: any) => {
+      expect(Array.isArray(data.items)).toBe(true);
+      client.close();
+      done();
+    });
+  });
+
+  it('emits department manager', (done) => {
+    deptRepo.findById.mockResolvedValue(new Department('d','Dept',null,'u',site));
+    userRepo.findById.mockResolvedValue(user);
+    const client = ioClient.connect(url, { auth: { token: 'token' } });
+    client.on('connect', () => {
+      client.emit('department-manager-get', { id: 'd' });
+    });
+    client.on('department-manager-response', (data: any) => {
+      expect(data.id).toBe('u');
       client.close();
       done();
     });
