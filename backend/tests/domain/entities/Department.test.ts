@@ -1,5 +1,4 @@
 import { Department } from '../../../domain/entities/Department';
-import { Permission } from '../../../domain/entities/Permission';
 import { Site } from '../../../domain/entities/Site';
 
 describe('Department Entity', () => {
@@ -19,11 +18,6 @@ describe('Department Entity', () => {
     dept.parentDepartmentId = 'dept-1';
     dept.managerUserId = 'user-2';
 
-    const perm = new Permission('perm-1', 'READ', 'read');
-    dept.permissions.push(perm);
-
-    expect(dept.permissions).toHaveLength(1);
-    expect(dept.permissions[0]).toBe(perm);
 
     expect(dept.label).toBe('Human Resources');
     expect(dept.parentDepartmentId).toBe('dept-1');
@@ -37,7 +31,6 @@ describe('Department Entity', () => {
 
     expect(dept.parentDepartmentId).toBeNull();
     expect(dept.managerUserId).toBeNull();
-    expect(dept.permissions).toEqual([]);
     expect(dept.site).toBe(site);
   });
 });

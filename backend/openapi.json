@@ -569,7 +569,7 @@
       },
       "put": {
         "summary": "Update a department.",
-        "description": "Modify a department's label, parent, manager or permissions. Requires `update-department` permission.",
+        "description": "Modify a department's label, parent or manager. Requires `update-department` permission.",
         "tags": [
           "Department"
         ],
@@ -1082,154 +1082,6 @@
         }
       }
     },
-    "/departments/{id}/permissions": {
-      "get": {
-        "summary": "List department permissions",
-        "description": "Returns a paginated list of permissions attached to the department. Requires `manage-department-permissions` permission.",
-        "tags": [
-          "Department"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Identifier of the department."
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "schema": {
-              "type": "integer",
-              "default": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "schema": {
-              "type": "integer",
-              "default": 20
-            }
-          },
-          {
-            "in": "query",
-            "name": "search",
-            "schema": {
-              "type": "string"
-            },
-            "description": "Filter permissions by key or description."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Paginated permissions list.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Permission"
-                      }
-                    },
-                    "page": {
-                      "type": "integer"
-                    },
-                    "limit": {
-                      "type": "integer"
-                    },
-                    "total": {
-                      "type": "integer"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "204": {
-            "description": "No content."
-          },
-          "400": {
-            "description": "Validation error."
-          },
-          "401": {
-            "description": "Invalid or expired authentication token."
-          },
-          "403": {
-            "description": "User lacks required permission."
-          }
-        }
-      },
-      "post": {
-        "summary": "Add permission to department.",
-        "description": "Grants a specific permission to the department. Administrator\nauthentication is required. Requires `manage-department-permissions` permission.\n",
-        "tags": [
-          "Department"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Identifier of the department to update."
-          }
-        ],
-        "requestBody": {
-          "description": "Permission data to add.",
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Permission"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Department with new permission",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Department"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error."
-          },
-          "401": {
-            "description": "Invalid or expired authentication token."
-          },
-          "403": {
-            "description": "User lacks required permission."
-          },
-          "404": {
-            "description": "Department not found."
-          }
-        }
-      }
-    },
     "/departments/{id}/users": {
       "get": {
         "summary": "List department users",
@@ -1456,64 +1308,6 @@
           },
           "404": {
             "description": "Child department not found."
-          }
-        }
-      }
-    },
-    "/departments/{id}/permissions/{permissionId}": {
-      "delete": {
-        "summary": "Remove a permission from department.",
-        "description": "Revokes a previously granted permission from the department.\nAdministrator authentication is required. Requires `manage-department-permissions` permission.\n",
-        "tags": [
-          "Department"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Identifier of the department."
-          },
-          {
-            "in": "path",
-            "name": "permissionId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Identifier of the permission to remove."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Department after permission removal",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Department"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Validation error."
-          },
-          "401": {
-            "description": "Invalid or expired authentication token."
-          },
-          "403": {
-            "description": "User lacks required permission."
-          },
-          "404": {
-            "description": "Department not found."
           }
         }
       }
@@ -4482,13 +4276,6 @@
           "site": {
             "$ref": "#/components/schemas/Site",
             "description": "Site where the department is located."
-          },
-          "permissions": {
-            "type": "array",
-            "description": "Permissions granted to the department.",
-            "items": {
-              "$ref": "#/components/schemas/Permission"
-            }
           }
         },
         "required": [

@@ -31,7 +31,6 @@ export class PrismaDepartmentRepository implements DepartmentRepositoryPort {
       record.parentDepartmentId,
       record.managerUserId,
       new Site(record.site.id, record.site.label),
-      [],
       record.createdAt,
       record.updatedAt,
       null,

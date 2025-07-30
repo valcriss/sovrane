@@ -83,7 +83,6 @@ model Department {
   managerUserId      String?
   manager            User?                  @relation("DepartmentManager", fields: [managerUserId], references: [id])
   users              User[]
-  permissions        DepartmentPermission[]
   site               Site                   @relation(fields: [siteId], references: [id])
   siteId             String
   createdBy          User?                  @relation("DepartmentCreatedBy", fields: [createdById], references: [id])
@@ -115,7 +114,6 @@ model Permission {
   updatedAt             DateTime               @updatedAt
   userPermissions       UserPermission[]
   rolePermissions       RolePermission[]
-  departmentPermissions DepartmentPermission[]
 }
 
 model UserPermission {
@@ -136,14 +134,6 @@ model RolePermission {
   @@id([roleId, permissionId])
 }
 
-model DepartmentPermission {
-  department   Department @relation(fields: [departmentId], references: [id])
-  departmentId String
-  permission   Permission @relation(fields: [permissionId], references: [id])
-  permissionId String
-
-  @@id([departmentId, permissionId])
-}
 
 model Site {
   id          String       @id @default(uuid())

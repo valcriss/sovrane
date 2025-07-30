@@ -6,7 +6,6 @@ import {LoggerPort} from '../../../domain/ports/LoggerPort';
 import {getContext} from '../../../infrastructure/loggerContext';
 import {Department} from '../../../domain/entities/Department';
 import {Site} from '../../../domain/entities/Site';
-import {Permission} from '../../../domain/entities/Permission';
 import {CreateDepartmentUseCase} from '../../../usecases/department/CreateDepartmentUseCase';
 import {UpdateDepartmentUseCase} from '../../../usecases/department/UpdateDepartmentUseCase';
 import {RemoveDepartmentUseCase} from '../../../usecases/department/RemoveDepartmentUseCase';
@@ -17,8 +16,6 @@ import {SetDepartmentParentDepartmentUseCase} from '../../../usecases/department
 import {
   RemoveDepartmentParentDepartmentUseCase
 } from '../../../usecases/department/RemoveDepartmentParentDepartmentUseCase';
-import {SetDepartmentPermissionUseCase} from '../../../usecases/department/SetDepartmentPermissionUseCase';
-import {RemoveDepartmentPermissionUseCase} from '../../../usecases/department/RemoveDepartmentPermissionUseCase';
 import {AddChildDepartmentUseCase} from '../../../usecases/department/AddChildDepartmentUseCase';
 import {RemoveChildDepartmentUseCase} from '../../../usecases/department/RemoveChildDepartmentUseCase';
 import {AddDepartmentUserUseCase} from '../../../usecases/department/AddDepartmentUserUseCase';
@@ -28,7 +25,6 @@ import {GetDepartmentUseCase} from '../../../usecases/department/GetDepartmentUs
 import {GetDepartmentChildrenUseCase} from '../../../usecases/department/GetDepartmentChildrenUseCase';
 import {GetDepartmentManagerUseCase} from '../../../usecases/department/GetDepartmentManagerUseCase';
 import {GetDepartmentParentUseCase} from '../../../usecases/department/GetDepartmentParentUseCase';
-import {GetDepartmentPermissionsUseCase} from '../../../usecases/department/GetDepartmentPermissionsUseCase';
 import {GetDepartmentUsersUseCase} from '../../../usecases/department/GetDepartmentUsersUseCase';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { User } from '../../../domain/entities/User';
@@ -73,7 +69,7 @@ import { User } from '../../../domain/entities/User';
  *         - permissionKey
  *         - description
  *     Department:
- *       description: Organizational division containing users and permissions.
+ *       description: Organizational division containing users.
  *       type: object
  *       properties:
  *         id:
@@ -93,11 +89,6 @@ import { User } from '../../../domain/entities/User';
  *         site:
  *           $ref: '#/components/schemas/Site'
  *           description: Site where the department is located.
- *         permissions:
- *           type: array
- *           description: Permissions granted to the department.
- *           items:
- *             $ref: '#/components/schemas/Permission'
  *       required:
  *         - id
  *         - label
@@ -110,7 +101,6 @@ interface DepartmentPayload {
     parentDepartmentId?: string | null;
     managerUserId?: string | null;
     site: { id: string; label: string };
-    permissions?: Array<{ id: string; permissionKey: string; description: string }>;
 }
 
 /* istanbul ignore next */
@@ -121,9 +111,6 @@ function parseDepartment(body: DepartmentPayload): Department {
     body.parentDepartmentId ?? null,
     body.managerUserId ?? null,
     new Site(body.site.id, body.site.label),
-    (body.permissions ?? []).map(
-      (p) => new Permission(p.id, p.permissionKey, p.description),
-    ),
   );
 }
 
@@ -137,13 +124,6 @@ function serializeDepartment(d: Department): Record<string, unknown> {
       createdBy: null,
       updatedBy: null,
     },
-    permissions: d.permissions.map((p) => ({
-      ...p,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-      createdBy: null,
-      updatedBy: null,
-    })),
     createdAt: d.createdAt.toISOString(),
     updatedAt: d.updatedAt.toISOString(),
     createdBy: null,
@@ -475,83 +455,6 @@ export function createDepartmentRouter(
     res.json(parent);
   });
 
-  /**
-     * @openapi
-     * /departments/{id}/permissions:
-     *   get:
-     *     summary: List department permissions
-     *     description: Returns a paginated list of permissions attached to the department. Requires `manage-department-permissions` permission.
-     *     tags:
-     *       - Department
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: string
-     *         description: Identifier of the department.
-     *       - in: query
-     *         name: page
-     *         schema:
-     *           type: integer
-     *           default: 1
-     *       - in: query
-     *         name: limit
-     *         schema:
-     *           type: integer
-     *           default: 20
-     *       - in: query
-     *         name: search
-     *         schema:
-     *           type: string
-     *         description: Filter permissions by key or description.
-     *     responses:
-     *       200:
-     *         description: Paginated permissions list.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 items:
-     *                   type: array
-     *                   items:
-     *                     $ref: '#/components/schemas/Permission'
-     *                 page:
-     *                   type: integer
-     *                 limit:
-     *                   type: integer
-     *                 total:
-     *                   type: integer
-     *       204:
-     *         description: No content.
-     *       400:
-     *         description: Validation error.
-     *       401:
-     *         description: Invalid or expired authentication token.
-     *       403:
-     *         description: User lacks required permission.
-     */
-  router.get('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('GET /departments/:id/permissions', getContext());
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const checker = new PermissionChecker((req as AuthedRequest).user);
-    const useCase = new GetDepartmentPermissionsUseCase(departmentRepository, checker);
-    const result = await useCase.execute(req.params.id, {
-      page,
-      limit,
-      filters: {search: req.query.search as string | undefined},
-    });
-    logger.debug('Department permissions retrieved', getContext());
-    if (result.items.length === 0) {
-      res.status(204).end();
-      return;
-    }
-    res.json(result);
-  });
 
   /**
      * @openapi
@@ -700,7 +603,7 @@ export function createDepartmentRouter(
      * /departments/{id}:
      *   put:
      *     summary: Update a department.
-     *     description: Modify a department's label, parent, manager or permissions. Requires `update-department` permission.
+     *     description: Modify a department's label, parent or manager. Requires `update-department` permission.
      *     tags:
      *       - Department
      *     security:
@@ -1082,117 +985,6 @@ export function createDepartmentRouter(
     res.json(serializeDepartment(updated));
   });
 
-  /**
-     * @openapi
-     * /departments/{id}/permissions:
-     *   post:
-     *     summary: Add permission to department.
-     *     description: |
-     *       Grants a specific permission to the department. Administrator
-     *       authentication is required. Requires `manage-department-permissions` permission.
-     *     tags:
-     *       - Department
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: string
-     *         description: Identifier of the department to update.
-     *     requestBody:
-     *       description: Permission data to add.
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             $ref: '#/components/schemas/Permission'
-     *     responses:
-     *       200:
-     *         description: Department with new permission
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/Department'
-     *       400:
-     *         description: Validation error.
-     *       403:
-     *         description: User lacks required permission.
-     *       404:
-     *         description: Department not found.
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
-  router.post('/departments/:id/permissions', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('POST /departments/:id/permissions', getContext());
-    const checker = new PermissionChecker((req as AuthedRequest).user);
-    const useCase = new SetDepartmentPermissionUseCase(departmentRepository, checker);
-    const permission = new Permission(req.body.id, req.body.permissionKey, req.body.description);
-    const updated = await useCase.execute(req.params.id, permission);
-    if (!updated) {
-      logger.warn('Department not found for permission add', getContext());
-      res.status(404).end();
-      return;
-    }
-    logger.debug('Department permission added', getContext());
-    res.json(serializeDepartment(updated));
-  });
-
-  /**
-     * @openapi
-     * /departments/{id}/permissions/{permissionId}:
-     *   delete:
-     *     summary: Remove a permission from department.
-     *     description: |
-     *       Revokes a previously granted permission from the department.
-     *       Administrator authentication is required. Requires `manage-department-permissions` permission.
-     *     tags:
-     *       - Department
-     *     security:
-     *       - bearerAuth: []
-     *     parameters:
-     *       - in: path
-     *         name: id
-     *         required: true
-     *         schema:
-     *           type: string
-     *         description: Identifier of the department.
-     *       - in: path
-     *         name: permissionId
-     *         required: true
-     *         schema:
-     *           type: string
-     *         description: Identifier of the permission to remove.
-     *     responses:
-     *       200:
-     *         description: Department after permission removal
-     *         content:
-     *           application/json:
-     *             schema:
-     *               $ref: '#/components/schemas/Department'
-     *       400:
-     *         description: Validation error.
-     *       403:
-     *         description: User lacks required permission.
-     *       404:
-     *         description: Department not found.
-     *       401:
-     *         description: Invalid or expired authentication token.
-     */
-  router.delete('/departments/:id/permissions/:permissionId', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('DELETE /departments/:id/permissions/:permissionId', getContext());
-    const checker = new PermissionChecker((req as AuthedRequest).user);
-    const useCase = new RemoveDepartmentPermissionUseCase(departmentRepository, checker);
-    const updated = await useCase.execute(req.params.id, req.params.permissionId);
-    if (!updated) {
-      logger.warn('Department not found for permission removal', getContext());
-      res.status(404).end();
-      return;
-    }
-    logger.debug('Department permission removed', getContext());
-    res.json(serializeDepartment(updated));
-  });
 
   /**
      * @openapi
