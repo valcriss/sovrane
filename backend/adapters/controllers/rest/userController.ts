@@ -8,6 +8,7 @@ import { AuditPort } from '../../../domain/ports/AuditPort';
 import {AvatarServicePort} from '../../../domain/ports/AvatarServicePort';
 import {TokenServicePort} from '../../../domain/ports/TokenServicePort';
 import { RefreshTokenPort } from '../../../domain/ports/RefreshTokenPort';
+import { RealtimePort } from '../../../domain/ports/RealtimePort';
 import {GetCurrentUserProfileUseCase} from '../../../usecases/user/GetCurrentUserProfileUseCase';
 import {RegisterUserUseCase} from '../../../usecases/user/RegisterUserUseCase';
 import {AuthenticateUserUseCase} from '../../../usecases/user/AuthenticateUserUseCase';
@@ -230,6 +231,7 @@ export function createUserRouter(
   getConfigUseCase: GetConfigUseCase,
   passwordValidator: PasswordValidator,
   mfaService: MfaServicePort,
+  realtime: RealtimePort,
 ): Router {
   const router = express.Router();
   const upload = multer();
@@ -365,6 +367,7 @@ export function createUserRouter(
         userRepository,
         tokenService,
         passwordValidator,
+        realtime,
       );
       const result = await useCase.execute(
         parseUser(req.body),
@@ -1190,7 +1193,12 @@ export function createUserRouter(
       logger.debug('PUT /users/:id', getContext());
       const user = parseUser({ ...req.body, id: req.params.id });
       const checker = new PermissionChecker((req as AuthedRequest).user);
-      const useCase = new UpdateUserProfileUseCase(userRepository, checker, audit);
+      const useCase = new UpdateUserProfileUseCase(
+        userRepository,
+        checker,
+        audit,
+        realtime,
+      );
       try {
         const updated = await useCase.execute(user);
         logger.debug('User profile updated', getContext());

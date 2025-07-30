@@ -5,6 +5,7 @@ import { createDepartmentRouter } from '../../../../adapters/controllers/rest/de
 import { DepartmentRepositoryPort } from '../../../../domain/ports/DepartmentRepositoryPort';
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
+import { RealtimePort } from '../../../../domain/ports/RealtimePort';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
@@ -43,7 +44,8 @@ describe('Department REST controller', () => {
     app = express();
     app.use(express.json());
     app.use((req, _res, next) => { (req as any).user = user; next(); });
-    app.use('/api', createDepartmentRouter(deptRepo, userRepo, logger));
+    const realtime = mockDeep<RealtimePort>();
+    app.use('/api', createDepartmentRouter(deptRepo, userRepo, logger, realtime));
   });
 
   it('should list departments', async () => {

@@ -147,7 +147,12 @@ export function registerUserGateway(
           (p) => new Permission(p.id, p.permissionKey, p.description),
         ),
       );
-      const useCase = new UpdateUserProfileUseCase(userRepository, checker, audit);
+      const useCase = new UpdateUserProfileUseCase(
+        userRepository,
+        checker,
+        audit,
+        realtime,
+      );
       try {
         const updated = await useCase.execute(user);
         logger.debug('User updated', getContext());

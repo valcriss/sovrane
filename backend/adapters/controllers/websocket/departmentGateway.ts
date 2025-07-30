@@ -133,7 +133,11 @@ export function registerDepartmentGateway(
         new Site(payload.site.id, payload.site.label),
         (payload.permissions ?? []).map((p) => new Permission(p.id, p.permissionKey, p.description)),
       );
-      const useCase = new CreateDepartmentUseCase(departmentRepository, checker);
+      const useCase = new CreateDepartmentUseCase(
+        departmentRepository,
+        checker,
+        realtime,
+      );
       try {
         const created = await useCase.execute(department);
         socket.emit('department-create-response', created);

@@ -3,6 +3,7 @@ import { TokenServicePort } from '../../domain/ports/TokenServicePort';
 import { User } from '../../domain/entities/User';
 import { PasswordValidator } from '../../domain/services/PasswordValidator';
 import { InvalidPasswordException } from '../../domain/errors/InvalidPasswordException';
+import { RealtimePort } from '../../domain/ports/RealtimePort';
 
 /**
  * Use case responsible for registering a new {@link User}
@@ -13,6 +14,7 @@ export class RegisterUserUseCase {
     private readonly userRepository: UserRepositoryPort,
     private readonly tokenService: TokenServicePort,
     private readonly passwordValidator: PasswordValidator,
+    private readonly realtime: RealtimePort,
   ) {}
 
   /**
@@ -38,6 +40,7 @@ export class RegisterUserUseCase {
     user.createdBy = null;
     user.updatedBy = null;
     const created = await this.userRepository.create(user);
+    await this.realtime.broadcast('user-changed', { id: created.id });
     const token = this.tokenService.generateAccessToken(created);
     const refreshToken = await this.tokenService.generateRefreshToken(
       created,
