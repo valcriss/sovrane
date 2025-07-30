@@ -228,6 +228,11 @@ async function bootstrap(): Promise<void> {
     realtime,
     userRepository,
     audit,
+    tokenService,
+    refreshRepo,
+    getConfigUseCase,
+    passwordValidator,
+    mfaService,
   );
   registerDepartmentGateway(
     io,
