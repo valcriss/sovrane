@@ -17,6 +17,7 @@ import { JWTAuthServiceAdapter } from '../adapters/auth/JWTAuthServiceAdapter';
 import { JWTTokenServiceAdapter } from '../adapters/token/JWTTokenServiceAdapter';
 import { ConsoleLoggerAdapter } from '../adapters/logger/ConsoleLoggerAdapter';
 import { ConsoleEmailServiceAdapter } from '../adapters/email/ConsoleEmailServiceAdapter';
+import { EmailNotificationAdapter } from '../adapters/notification/EmailNotificationAdapter';
 import { LocalFileStorageAdapter } from '../adapters/storage/LocalFileStorageAdapter';
 import { AvatarService } from '../domain/services/AvatarService';
 import { PrismaRefreshTokenRepository } from '../adapters/repositories/PrismaRefreshTokenRepository';
@@ -49,6 +50,7 @@ async function bootstrap(): Promise<void> {
   const invitationRepository = new PrismaInvitationRepository(prisma, logger);
   const permissionRepository = new PrismaPermissionRepository(prisma, logger);
   const emailService = new ConsoleEmailServiceAdapter(logger);
+  const notificationService = new EmailNotificationAdapter(emailService, logger);
   const storage = new LocalFileStorageAdapter(process.env.STORAGE_PATH ?? './uploads', logger);
   const avatarService = new AvatarService(storage, userRepository, logger);
 
@@ -159,6 +161,9 @@ async function bootstrap(): Promise<void> {
       userRepository,
       mailer: emailService,
       config: getConfigUseCase,
+      audit,
+      notification: notificationService,
+      logger,
     }),
   );
 
