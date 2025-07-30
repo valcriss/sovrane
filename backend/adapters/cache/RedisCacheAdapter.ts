@@ -5,9 +5,10 @@ import IORedis from 'ioredis';
  * Redis-backed cache storing values as JSON.
  */
 export class RedisCacheAdapter implements CachePort {
-  private readonly prefix = 'appconfig:';
-
-  constructor(private readonly client: IORedis) {}
+  constructor(
+    private readonly client: IORedis,
+    private readonly prefix = 'appconfig:',
+  ) {}
 
   async get<T>(key: string): Promise<T | null> {
     const data = await this.client.get(this.prefix + key);
