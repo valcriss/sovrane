@@ -8,7 +8,6 @@ import { createUserRouter } from '../adapters/controllers/rest/userController';
 import { createInvitationRouter } from '../adapters/controllers/rest/invitationController';
 import { createRoleRouter } from '../adapters/controllers/rest/roleController';
 import { createAuditRouter } from '../adapters/controllers/rest/auditController';
-import { createAuditConfigRouter } from '../adapters/controllers/rest/auditConfigController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -165,14 +164,9 @@ async function bootstrap(): Promise<void> {
       userRepository,
       audit,
       logger,
-    ),
-  );
-  app.use(
-    '/api',
-    createAuditConfigRouter(
+      auditConfigService,
       getAuditConfigUseCase,
       updateAuditConfigUseCase,
-      logger,
     ),
   );
   

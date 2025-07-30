@@ -8,6 +8,8 @@ import { AuditPort } from '../../../../domain/ports/AuditPort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { AuditEvent } from '../../../../domain/entities/AuditEvent';
 import { AuditConfigService } from '../../../../domain/services/AuditConfigService';
+import { GetAuditConfigUseCase } from '../../../../usecases/audit/GetAuditConfigUseCase';
+import { UpdateAuditConfigUseCase } from '../../../../usecases/audit/UpdateAuditConfigUseCase';
 import { User } from '../../../../domain/entities/User';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
@@ -22,6 +24,8 @@ describe('Audit REST controller', () => {
   let audit: DeepMockProxy<AuditPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let config: DeepMockProxy<AuditConfigService>;
+  let getUseCase: DeepMockProxy<GetAuditConfigUseCase>;
+  let updateUseCase: DeepMockProxy<UpdateAuditConfigUseCase>;
 
   beforeEach(() => {
     auth = mockDeep<AuthServicePort>();
@@ -29,6 +33,8 @@ describe('Audit REST controller', () => {
     audit = mockDeep<AuditPort>();
     logger = mockDeep<LoggerPort>();
     config = mockDeep<AuditConfigService>();
+    getUseCase = mockDeep<GetAuditConfigUseCase>();
+    updateUseCase = mockDeep<UpdateAuditConfigUseCase>();
 
     auth.verifyToken.mockResolvedValue({ id: 'u' } as any);
     const site = new Site('s', 'Site');
@@ -40,7 +46,7 @@ describe('Audit REST controller', () => {
 
     app = express();
     app.use(express.json());
-    app.use('/api', createAuditRouter(auth, users, audit, logger, config));
+    app.use('/api', createAuditRouter(auth, users, audit, logger, config, getUseCase, updateUseCase));
   });
 
   it('should list audit logs', async () => {

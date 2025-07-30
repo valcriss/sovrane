@@ -1,7 +1,11 @@
 import request from 'supertest';
 import express from 'express';
 import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
-import { createAuditConfigRouter } from '../../../../adapters/controllers/rest/auditConfigController';
+import { createAuditRouter } from '../../../../adapters/controllers/rest/auditController';
+import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
+import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
+import { AuditPort } from '../../../../domain/ports/AuditPort';
+import { AuditConfigService } from '../../../../domain/services/AuditConfigService';
 import { GetAuditConfigUseCase } from '../../../../usecases/audit/GetAuditConfigUseCase';
 import { UpdateAuditConfigUseCase } from '../../../../usecases/audit/UpdateAuditConfigUseCase';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
@@ -22,27 +26,39 @@ describe('AuditConfig REST controller', () => {
   let dept: Department;
   let role: Role;
   let user: User;
+  let auth: DeepMockProxy<AuthServicePort>;
+  let users: DeepMockProxy<UserRepositoryPort>;
+  let audit: DeepMockProxy<AuditPort>;
+  let config: DeepMockProxy<AuditConfigService>;
 
   beforeEach(() => {
+    auth = mockDeep<AuthServicePort>();
+    users = mockDeep<UserRepositoryPort>();
+    audit = mockDeep<AuditPort>();
     getUseCase = mockDeep<GetAuditConfigUseCase>();
     updateUseCase = mockDeep<UpdateAuditConfigUseCase>();
     logger = mockDeep<LoggerPort>();
+    config = mockDeep<AuditConfigService>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role', [new Permission('p', PermissionKeys.READ_AUDIT_CONFIG, '')]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
 
+    auth.verifyToken.mockResolvedValue({ id: 'u' } as any);
+    users.findById.mockResolvedValue(user);
+
     app = express();
     app.use(express.json());
-    app.use('/api', (req, _res, next) => { (req as any).user = user; next(); });
-    app.use('/api', createAuditConfigRouter(getUseCase, updateUseCase, logger));
+    app.use('/api', createAuditRouter(auth, users, audit, logger, config, getUseCase, updateUseCase));
   });
 
   it('should return audit config', async () => {
     const cfg = new AuditConfig(1, ['info'], ['auth'], new Date('2024-01-01T00:00:00Z'), 'u');
     getUseCase.execute.mockResolvedValue(cfg);
 
-    const res = await request(app).get('/api/audit/config');
+    const res = await request(app)
+      .get('/api/audit/config')
+      .set('Authorization', 'Bearer t');
 
     expect(res.status).toBe(200);
     expect(res.body.levels).toEqual(['info']);
@@ -51,7 +67,9 @@ describe('AuditConfig REST controller', () => {
   it('should return 204 when none', async () => {
     getUseCase.execute.mockResolvedValue(null);
 
-    const res = await request(app).get('/api/audit/config');
+    const res = await request(app)
+      .get('/api/audit/config')
+      .set('Authorization', 'Bearer t');
 
     expect(res.status).toBe(204);
   });
@@ -59,7 +77,9 @@ describe('AuditConfig REST controller', () => {
   it('should forbid when read permission missing', async () => {
     role.permissions = [];
 
-    const res = await request(app).get('/api/audit/config');
+    const res = await request(app)
+      .get('/api/audit/config')
+      .set('Authorization', 'Bearer t');
 
     expect(res.status).toBe(403);
   });
@@ -71,6 +91,7 @@ describe('AuditConfig REST controller', () => {
 
     const res = await request(app)
       .put('/api/audit/config')
+      .set('Authorization', 'Bearer t')
       .send({ levels: ['warn'], categories: ['system'], updatedBy: 'u' });
 
     expect(res.status).toBe(200);
@@ -86,6 +107,7 @@ describe('AuditConfig REST controller', () => {
 
     const res = await request(app)
       .put('/api/audit/config')
+      .set('Authorization', 'Bearer t')
       .send({ levels: [], categories: [], updatedBy: 'u' });
 
     expect(res.status).toBe(403);
@@ -97,6 +119,7 @@ describe('AuditConfig REST controller', () => {
 
     const res = await request(app)
       .put('/api/audit/config')
+      .set('Authorization', 'Bearer t')
       .send({ levels: [], categories: [], updatedBy: 'u' });
 
     expect(res.status).toBe(400);
