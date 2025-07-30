@@ -4,6 +4,7 @@ import { User } from '../../domain/entities/User';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
+import { AuditEventType } from '../../domain/entities/AuditEventType';
 import { LoggerPort } from '../../domain/ports/LoggerPort';
 import { AccountLockedError } from '../../domain/errors/AccountLockedError';
 import { PasswordExpiredException } from '../../domain/errors/PasswordExpiredException';
@@ -102,11 +103,25 @@ export class AuthenticateUserUseCase {
         if (existing.failedLoginAttempts > threshold) {
           existing.lockedUntil = new Date(Date.now() + lockDuration);
           await this.audit.log(
-            new AuditEvent(new Date(), existing.id, 'user', 'user.accountLocked', 'user', existing.id),
+            new AuditEvent(
+              new Date(),
+              existing.id,
+              'user',
+              AuditEventType.USER_ACCOUNT_LOCKED,
+              'user',
+              existing.id,
+            ),
           );
         } else {
           await this.audit.log(
-            new AuditEvent(new Date(), existing.id, 'user', 'user.loginFailed', 'user', existing.id),
+            new AuditEvent(
+              new Date(),
+              existing.id,
+              'user',
+              AuditEventType.USER_LOGIN_FAILED,
+              'user',
+              existing.id,
+            ),
           );
         }
         await this.userRepository.update(existing);

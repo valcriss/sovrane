@@ -4,6 +4,7 @@ import { PermissionChecker } from '../../domain/services/PermissionChecker';
 import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
+import { AuditEventType } from '../../domain/entities/AuditEventType';
 
 /**
  * Use case for updating user profile information.
@@ -31,7 +32,7 @@ export class UpdateUserProfileUseCase {
         new Date(),
         this.checker.currentUser.id,
         'user',
-        'user.updateProfile',
+        AuditEventType.USER_PROFILE_UPDATED,
         'user',
         user.id,
         { userId: user.id },

@@ -4,6 +4,7 @@ import { TokenServicePort } from '../../domain/ports/TokenServicePort';
 import { UserRepositoryPort } from '../../domain/ports/UserRepositoryPort';
 import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
+import { AuditEventType } from '../../domain/entities/AuditEventType';
 import { InvalidRefreshTokenException } from '../../domain/errors/InvalidRefreshTokenException';
 import { RefreshTokenTooSoonException } from '../../domain/errors/RefreshTokenTooSoonException';
 
@@ -58,7 +59,7 @@ export class RotateRefreshTokenUseCase {
         new Date(),
         user.id,
         'user',
-        'auth.refresh',
+        AuditEventType.AUTH_REFRESH,
         'user',
         user.id,
         undefined,

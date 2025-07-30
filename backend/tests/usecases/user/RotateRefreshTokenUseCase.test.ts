@@ -5,6 +5,7 @@ import { TokenServicePort } from '../../../domain/ports/TokenServicePort';
 import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
 import { AuditPort } from '../../../domain/ports/AuditPort';
 import { AuditEvent } from '../../../domain/entities/AuditEvent';
+import { AuditEventType } from '../../../domain/entities/AuditEventType';
 import { RefreshToken } from '../../../domain/entities/RefreshToken';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
@@ -51,7 +52,7 @@ describe('RotateRefreshTokenUseCase', () => {
     expect(audit.log).toHaveBeenCalledWith(expect.any(AuditEvent));
     const event = audit.log.mock.calls[0][0] as AuditEvent;
     expect(event.actorId).toBe('u');
-    expect(event.action).toBe('auth.refresh');
+    expect(event.action).toBe(AuditEventType.AUTH_REFRESH);
     expect(event.ipAddress).toBe('1.1.1.1');
     expect(event.userAgent).toBe('agent');
   });
