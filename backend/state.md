@@ -58,6 +58,9 @@ The sections below describe each file grouped by directory.
 - **ConsoleEmailServiceAdapter.ts** – Simple email service logging messages to the console. Method: `sendMail`.
 - **NodemailerEmailServiceAdapter.ts** – Sends real emails using Nodemailer with optional templates. Method: `sendMail`.
 
+### notification
+- **EmailNotificationAdapter.ts** – Sends notification emails via the configured mail service.
+
 ### logger
 - **ConsoleLoggerAdapter.ts** – Logging adapter writing to STDOUT. Methods: `error`, `warn`, `info`, `debug`, `trace`.
 
@@ -82,6 +85,11 @@ Database repositories implementing CRUD operations for each entity:
 
 ### token
 - **JWTTokenServiceAdapter.ts** – Generates and verifies JWT access/refresh tokens. Methods: `generateAccessToken`, `generateRefreshToken`.
+### scheduler
+
+- **NodeCronScheduler.ts** – Registers cron jobs using node-cron.
+- **jobs.ts** – Factory creating scheduled jobs including security alert detection.
+
 
 ## bruno
 Collection of `.bru` files used with the Bruno API client. They demonstrate how to call each REST endpoint. `bruno.json` defines the workspace.
@@ -90,12 +98,12 @@ Collection of `.bru` files used with the Bruno API client. They demonstrate how 
 
 ### entities
 Data classes representing core concepts:
-- **User.ts**, **Role.ts**, **Permission.ts**, **PermissionKeys.ts**, **Department.ts**, **Site.ts**, **UserGroup.ts**, **Invitation.ts**, **RefreshToken.ts**, **AuditEvent.ts**.
+- **User.ts**, **Role.ts**, **Permission.ts**, **PermissionKeys.ts**, **Department.ts**, **Site.ts**, **UserGroup.ts**, **Invitation.ts**, **RefreshToken.ts**, **AuditEvent.ts**, **SecurityAlert.ts**
 Each file exports a class with properties and a constructor documenting every field.
 
 ### ports
 Interfaces defining contracts between the domain and infrastructure:
-`AuthServicePort`, `TokenServicePort`, `UserRepositoryPort`, `RoleRepositoryPort`, `PermissionRepositoryPort`, `DepartmentRepositoryPort`, `SiteRepositoryPort`, `UserGroupRepositoryPort`, `InvitationRepositoryPort`, `RefreshTokenPort`, `AuditPort`, `FileStoragePort`, `AvatarServicePort`, `EmailServicePort`, `LoggerPort`.
+`AuthServicePort`, `TokenServicePort`, `UserRepositoryPort`, `RoleRepositoryPort`, `PermissionRepositoryPort`, `DepartmentRepositoryPort`, `SiteRepositoryPort`, `UserGroupRepositoryPort`, `InvitationRepositoryPort`, `RefreshTokenPort`, `AuditPort`, `FileStoragePort`, `AvatarServicePort`, `EmailServicePort`, `LoggerPort`, `NotificationPort`, `SchedulerPort`.
 
 ### services
 - **AvatarService.ts** – Handles avatar upload/deletion using a storage adapter and user repository.
@@ -119,6 +127,8 @@ Application services encapsulating domain logic. Each file exposes a single clas
 - **role/** – CRUD for roles.
 - **permission/** – CRUD for permissions.
 - **site/** – site CRUD.
+- **SecurityAlertDetectorUseCase.ts** – detects suspicious logins and returns alerts.
+- **SendPasswordExpiryWarningsUseCase.ts** – emails users when passwords near expiry.
 
 ## scripts
 - **init-application.js** – Initializes the database with an administrator account.
