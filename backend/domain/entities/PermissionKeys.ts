@@ -116,6 +116,12 @@ export class PermissionKeys {
   /** Allows updating user profile pictures. */
   static readonly UPDATE_USER_PICTURE = 'update-user-picture';
 
+  /** Allows viewing the audit logging configuration. */
+  static readonly READ_AUDIT_CONFIG = 'read-audit-config';
+
+  /** Allows modifying the audit logging configuration. */
+  static readonly WRITE_AUDIT_CONFIG = 'write-audit-config';
+
   /** Allows reading application configuration values. */
   static readonly READ_CONFIG = 'read-config';
 

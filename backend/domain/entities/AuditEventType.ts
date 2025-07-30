@@ -24,6 +24,9 @@ export class AuditEventType {
   /** Event recorded when a configuration entry is deleted. */
   static readonly CONFIG_DELETED = 'config.deleted';
 
+  /** Event recorded when the audit configuration is updated. */
+  static readonly AUDIT_CONFIG_UPDATED = 'auditConfig.updated';
+
   /** Event recorded when a sensitive route is accessed. */
   static readonly SENSITIVE_ROUTE_ACCESSED = 'sensitiveRoute.accessed';
 
