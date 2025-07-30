@@ -12,6 +12,7 @@ import { createAuditRouter } from '../adapters/controllers/rest/auditController'
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { registerDepartmentGateway } from '../adapters/controllers/websocket/departmentGateway';
 import { registerGroupGateway } from '../adapters/controllers/websocket/groupGateway';
+import { registerInvitationGateway } from '../adapters/controllers/websocket/invitationGateway';
 import { SocketIORealtimeAdapter } from '../adapters/realtime/SocketIORealtimeAdapter';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -232,6 +233,15 @@ async function bootstrap(): Promise<void> {
     realtime,
     groupRepository,
     userRepository,
+  );
+  registerInvitationGateway(
+    io,
+    authService,
+    logger,
+    realtime,
+    userRepository,
+    invitationRepository,
+    emailService,
   );
 
   const scheduler = new NodeCronScheduler(logger);
