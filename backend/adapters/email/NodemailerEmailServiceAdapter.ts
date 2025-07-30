@@ -5,6 +5,21 @@ import nodemailer, { Transporter, TransportOptions } from 'nodemailer';
 import type Mail from 'nodemailer/lib/mailer';
 import Email from 'email-templates';
 
+
+/**
+ * Configuration options for the SMTP transport.
+ */
+export interface smtpConfiguration
+{
+    host: string;
+    port: number;
+    secure?: boolean;
+    auth?: {
+        user: string;
+        pass: string | undefined;
+    };
+}
+
 /**
  * Nodemailer-based implementation of {@link EmailServicePort} supporting
  * template rendering via the `email-templates` package.
@@ -21,7 +36,7 @@ export class NodemailerEmailServiceAdapter implements EmailServicePort {
    * @param logger - Application logger instance.
    */
   constructor(
-    smtpConfig: TransportOptions,
+    smtpConfig: smtpConfiguration,
     templatesDir: string,
     private readonly logger: LoggerPort,
   ) {
