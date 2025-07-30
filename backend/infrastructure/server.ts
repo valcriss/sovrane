@@ -16,6 +16,7 @@ import { registerRoleGateway } from '../adapters/controllers/websocket/roleGatew
 import { registerInvitationGateway } from '../adapters/controllers/websocket/invitationGateway';
 import { registerSiteGateway } from '../adapters/controllers/websocket/siteGateway';
 import { registerPermissionGateway } from '../adapters/controllers/websocket/permissionGateway';
+import { registerConfigGateway } from '../adapters/controllers/websocket/configGateway';
 import { SocketIORealtimeAdapter } from '../adapters/realtime/SocketIORealtimeAdapter';
 import { PrismaUserRepository } from '../adapters/repositories/PrismaUserRepository';
 import { PrismaInvitationRepository } from '../adapters/repositories/PrismaInvitationRepository';
@@ -48,6 +49,8 @@ import { RedisCacheAdapter } from '../adapters/cache/RedisCacheAdapter';
 import IORedis from 'ioredis';
 import { ConfigService } from '../domain/services/ConfigService';
 import { GetConfigUseCase } from '../usecases/config/GetConfigUseCase';
+import { UpdateConfigUseCase } from '../usecases/config/UpdateConfigUseCase';
+import { DeleteConfigUseCase } from '../usecases/config/DeleteConfigUseCase';
 import { BootstapService } from '../domain/services/BootstapService';
 import { PasswordValidator } from '../domain/services/PasswordValidator';
 import { NodeCronScheduler } from '../adapters/scheduler/NodeCronScheduler';
@@ -125,6 +128,8 @@ async function bootstrap(): Promise<void> {
       '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'.slice(0, 64),
   );
   const getConfigUseCase = new GetConfigUseCase(configService);
+  const updateConfigUseCase = new UpdateConfigUseCase(configService, audit);
+  const deleteConfigUseCase = new DeleteConfigUseCase(configService, audit);
   const bootstrapService = new BootstapService(
     configService,
     logger,
@@ -262,6 +267,15 @@ async function bootstrap(): Promise<void> {
     logger,
     realtime,
     permissionRepository,
+  );
+  registerConfigGateway(
+    io,
+    authService,
+    logger,
+    realtime,
+    getConfigUseCase,
+    updateConfigUseCase,
+    deleteConfigUseCase,
   );
   registerInvitationGateway(
     io,
