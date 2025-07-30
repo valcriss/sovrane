@@ -40,6 +40,7 @@ describe('Permission WebSocket gateway', () => {
     permission = new Permission('p', 'TEST', 'desc');
     role = new Role('r', 'Role', [
       new Permission('p1', PermissionKeys.READ_PERMISSIONS, ''),
+      new Permission('p5', PermissionKeys.READ_PERMISSION, ''),
       new Permission('p2', PermissionKeys.CREATE_PERMISSION, ''),
       new Permission('p3', PermissionKeys.UPDATE_PERMISSION, ''),
       new Permission('p4', PermissionKeys.DELETE_PERMISSION, ''),
@@ -98,6 +99,19 @@ describe('Permission WebSocket gateway', () => {
     });
     client.on('permission-list-response', (data: any) => {
       expect(data.items[0].id).toBe('p');
+      client.close();
+      done();
+    });
+  });
+
+  it('emits permission get', (done) => {
+    permRepo.findById.mockResolvedValue(permission);
+    const client = ioClient.connect(url, { auth: { token: 'token' } });
+    client.on('connect', () => {
+      client.emit('permission-get', { id: 'p' });
+    });
+    client.on('permission-get-response', (data: any) => {
+      expect(data.id).toBe('p');
       client.close();
       done();
     });

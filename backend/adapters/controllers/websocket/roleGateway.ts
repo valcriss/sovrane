@@ -13,6 +13,7 @@ import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
 import { CreateRoleUseCase } from '../../../usecases/role/CreateRoleUseCase';
 import { GetRolesUseCase } from '../../../usecases/role/GetRolesUseCase';
+import { GetRoleUseCase } from '../../../usecases/role/GetRoleUseCase';
 import { UpdateRoleUseCase } from '../../../usecases/role/UpdateRoleUseCase';
 import { RemoveRoleUseCase } from '../../../usecases/role/RemoveRoleUseCase';
 
@@ -89,6 +90,31 @@ export function registerRoleGateway(
         socket.emit('role-list-response', result);
       } catch (err) {
         logger.error('role-list-request failed', { ...getContext(), error: err });
+      }
+    });
+
+    socket.on('role-get', async (payload: { id: string }) => {
+      logger.info('role-get', getContext());
+      if (!payload || typeof payload.id !== 'string') {
+        socket.emit('error', { error: 'Invalid parameters' });
+        return;
+      }
+      try {
+        checker.check(PermissionKeys.READ_ROLE);
+      } catch {
+        socket.emit('error', { error: 'Forbidden' });
+        return;
+      }
+      const useCase = new GetRoleUseCase(roleRepository);
+      try {
+        const role = await useCase.execute(payload.id);
+        if (!role) {
+          socket.emit('error', { error: 'Not found' });
+          return;
+        }
+        socket.emit('role-get-response', role);
+      } catch (err) {
+        logger.error('role-get failed', { ...getContext(), error: err });
       }
     });
 

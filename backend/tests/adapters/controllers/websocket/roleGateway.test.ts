@@ -41,6 +41,7 @@ describe('Role WebSocket gateway', () => {
     department = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role', [
       new Permission('p1', PermissionKeys.READ_ROLES, ''),
+      new Permission('p5', PermissionKeys.READ_ROLE, ''),
       new Permission('p2', PermissionKeys.CREATE_ROLE, ''),
       new Permission('p3', PermissionKeys.UPDATE_ROLE, ''),
       new Permission('p4', PermissionKeys.DELETE_ROLE, ''),
@@ -99,6 +100,19 @@ describe('Role WebSocket gateway', () => {
     });
     client.on('role-list-response', (data: any) => {
       expect(data.items[0].id).toBe('r');
+      client.close();
+      done();
+    });
+  });
+
+  it('emits role get', (done) => {
+    roleRepo.findById.mockResolvedValue(role);
+    const client = ioClient.connect(url, { auth: { token: 'token' } });
+    client.on('connect', () => {
+      client.emit('role-get', { id: 'r' });
+    });
+    client.on('role-get-response', (data: any) => {
+      expect(data.id).toBe('r');
       client.close();
       done();
     });
