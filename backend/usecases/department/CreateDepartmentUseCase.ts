@@ -2,6 +2,7 @@ import { DepartmentRepositoryPort } from '../../domain/ports/DepartmentRepositor
 import { Department } from '../../domain/entities/Department';
 import { PermissionChecker } from '../../domain/services/PermissionChecker';
 import { PermissionKeys } from '../../domain/entities/PermissionKeys';
+import { RealtimePort } from '../../domain/ports/RealtimePort';
 
 /**
  * Use case responsible for creating a {@link Department}.
@@ -10,6 +11,7 @@ export class CreateDepartmentUseCase {
   constructor(
     private readonly departmentRepository: DepartmentRepositoryPort,
     private readonly checker: PermissionChecker,
+    private readonly realtime: RealtimePort,
   ) {}
 
   /**
@@ -25,6 +27,8 @@ export class CreateDepartmentUseCase {
     department.updatedAt = now;
     department.createdBy = this.checker.currentUser;
     department.updatedBy = this.checker.currentUser;
-    return this.departmentRepository.create(department);
+    const created = await this.departmentRepository.create(department);
+    await this.realtime.broadcast('department-changed', { id: created.id });
+    return created;
   }
 }

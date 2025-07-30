@@ -8,9 +8,11 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
+import { RealtimePort } from '../../../domain/ports/RealtimePort';
 
 describe('CreateDepartmentUseCase', () => {
   let repository: DeepMockProxy<DepartmentRepositoryPort>;
+  let realtime: DeepMockProxy<RealtimePort>;
   let useCase: CreateDepartmentUseCase;
   let department: Department;
   let site: Site;
@@ -18,6 +20,7 @@ describe('CreateDepartmentUseCase', () => {
 
   beforeEach(() => {
     repository = mockDeep<DepartmentRepositoryPort>();
+    realtime = mockDeep<RealtimePort>();
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
     const role = new Role('r', 'Role', [new Permission('p', PermissionKeys.CREATE_DEPARTMENT, 'create')]);
@@ -35,7 +38,7 @@ describe('CreateDepartmentUseCase', () => {
         [],
       ),
     );
-    useCase = new CreateDepartmentUseCase(repository, permissionChecker);
+    useCase = new CreateDepartmentUseCase(repository, permissionChecker, realtime);
   });
 
   it('should create a department via repository', async () => {
@@ -45,13 +48,15 @@ describe('CreateDepartmentUseCase', () => {
 
     expect(result).toBe(department);
     expect(repository.create).toHaveBeenCalledWith(department);
+    expect(realtime.broadcast).toHaveBeenCalledWith('department-changed', { id: department.id });
   });
 
   it('should throw when permission denied', async () => {
     const deniedChecker = mockDeep<PermissionChecker>();
     deniedChecker.check.mockImplementation(() => { throw new Error('Forbidden'); });
-    useCase = new CreateDepartmentUseCase(repository, deniedChecker);
+    useCase = new CreateDepartmentUseCase(repository, deniedChecker, realtime);
     await expect(useCase.execute(department)).rejects.toThrow('Forbidden');
     expect(repository.create).not.toHaveBeenCalled();
+    expect(realtime.broadcast).not.toHaveBeenCalled();
   });
 });

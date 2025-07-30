@@ -10,6 +10,7 @@ import {Permission} from '../../../domain/entities/Permission';
 import {CreateDepartmentUseCase} from '../../../usecases/department/CreateDepartmentUseCase';
 import {UpdateDepartmentUseCase} from '../../../usecases/department/UpdateDepartmentUseCase';
 import {RemoveDepartmentUseCase} from '../../../usecases/department/RemoveDepartmentUseCase';
+import { RealtimePort } from '../../../domain/ports/RealtimePort';
 import {SetDepartmentManagerUseCase} from '../../../usecases/department/SetDepartmentManagerUseCase';
 import {RemoveDepartmentManagerUseCase} from '../../../usecases/department/RemoveDepartmentManagerUseCase';
 import {SetDepartmentParentDepartmentUseCase} from '../../../usecases/department/SetDepartmentParentDepartmentUseCase';
@@ -168,6 +169,7 @@ export function createDepartmentRouter(
   departmentRepository: DepartmentRepositoryPort,
   userRepository: UserRepositoryPort,
   logger: LoggerPort,
+  realtime: RealtimePort,
 ): Router {
   const router = express.Router();
 
@@ -683,7 +685,11 @@ export function createDepartmentRouter(
   router.post('/departments', async (req: Request, res: Response): Promise<void> => {
     logger.debug('POST /departments', getContext());
     const checker = new PermissionChecker((req as AuthedRequest).user);
-    const useCase = new CreateDepartmentUseCase(departmentRepository, checker);
+    const useCase = new CreateDepartmentUseCase(
+      departmentRepository,
+      checker,
+      realtime,
+    );
     const department = await useCase.execute(parseDepartment(req.body));
     logger.debug('Department created', getContext());
     res.status(201).json(department);

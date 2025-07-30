@@ -10,10 +10,12 @@ import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { AuditPort } from '../../../domain/ports/AuditPort';
 import { AuditEvent } from '../../../domain/entities/AuditEvent';
+import { RealtimePort } from '../../../domain/ports/RealtimePort';
 
 describe('UpdateUserProfileUseCase', () => {
   let repository: DeepMockProxy<UserRepositoryPort>;
   let audit: DeepMockProxy<AuditPort>;
+  let realtime: DeepMockProxy<RealtimePort>;
   let useCase: UpdateUserProfileUseCase;
   let user: User;
   let role: Role;
@@ -24,6 +26,7 @@ describe('UpdateUserProfileUseCase', () => {
   beforeEach(() => {
     repository = mockDeep<UserRepositoryPort>();
     audit = mockDeep<AuditPort>();
+    realtime = mockDeep<RealtimePort>();
     checker = new PermissionChecker(
       new User(
         'actor',
@@ -36,7 +39,7 @@ describe('UpdateUserProfileUseCase', () => {
         new Site('s', 'Site'),
       ),
     );
-    useCase = new UpdateUserProfileUseCase(repository, checker, audit);
+    useCase = new UpdateUserProfileUseCase(repository, checker, audit, realtime);
     role = new Role('role-1', 'Admin');
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
@@ -56,12 +59,13 @@ describe('UpdateUserProfileUseCase', () => {
     const event = audit.log.mock.calls[0][0] as AuditEvent;
     expect(event.actorId).toBe(checker.currentUser.id);
     expect(event.targetId).toBe(user.id);
+    expect(realtime.broadcast).toHaveBeenCalledWith('user-changed', { id: user.id });
   });
 
   it('should throw when permission denied', async () => {
     const denied = mockDeep<PermissionChecker>();
     denied.check.mockImplementation(() => { throw new Error('Forbidden'); });
-    useCase = new UpdateUserProfileUseCase(repository, denied, audit);
+    useCase = new UpdateUserProfileUseCase(repository, denied, audit, realtime);
     await expect(useCase.execute(user)).rejects.toThrow('Forbidden');
     expect(repository.update).not.toHaveBeenCalled();
     expect(audit.log).not.toHaveBeenCalled();

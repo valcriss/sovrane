@@ -18,6 +18,7 @@ import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 import { AccountLockedError } from '../../../../domain/errors/AccountLockedError';
 import { TokenExpiredException } from '../../../../domain/errors/TokenExpiredException';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
+import { RealtimePort } from '../../../../domain/ports/RealtimePort';
 import { RefreshToken } from '../../../../domain/entities/RefreshToken';
 import { AuditPort } from '../../../../domain/ports/AuditPort';
 import { GetConfigUseCase } from '../../../../usecases/config/GetConfigUseCase';
@@ -93,6 +94,7 @@ describe('User REST controller', () => {
         getConfig,
         passwordValidator,
         mfa,
+        mockDeep<RealtimePort>(),
       ),
     );
   });

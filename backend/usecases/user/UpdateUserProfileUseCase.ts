@@ -5,6 +5,7 @@ import { PermissionKeys } from '../../domain/entities/PermissionKeys';
 import { AuditPort } from '../../domain/ports/AuditPort';
 import { AuditEvent } from '../../domain/entities/AuditEvent';
 import { AuditEventType } from '../../domain/entities/AuditEventType';
+import { RealtimePort } from '../../domain/ports/RealtimePort';
 
 /**
  * Use case for updating user profile information.
@@ -14,6 +15,7 @@ export class UpdateUserProfileUseCase {
     private readonly userRepository: UserRepositoryPort,
     private readonly checker: PermissionChecker,
     private readonly auditPort: AuditPort,
+    private readonly realtime: RealtimePort,
   ) {}
 
   /**
@@ -38,6 +40,7 @@ export class UpdateUserProfileUseCase {
         { userId: user.id },
       ),
     );
+    await this.realtime.broadcast('user-changed', { id: updated.id });
     return updated;
   }
 }

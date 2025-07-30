@@ -8,11 +8,13 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
+import { RealtimePort } from '../../../domain/ports/RealtimePort';
 
 describe('RegisterUserUseCase', () => {
   let repository: DeepMockProxy<UserRepositoryPort>;
   let tokenService: DeepMockProxy<TokenServicePort>;
   let passwordValidator: DeepMockProxy<PasswordValidator>;
+  let realtime: DeepMockProxy<RealtimePort>;
   let useCase: RegisterUserUseCase;
   let user: User;
   let role: Role;
@@ -23,7 +25,13 @@ describe('RegisterUserUseCase', () => {
     repository = mockDeep<UserRepositoryPort>();
     tokenService = mockDeep<TokenServicePort>();
     passwordValidator = mockDeep<PasswordValidator>();
-    useCase = new RegisterUserUseCase(repository, tokenService, passwordValidator);
+    realtime = mockDeep<RealtimePort>();
+    useCase = new RegisterUserUseCase(
+      repository,
+      tokenService,
+      passwordValidator,
+      realtime,
+    );
     role = new Role('role-1', 'Admin');
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
@@ -56,6 +64,7 @@ describe('RegisterUserUseCase', () => {
       '1.1.1.1',
       'agent',
     );
+    expect(realtime.broadcast).toHaveBeenCalledWith('user-changed', { id: user.id });
   });
 
   it('should throw when password invalid', async () => {
