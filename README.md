@@ -11,6 +11,14 @@ Consultez [backend/docs/MFA.md](backend/docs/MFA.md) pour plus de détails sur l
 
 Consultez [backend/docs/Audit.md](backend/docs/Audit.md) pour la configuration de l'audit des routes sensibles.
 
+## Permissions
+
+Les rôles et les utilisateurs disposent d'un système d'autorisations flexible.
+Chaque permission attribuée peut désormais recevoir un `scopeId` optionnel pour
+en limiter la portée (par exemple à un site ou un département). Lorsqu'une
+permission est directement associée à un utilisateur, le champ
+`denyPermission` permet de la révoquer explicitement.
+
 ## Temps réel via WebSocket
 
 Le serveur expose une API WebSocket basée sur Socket.IO. Connectez-vous en fournissant un jeton JWT :
