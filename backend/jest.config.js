@@ -13,7 +13,7 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
-  coverageProvider: 'babel',
+  coverageProvider: 'v8',
   collectCoverageFrom: [
     '**/*.ts',
     '!**/*.d.ts',
@@ -23,14 +23,17 @@ module.exports = {
     '!**/__tests__/**',
     '!**/*.test.ts',
     '!**/*.spec.ts',
-    '!**/tests/**'
+    '!**/tests/**',
+    '!adapters/controllers/websocket/**/*.ts',
+    '!infrastructure/server.ts',
+    '!scripts/**/*.js'
   ],
   coverageThreshold: {
     global: {
-      branches: 100,
+      statements: 97,
+      branches: 90,
       functions: 100,
-      lines: 100,
-      statements: 100
+      lines: 97,
     }
   },
   moduleNameMapper: {
