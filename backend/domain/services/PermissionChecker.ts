@@ -25,22 +25,33 @@ export class PermissionChecker {
    * Determine whether the user has the requested permission key or the root permission.
    *
    * @param key - Permission key to verify.
+   * @param scopeId - Optional scope identifier to filter assignments.
    * @returns `true` if the user has the permission.
    */
-  has(key: string): boolean {
-    if (this.user.permissions.some(p => !p.denyPermission && p.permission.permissionKey === PermissionKeys.ROOT)) {
-      return true;
-    }
-    if (this.user.permissions.some(p => !p.denyPermission && p.permission.permissionKey === key)) {
-      return true;
-    }
-    for (const role of this.user.roles) {
-      if (role.permissions.some(p => p.permission.permissionKey === PermissionKeys.ROOT)) {
-        return true;
+  has(key: string, scopeId?: string): boolean {
+    const denied = new Set(
+      this.user.permissions
+        .filter(p => p.denyPermission)
+        .map(p => p.permission.permissionKey),
+    );
+
+    const assignments = [
+      ...this.user.roles.flatMap(r => r.permissions),
+      ...this.user.permissions.filter(p => !p.denyPermission),
+    ];
+
+    for (const a of assignments) {
+      if (denied.has(a.permission.permissionKey)) {
+        continue;
       }
-      if (role.permissions.some(p => p.permission.permissionKey === key)) {
-        return true;
+      const permKey = a.permission.permissionKey;
+      if (permKey !== key && permKey !== PermissionKeys.ROOT) {
+        continue;
       }
+      if (scopeId && a.scopeId && a.scopeId !== scopeId) {
+        continue;
+      }
+      return true;
     }
     return false;
   }
@@ -49,9 +60,10 @@ export class PermissionChecker {
    * Assert that the user has the required permission. Throws an error otherwise.
    *
    * @param key - Permission key to verify.
+   * @param scopeId - Optional scope identifier to filter assignments.
    */
-  check(key: string): void {
-    if (!this.has(key)) {
+  check(key: string, scopeId?: string): void {
+    if (!this.has(key, scopeId)) {
       throw new Error('Forbidden');
     }
   }
