@@ -8,6 +8,7 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
 describe('UpdateDepartmentUseCase', () => {
   let repository: DeepMockProxy<DepartmentRepositoryPort>;
@@ -20,7 +21,11 @@ describe('UpdateDepartmentUseCase', () => {
     repository = mockDeep<DepartmentRepositoryPort>();
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
-    const role = new Role('r', 'Role', [new Permission('p', PermissionKeys.UPDATE_DEPARTMENT, 'update')]);
+    const role = new Role(
+      'r',
+      'Role',
+      [new RolePermissionAssignment(new Permission('p', PermissionKeys.UPDATE_DEPARTMENT, 'update'))],
+    );
     permissionChecker = new PermissionChecker(
       new User(
         'u',

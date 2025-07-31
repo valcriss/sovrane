@@ -8,6 +8,7 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
 describe('AddChildDepartmentUseCase', () => {
   let repository: DeepMockProxy<DepartmentRepositoryPort>;
@@ -28,7 +29,11 @@ describe('AddChildDepartmentUseCase', () => {
           new Role(
             'admin',
             'Admin',
-            [new Permission('p', PermissionKeys.MANAGE_DEPARTMENT_HIERARCHY, '')],
+            [
+              new RolePermissionAssignment(
+                new Permission('p', PermissionKeys.MANAGE_DEPARTMENT_HIERARCHY, ''),
+              ),
+            ],
           ),
         ],
         'active',
