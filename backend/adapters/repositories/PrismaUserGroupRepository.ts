@@ -14,7 +14,6 @@ import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { UserGroup } from '../../domain/entities/UserGroup';
 import { User } from '../../domain/entities/User';
 import { Role } from '../../domain/entities/Role';
-import { RolePermissionAssignment } from '../../domain/entities/RolePermissionAssignment';
 import { UserPermissionAssignment } from '../../domain/entities/UserPermissionAssignment';
 import { Department } from '../../domain/entities/Department';
 import { Site } from '../../domain/entities/Site';
