@@ -32,10 +32,10 @@ async function submit() {
     <n-card class="w-full max-w-md" :title="t('login.title')">
       <form @submit.prevent="submit" class="space-y-4">
         <n-form-item>
-          <n-input v-model="email" type="email" :placeholder="t('login.username')" />
+          <n-input v-model:value="email" type="email" :placeholder="t('login.username')" />
         </n-form-item>
         <n-form-item>
-          <n-input v-model="password" type="password" :placeholder="t('login.password')" />
+          <n-input v-model:value="password" type="password" :placeholder="t('login.password')" />
         </n-form-item>
         <n-alert v-if="error" type="error">{{ error }}</n-alert>
         <div class="text-right">
