@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/tests'],
   testMatch: [
-    '**/__tests__/**/*.ts',
+    '**/tests/**/*.ts',
     '**/?(*.)+(spec|test).ts'
   ],
   transform: {
@@ -20,7 +20,7 @@ module.exports = {
     '!**/node_modules/**',
     '!**/coverage/**',
     '!jest.config.js',
-    '!**/__tests__/**',
+    '!**/tests/**',
     '!**/*.test.ts',
     '!**/*.spec.ts',
     '!**/tests/**',
