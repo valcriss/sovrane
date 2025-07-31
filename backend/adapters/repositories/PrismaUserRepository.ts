@@ -80,6 +80,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
           new UserPermissionAssignment(
             new Permission(up.permission.id, up.permission.permissionKey, up.permission.description),
             up.scopeId ?? undefined,
+            up.denyPermission,
           ),
       ),
       record.lastLogin ?? null,
@@ -308,6 +309,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
         permissions: {
           create: user.permissions.map((p) => ({
             scopeId: p.scopeId ?? undefined,
+            denyPermission: p.denyPermission,
             permission: { connect: { id: p.permission.id } },
           })),
         },
@@ -354,6 +356,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
           deleteMany: {},
           create: user.permissions.map((p) => ({
             scopeId: p.scopeId ?? undefined,
+            denyPermission: p.denyPermission,
             permission: { connect: { id: p.permission.id } },
           })),
         },
