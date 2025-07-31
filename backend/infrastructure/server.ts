@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 import express from 'express';
+import cors from 'cors';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { createAdapter as createSocketIORedisAdapter } from '@socket.io/redis-adapter';
@@ -155,6 +156,13 @@ async function bootstrap(): Promise<void> {
 
   const app = express();
   app.use(express.json());
+  const corsOptions = {
+    origin: (process.env.CORS_ORIGIN ?? '*').split(','),
+    methods: process.env.CORS_METHODS ?? 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: process.env.CORS_ALLOWED_HEADERS ?? 'Content-Type,Authorization',
+    credentials: process.env.CORS_ALLOW_CREDENTIALS === 'true',
+  };
+  app.use(cors(corsOptions));
   app.use((req, _res, next) => {
     withContext({ requestId: randomUUID() }, () => next());
   });
