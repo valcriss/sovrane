@@ -2,6 +2,8 @@ import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
@@ -11,30 +13,38 @@ describe('PermissionChecker', () => {
   const dept = new Department('d', 'Dept', null, null, site);
 
   it('should allow when user has permission', () => {
+    const perm = new Permission('p', PermissionKeys.READ_USERS, 'read users');
+    const userPermAssignment = new UserPermissionAssignment(perm);
     const user = new User('u', 'John', 'Doe', 'j@e.c', [], 'active', dept, site, undefined, [
-      new Permission('p', PermissionKeys.READ_USERS, 'read users'),
+      userPermAssignment,
     ]);
     const checker = new PermissionChecker(user);
     expect(checker.has(PermissionKeys.READ_USERS)).toBe(true);
   });
 
   it('should allow when role grants permission', () => {
-    const role = new Role('r', 'Role', [new Permission('p', PermissionKeys.READ_USERS, '')]);
+    const perm = new Permission('p', PermissionKeys.READ_USERS, '');
+    const rolePermAssignment = new RolePermissionAssignment(perm);
+    const role = new Role('r', 'Role', [rolePermAssignment]);
     const user = new User('u', 'John', 'Doe', 'j@e.c', [role], 'active', dept, site);
     const checker = new PermissionChecker(user);
     expect(checker.has(PermissionKeys.READ_USERS)).toBe(true);
   });
 
   it('should allow when role has root permission', () => {
-    const role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, '')]);
+    const perm = new Permission('p', PermissionKeys.ROOT, '');
+    const rolePermAssignment = new RolePermissionAssignment(perm);
+    const role = new Role('r', 'Role', [rolePermAssignment]);
     const user = new User('u', 'John', 'Doe', 'j@e.c', [role], 'active', dept, site);
     const checker = new PermissionChecker(user);
     expect(checker.has(PermissionKeys.READ_USERS)).toBe(true);
   });
 
   it('should allow when root permission present', () => {
+    const perm = new Permission('p', PermissionKeys.ROOT, 'root');
+    const userPermAssignment = new UserPermissionAssignment(perm);
     const user = new User('u', 'John', 'Doe', 'j@e.c', [], 'active', dept, site, undefined, [
-      new Permission('p', PermissionKeys.ROOT, 'root'),
+      userPermAssignment,
     ]);
     const checker = new PermissionChecker(user);
     expect(checker.has('anything')).toBe(true);
@@ -66,21 +76,27 @@ describe('PermissionChecker', () => {
   });
 
   it('respects deny assignments', () => {
-    const role = new Role('r', 'Role', [new Permission('p1', PermissionKeys.READ_USERS, '')]);
+    const perm = new Permission('p1', PermissionKeys.READ_USERS, '');
+    const rolePermAssignment = new RolePermissionAssignment(perm);
+    const role = new Role('r', 'Role', [rolePermAssignment]);
+    const denyPerm = new Permission('p2', PermissionKeys.READ_USERS, '');
+    const denyUserPermAssignment = new UserPermissionAssignment(denyPerm, undefined, true);
     const user = new User('u', 'John', 'Doe', 'j@e.c', [role], 'active', dept, site, undefined, [
-      { permission: new Permission('p2', PermissionKeys.READ_USERS, ''), denyPermission: true } as any,
+      denyUserPermAssignment,
     ]);
     const checker = new PermissionChecker(user);
     expect(checker.has(PermissionKeys.READ_USERS)).toBe(false);
   });
 
   it('handles scoped permissions', () => {
+    const scopedPerm = new Permission('p', PermissionKeys.READ_USERS, '');
+    const scopedUserPermAssignment = new UserPermissionAssignment(scopedPerm, 's1');
     const user = new User('u', 'John', 'Doe', 'j@e.c', [], 'active', dept, site, undefined, [
-      { permission: new Permission('p', PermissionKeys.READ_USERS, ''), scopeId: 's1' } as any,
+      scopedUserPermAssignment
     ]);
     const checker = new PermissionChecker(user);
     expect(checker.has(PermissionKeys.READ_USERS, 's1')).toBe(true);
     expect(checker.has(PermissionKeys.READ_USERS, 's2')).toBe(false);
-    expect(checker.has(PermissionKeys.READ_USERS)).toBe(true);
+    expect(checker.has(PermissionKeys.READ_USERS)).toBe(false); // A scoped permission should not grant global access
   });
 });

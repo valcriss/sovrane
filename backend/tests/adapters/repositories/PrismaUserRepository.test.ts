@@ -5,6 +5,7 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { Site } from '../../../domain/entities/Site';
 import { LoggerPort } from '../../../domain/ports/LoggerPort';

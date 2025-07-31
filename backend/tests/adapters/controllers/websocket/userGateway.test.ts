@@ -59,12 +59,7 @@ describe('User WebSocket gateway', () => {
     auth.requestPasswordReset.mockResolvedValue();
     auth.resetPassword.mockResolvedValue();
     mfaService.generateTotpSecret.mockResolvedValue('sec');
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.READ_USERS, ''),
-      new Permission('p2', PermissionKeys.UPDATE_USER, ''),
-      new Permission('p3', PermissionKeys.READ_USER, ''),
-      new Permission('p4', PermissionKeys.MANAGE_MFA, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.READ_USERS, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.UPDATE_USER, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.READ_USER, '')), new RolePermissionAssignment(new Permission('p4', PermissionKeys.MANAGE_MFA, ''))]);
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);

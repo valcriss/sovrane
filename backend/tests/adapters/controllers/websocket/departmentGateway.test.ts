@@ -39,16 +39,7 @@ describe('Department WebSocket gateway', () => {
     userRepo = mockDeep<UserRepositoryPort>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.READ_DEPARTMENTS, ''),
-      new Permission('p2', PermissionKeys.CREATE_DEPARTMENT, ''),
-      new Permission('p3', PermissionKeys.UPDATE_DEPARTMENT, ''),
-      new Permission('p4', PermissionKeys.DELETE_DEPARTMENT, ''),
-      new Permission('p5', PermissionKeys.READ_DEPARTMENT, ''),
-      new Permission('p6', PermissionKeys.MANAGE_DEPARTMENT_USERS, ''),
-      new Permission('p7', PermissionKeys.MANAGE_DEPARTMENT_HIERARCHY, ''),
-      new Permission('p8', PermissionKeys.MANAGE_DEPARTMENT_PERMISSIONS, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.READ_DEPARTMENTS, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.CREATE_DEPARTMENT, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.UPDATE_DEPARTMENT, '')), new RolePermissionAssignment(new Permission('p4', PermissionKeys.DELETE_DEPARTMENT, '')), new RolePermissionAssignment(new Permission('p5', PermissionKeys.READ_DEPARTMENT, '')), new RolePermissionAssignment(new Permission('p6', PermissionKeys.MANAGE_DEPARTMENT_USERS, '')), new RolePermissionAssignment(new Permission('p7', PermissionKeys.MANAGE_DEPARTMENT_HIERARCHY, '')), new RolePermissionAssignment(new Permission('p8', PermissionKeys.MANAGE_DEPARTMENT_PERMISSIONS, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
     registerDepartmentGateway(io, auth, logger, realtime, deptRepo, userRepo);

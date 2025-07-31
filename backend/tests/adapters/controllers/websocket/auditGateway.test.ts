@@ -42,11 +42,7 @@ describe('Audit WebSocket gateway', () => {
     config = mockDeep<AuditConfigService>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.VIEW_AUDIT_LOGS, ''),
-      new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, ''),
-      new Permission('p3', PermissionKeys.READ_AUDIT_CONFIG, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.VIEW_AUDIT_LOGS, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.READ_AUDIT_CONFIG, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     event = new AuditEvent(new Date('2024-01-01T00:00:00Z'), 'u', 'user', 'test');
     auth.verifyToken.mockResolvedValue(user);

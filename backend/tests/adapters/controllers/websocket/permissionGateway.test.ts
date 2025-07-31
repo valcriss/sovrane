@@ -38,13 +38,7 @@ describe('Permission WebSocket gateway', () => {
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     permission = new Permission('p', 'TEST', 'desc');
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.READ_PERMISSIONS, ''),
-      new Permission('p5', PermissionKeys.READ_PERMISSION, ''),
-      new Permission('p2', PermissionKeys.CREATE_PERMISSION, ''),
-      new Permission('p3', PermissionKeys.UPDATE_PERMISSION, ''),
-      new Permission('p4', PermissionKeys.DELETE_PERMISSION, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.READ_PERMISSIONS, '')), new RolePermissionAssignment(new Permission('p5', PermissionKeys.READ_PERMISSION, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.CREATE_PERMISSION, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.UPDATE_PERMISSION, '')), new RolePermissionAssignment(new Permission('p4', PermissionKeys.DELETE_PERMISSION, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
     registerPermissionGateway(io, auth, logger, realtime, permRepo);

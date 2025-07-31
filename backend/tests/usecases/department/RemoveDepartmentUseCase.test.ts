@@ -8,6 +8,7 @@ import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
@@ -32,13 +33,7 @@ describe('RemoveDepartmentUseCase', () => {
         'a@b.c',
         [
           new Role(
-            'admin',
-            'Admin',
-            [
-              new RolePermissionAssignment(
-                new Permission('p', PermissionKeys.DELETE_DEPARTMENT, ''),
-              ),
-            ],
+            'admin', 'Admin', [new UserPermissionAssignment(new Permission('p', PermissionKeys.DELETE_DEPARTMENT, ''))],
           ),
         ],
         'active',

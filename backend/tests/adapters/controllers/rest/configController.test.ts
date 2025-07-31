@@ -31,7 +31,7 @@ describe('Config REST controller', () => {
     logger = mockDeep<LoggerPort>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.READ_CONFIG, '')]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.READ_CONFIG, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
 
     app = express();
@@ -66,7 +66,7 @@ describe('Config REST controller', () => {
   });
 
   it('should update configuration value', async () => {
-    role.permissions.push(new Permission('p2', PermissionKeys.UPDATE_CONFIG, ''));
+    role.permissions.push(new UserPermissionAssignment(new Permission('p2', PermissionKeys.UPDATE_CONFIG, '')));
     updateUseCase.execute.mockResolvedValue();
 
     const res = await request(app)
@@ -88,7 +88,7 @@ describe('Config REST controller', () => {
   });
 
   it('should delete configuration value', async () => {
-    role.permissions.push(new Permission('p3', PermissionKeys.DELETE_CONFIG, ''));
+    role.permissions.push(new UserPermissionAssignment(new Permission('p3', PermissionKeys.DELETE_CONFIG, '')));
     deleteUseCase.execute.mockResolvedValue();
 
     const res = await request(app)
@@ -110,7 +110,7 @@ describe('Config REST controller', () => {
   });
 
   it('should return 400 when delete use case fails', async () => {
-    role.permissions.push(new Permission('p3', PermissionKeys.DELETE_CONFIG, ''));
+    role.permissions.push(new UserPermissionAssignment(new Permission('p3', PermissionKeys.DELETE_CONFIG, '')));
     deleteUseCase.execute.mockRejectedValue(new Error('boom'));
 
     const res = await request(app)

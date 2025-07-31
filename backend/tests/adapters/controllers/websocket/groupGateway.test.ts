@@ -41,15 +41,7 @@ describe('Group WebSocket gateway', () => {
     userRepo = mockDeep<UserRepositoryPort>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.READ_GROUPS, ''),
-      new Permission('p2', PermissionKeys.CREATE_GROUP, ''),
-      new Permission('p3', PermissionKeys.UPDATE_GROUP, ''),
-      new Permission('p4', PermissionKeys.DELETE_GROUP, ''),
-      new Permission('p5', PermissionKeys.MANAGE_GROUP_MEMBERS, ''),
-      new Permission('p6', PermissionKeys.MANAGE_GROUP_RESPONSIBLES, ''),
-      new Permission('p7', PermissionKeys.READ_GROUP, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.READ_GROUPS, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.CREATE_GROUP, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.UPDATE_GROUP, '')), new RolePermissionAssignment(new Permission('p4', PermissionKeys.DELETE_GROUP, '')), new RolePermissionAssignment(new Permission('p5', PermissionKeys.MANAGE_GROUP_MEMBERS, '')), new RolePermissionAssignment(new Permission('p6', PermissionKeys.MANAGE_GROUP_RESPONSIBLES, '')), new RolePermissionAssignment(new Permission('p7', PermissionKeys.READ_GROUP, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
     group = new UserGroup('g', 'Group', [user], [user]);
     auth.verifyToken.mockResolvedValue(user);

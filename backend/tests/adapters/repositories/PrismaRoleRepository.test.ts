@@ -16,9 +16,7 @@ describe('PrismaRoleRepository', () => {
     prisma = mockDeep<PrismaClient>();
     logger = mockDeep<LoggerPort>();
     repository = new PrismaRoleRepository(prisma, logger);
-    role = new Role('role-1', 'Admin', [
-      new RolePermissionAssignment(new Permission('perm', 'P', 'desc')),
-    ]);
+    role = new Role('role-1', 'Admin', [new RolePermissionAssignment(new Permission('perm', 'P', 'desc'))]);
   });
 
   afterEach(() => {

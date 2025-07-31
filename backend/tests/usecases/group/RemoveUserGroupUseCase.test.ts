@@ -2,6 +2,8 @@ import { mockDeep, DeepMockProxy } from 'jest-mock-extended';
 import { RemoveUserGroupUseCase } from '../../../usecases/group/RemoveUserGroupUseCase';
 import { UserGroupRepositoryPort } from '../../../domain/ports/UserGroupRepositoryPort';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { Role } from '../../../domain/entities/Role';
@@ -32,8 +34,7 @@ describe('RemoveUserGroupUseCase', () => {
       'active',
       dept,
       site,
-      undefined,
-      [new Permission('p', PermissionKeys.DELETE_GROUP, '')],
+      undefined, [new UserPermissionAssignment(new Permission('p', PermissionKeys.DELETE_GROUP, ''))],
     );
     checker = new PermissionChecker(user);
     useCase = new RemoveUserGroupUseCase(repo, checker);

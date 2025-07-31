@@ -14,6 +14,7 @@ import { Role } from '../../../../domain/entities/Role';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 import { AccountLockedError } from '../../../../domain/errors/AccountLockedError';
 import { TokenExpiredException } from '../../../../domain/errors/TokenExpiredException';
@@ -66,7 +67,7 @@ describe('User REST controller', () => {
         return null;
       }
     });
-    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.ROOT, 'root')]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.ROOT, 'root'))]);
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
@@ -112,7 +113,7 @@ describe('User REST controller', () => {
   function serializeRole(r: Role) {
     return {
       ...r,
-      permissions: r.permissions.map(serializePermission),
+      permissions: r.permissions.map(pa => serializePermission(pa.permission)),
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
       createdBy: null,

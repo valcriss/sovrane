@@ -41,7 +41,7 @@ describe('AuditConfig REST controller', () => {
     config = mockDeep<AuditConfigService>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.READ_AUDIT_CONFIG, '')]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.READ_AUDIT_CONFIG, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
 
     auth.verifyToken.mockResolvedValue({ id: 'u' } as any);
@@ -85,7 +85,7 @@ describe('AuditConfig REST controller', () => {
   });
 
   it('should update audit config', async () => {
-    role.permissions.push(new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, ''));
+    role.permissions.push(new UserPermissionAssignment(new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, '')));
     const cfg = new AuditConfig(1, ['warn'], ['system'], new Date('2024-01-02T00:00:00Z'), 'u');
     updateUseCase.execute.mockResolvedValue(cfg);
 
@@ -114,7 +114,7 @@ describe('AuditConfig REST controller', () => {
   });
 
   it('should return 400 when service fails', async () => {
-    role.permissions.push(new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, ''));
+    role.permissions.push(new UserPermissionAssignment(new Permission('p2', PermissionKeys.WRITE_AUDIT_CONFIG, '')));
     updateUseCase.execute.mockRejectedValue(new Error('boom'));
 
     const res = await request(app)

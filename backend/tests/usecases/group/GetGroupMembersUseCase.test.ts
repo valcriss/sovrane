@@ -7,6 +7,8 @@ import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { UserGroup } from '../../../domain/entities/UserGroup';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 
@@ -34,8 +36,7 @@ describe('GetGroupMembersUseCase', () => {
       'active',
       dept,
       site,
-      undefined,
-      [new Permission('p', PermissionKeys.READ_GROUP, '')],
+      undefined, [new UserPermissionAssignment(new Permission('p', PermissionKeys.READ_GROUP, ''))],
     );
     checker = new PermissionChecker(actor);
     useCase = new GetGroupMembersUseCase(repository, checker);

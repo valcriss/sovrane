@@ -7,6 +7,8 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
@@ -22,7 +24,7 @@ describe('GetUserGroupsUseCase', () => {
 
   beforeEach(() => {
     repository = mockDeep<UserGroupRepositoryPort>();
-    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.READ_GROUPS, 'read')]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.READ_GROUPS, 'read'))]);
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);

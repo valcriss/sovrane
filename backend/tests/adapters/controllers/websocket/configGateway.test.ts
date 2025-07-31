@@ -42,11 +42,7 @@ describe('Config WebSocket gateway', () => {
     deleteUseCase = mockDeep<DeleteConfigUseCase>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.READ_CONFIG, ''),
-      new Permission('p2', PermissionKeys.UPDATE_CONFIG, ''),
-      new Permission('p3', PermissionKeys.DELETE_CONFIG, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.READ_CONFIG, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.UPDATE_CONFIG, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.DELETE_CONFIG, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
     registerConfigGateway(

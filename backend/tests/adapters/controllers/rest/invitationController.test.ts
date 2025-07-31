@@ -45,10 +45,7 @@ describe('Invitation REST controller', () => {
       'active', 
       dept, 
       site,
-      undefined,
-      [
-        new Permission('p1', PermissionKeys.CREATE_INVITATION, 'Can create invitations')
-      ]
+      undefined, [new UserPermissionAssignment(new Permission('p1', PermissionKeys.CREATE_INVITATION, 'Can create invitations'))]
     );
     userRepo.findById.mockResolvedValue(mockUser);
 

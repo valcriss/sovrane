@@ -7,6 +7,7 @@ import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
@@ -22,9 +23,7 @@ describe('GetDepartmentUseCase', () => {
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     const role = new Role(
-      'r',
-      'Role',
-      [new RolePermissionAssignment(new Permission('p', PermissionKeys.READ_DEPARTMENT, 'read'))],
+      'r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.READ_DEPARTMENT, 'read'))],
     );
     permissionChecker = new PermissionChecker(
       new User(

@@ -2,6 +2,8 @@ import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Permission } from '../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { Site } from '../../../domain/entities/Site';
 
 describe('User Entity', () => {
@@ -103,12 +105,13 @@ describe('User Entity', () => {
 
     it('should handle picture and permissions properties', () => {
       const perm = new Permission('perm-1', 'READ', 'read');
+      const userPermAssignment = new UserPermissionAssignment(perm);
       user.picture = 'avatar.png';
-      user.permissions.push(perm);
+      user.permissions.push(userPermAssignment);
 
       expect(user.picture).toBe('avatar.png');
       expect(user.permissions).toHaveLength(1);
-      expect(user.permissions[0]).toBe(perm);
+      expect(user.permissions[0]).toBe(userPermAssignment);
     });
 
     it('should track login attempts and locking fields', () => {

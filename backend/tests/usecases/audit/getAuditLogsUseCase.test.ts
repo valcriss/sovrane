@@ -9,6 +9,8 @@ import { AuditConfig } from '../../../domain/entities/AuditConfig';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 

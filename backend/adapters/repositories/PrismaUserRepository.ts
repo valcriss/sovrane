@@ -35,7 +35,7 @@ export class PrismaUserRepository implements UserRepositoryPort {
       }>;
       department: PrismaDepartment & { site: PrismaSite };
       site: PrismaSite;
-      permissions: Array<{ permission: PrismaPermission; scopeId: string | null }>;
+      permissions: Array<{ permission: PrismaPermission; scopeId: string | null; denyPermission: boolean }>;
       mfaEnabled: boolean | null;
       mfaType: string | null;
       mfaSecret: string | null;

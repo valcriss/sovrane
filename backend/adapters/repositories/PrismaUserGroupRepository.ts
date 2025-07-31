@@ -14,6 +14,8 @@ import { ListParams, PaginatedResult } from '../../domain/dtos/PaginatedResult';
 import { UserGroup } from '../../domain/entities/UserGroup';
 import { User } from '../../domain/entities/User';
 import { Role } from '../../domain/entities/Role';
+import { RolePermissionAssignment } from '../../domain/entities/RolePermissionAssignment';
+import { UserPermissionAssignment } from '../../domain/entities/UserPermissionAssignment';
 import { Department } from '../../domain/entities/Department';
 import { Site } from '../../domain/entities/Site';
 import { Permission } from '../../domain/entities/Permission';
@@ -27,7 +29,7 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
     roles: Array<{ role: PrismaRole }>;
     department: PrismaDepartment & { site: PrismaSite };
     site: PrismaSite;
-    permissions: Array<{ permission: PrismaPermission }>;
+    permissions: Array<{ permission: PrismaPermission; scopeId: string | null; denyPermission: boolean }>;
   }): User {
     return new User(
       record.id,
@@ -45,7 +47,11 @@ export class PrismaUserGroupRepository implements UserGroupRepositoryPort {
       ),
       new Site(record.site.id, record.site.label),
       record.picture ?? undefined,
-      record.permissions.map(p => new Permission(p.permission.id, p.permission.permissionKey, p.permission.description)),
+      record.permissions.map(p => new UserPermissionAssignment(
+        new Permission(p.permission.id, p.permission.permissionKey, p.permission.description),
+        p.scopeId ?? undefined,
+        p.denyPermission ?? false
+      )),
     );
   }
 

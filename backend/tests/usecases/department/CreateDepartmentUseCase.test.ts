@@ -7,6 +7,7 @@ import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { RealtimePort } from '../../../domain/ports/RealtimePort';
@@ -25,9 +26,7 @@ describe('CreateDepartmentUseCase', () => {
     site = new Site('site-1', 'HQ');
     department = new Department('dept-1', 'IT', null, null, site);
     const role = new Role(
-      'r',
-      'Role',
-      [new RolePermissionAssignment(new Permission('p', PermissionKeys.CREATE_DEPARTMENT, 'create'))],
+      'r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.CREATE_DEPARTMENT, 'create'))],
     );
     permissionChecker = new PermissionChecker(
       new User(

@@ -32,7 +32,7 @@ describe('Site REST controller', () => {
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role');
-    user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site, undefined, [new Permission('p', PermissionKeys.ROOT, '')]);
+    user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site, undefined, [new UserPermissionAssignment(new Permission('p', PermissionKeys.ROOT, ''))]);
     userRepo.findBySiteId.mockResolvedValue([]);
     deptRepo.findBySiteId.mockResolvedValue([]);
 

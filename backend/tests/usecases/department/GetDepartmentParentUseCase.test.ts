@@ -7,6 +7,7 @@ import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
@@ -29,13 +30,7 @@ describe('GetDepartmentParentUseCase', () => {
         'a@b.c',
         [
           new Role(
-            'admin',
-            'Admin',
-            [
-              new RolePermissionAssignment(
-                new Permission('p', PermissionKeys.READ_DEPARTMENT, ''),
-              ),
-            ],
+            'admin', 'Admin', [new UserPermissionAssignment(new Permission('p', PermissionKeys.READ_DEPARTMENT, ''))],
           ),
         ],
         'active',

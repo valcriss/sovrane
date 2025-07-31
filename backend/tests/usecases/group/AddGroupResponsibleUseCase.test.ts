@@ -8,6 +8,8 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 
@@ -37,8 +39,7 @@ describe('AddGroupResponsibleUseCase', () => {
       'active',
       dept,
       site,
-      undefined,
-      [new Permission('p', PermissionKeys.MANAGE_GROUP_RESPONSIBLES, '')],
+      undefined, [new UserPermissionAssignment(new Permission('p', PermissionKeys.MANAGE_GROUP_RESPONSIBLES, ''))],
     );
     checker = new PermissionChecker(actor);
     useCase = new AddGroupResponsibleUseCase(groupRepo, userRepo, checker);

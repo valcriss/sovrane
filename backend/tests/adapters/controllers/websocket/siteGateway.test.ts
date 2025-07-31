@@ -42,11 +42,7 @@ describe('Site WebSocket gateway', () => {
     deptRepo = mockDeep<DepartmentRepositoryPort>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.READ_SITES, ''),
-      new Permission('p2', PermissionKeys.READ_SITE, ''),
-      new Permission('p3', PermissionKeys.MANAGE_SITES, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.READ_SITES, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.READ_SITE, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.MANAGE_SITES, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
     registerSiteGateway(io, auth, logger, realtime, siteRepo, userRepo, deptRepo);

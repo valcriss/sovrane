@@ -43,9 +43,7 @@ describe('Invitation WebSocket gateway', () => {
     email = mockDeep<EmailServicePort>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.CREATE_INVITATION, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.CREATE_INVITATION, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', dept, site);
     auth.verifyToken.mockResolvedValue(user);
     registerInvitationGateway(

@@ -8,6 +8,8 @@ import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
 describe('EnableMfaUseCase', () => {
@@ -22,9 +24,7 @@ describe('EnableMfaUseCase', () => {
     refresh = mockDeep<RefreshTokenPort>();
     const site = new Site('s', 'Site');
     const dept = new Department('d', 'Dept', null, null, site);
-    const role = new Role('r', 'Role', [
-      new Permission('p', PermissionKeys.MANAGE_MFA, 'mfa'),
-    ]);
+    const role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.MANAGE_MFA, 'mfa'))]);
     user = new User('u', 'A', 'B', 'a@example.com', [role], 'active', dept, site);
     checker = new PermissionChecker(user);
     useCase = new EnableMfaUseCase(repo, refresh, checker);

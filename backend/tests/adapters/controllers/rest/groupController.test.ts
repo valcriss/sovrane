@@ -40,8 +40,7 @@ describe('Group REST controller', () => {
       'active',
       dept,
       site,
-      undefined,
-      [new Permission('p', PermissionKeys.ROOT, '')],
+      undefined, [new UserPermissionAssignment(new Permission('p', PermissionKeys.ROOT, ''))],
     );
     group = new UserGroup('g', 'Group', [user], [user]);
     groupRepo.create.mockResolvedValue(group);

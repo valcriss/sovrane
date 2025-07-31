@@ -1,5 +1,6 @@
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
 describe('Role Entity', () => {
   let role: Role;
@@ -32,9 +33,10 @@ describe('Role Entity', () => {
     it('should manage permissions collection', () => {
       expect(role.permissions).toHaveLength(0);
       const perm = new Permission('perm-1', 'READ', 'read');
-      role.permissions.push(perm);
+      const rolePermAssignment = new RolePermissionAssignment(perm);
+      role.permissions.push(rolePermAssignment);
       expect(role.permissions).toHaveLength(1);
-      expect(role.permissions[0]).toBe(perm);
+      expect(role.permissions[0]).toBe(rolePermAssignment);
     });
 
     it('should have immutable id property', () => {

@@ -39,13 +39,7 @@ describe('Role WebSocket gateway', () => {
     userRepo = mockDeep<UserRepositoryPort>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
-    role = new Role('r', 'Role', [
-      new Permission('p1', PermissionKeys.READ_ROLES, ''),
-      new Permission('p5', PermissionKeys.READ_ROLE, ''),
-      new Permission('p2', PermissionKeys.CREATE_ROLE, ''),
-      new Permission('p3', PermissionKeys.UPDATE_ROLE, ''),
-      new Permission('p4', PermissionKeys.DELETE_ROLE, ''),
-    ]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p1', PermissionKeys.READ_ROLES, '')), new RolePermissionAssignment(new Permission('p5', PermissionKeys.READ_ROLE, '')), new RolePermissionAssignment(new Permission('p2', PermissionKeys.CREATE_ROLE, '')), new RolePermissionAssignment(new Permission('p3', PermissionKeys.UPDATE_ROLE, '')), new RolePermissionAssignment(new Permission('p4', PermissionKeys.DELETE_ROLE, ''))]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     auth.verifyToken.mockResolvedValue(user);
     registerRoleGateway(io, auth, logger, realtime, roleRepo, userRepo);

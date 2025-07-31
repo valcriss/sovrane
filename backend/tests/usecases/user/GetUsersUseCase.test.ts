@@ -6,6 +6,8 @@ import { Role } from '../../../domain/entities/Role';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 
@@ -20,7 +22,7 @@ describe('GetUsersUseCase', () => {
 
   beforeEach(() => {
     repository = mockDeep<UserRepositoryPort>();
-    role = new Role('r', 'Role', [new Permission('p', PermissionKeys.READ_USERS, 'read')]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(new Permission('p', PermissionKeys.READ_USERS, 'read'))]);
     permissionChecker = new PermissionChecker(
       new User(
         'u',
