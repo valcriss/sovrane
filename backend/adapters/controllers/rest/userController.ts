@@ -109,6 +109,33 @@ import {requireBodyParams} from './requestValidator';
  *         - id
  *         - permissionKey
  *         - description
+ *     RolePermissionAssignment:
+ *       description: Permission attached to a role with optional scope.
+ *       type: object
+ *       properties:
+ *         permission:
+ *           $ref: '#/components/schemas/Permission'
+ *         scopeId:
+ *           type: string
+ *           nullable: true
+ *           description: Context in which the permission applies.
+ *       required:
+ *         - permission
+ *     UserPermissionAssignment:
+ *       description: Permission granted or denied directly to a user.
+ *       type: object
+ *       properties:
+ *         permission:
+ *           $ref: '#/components/schemas/Permission'
+ *         scopeId:
+ *           type: string
+ *           nullable: true
+ *           description: Context in which the permission applies.
+ *         denyPermission:
+ *           type: boolean
+ *           description: Whether the permission is denied instead of granted.
+ *       required:
+ *         - permission
  *     Role:
  *       description: Collection of permissions that can be assigned to users.
  *       type: object
@@ -123,7 +150,7 @@ import {requireBodyParams} from './requestValidator';
  *           type: array
  *           description: Permissions granted by the role.
  *           items:
- *             $ref: '#/components/schemas/Permission'
+ *             $ref: '#/components/schemas/RolePermissionAssignment'
  *       required:
  *         - id
  *         - label
@@ -188,7 +215,7 @@ import {requireBodyParams} from './requestValidator';
  *           type: array
  *           description: Permissions granted directly to the user.
  *           items:
- *             $ref: '#/components/schemas/Permission'
+ *             $ref: '#/components/schemas/UserPermissionAssignment'
  *       required:
  *         - id
  *         - firstName

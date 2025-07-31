@@ -42,6 +42,18 @@ import {GetRoleUseCase} from '../../../usecases/role/GetRoleUseCase';
  *         - id
  *         - permissionKey
  *         - description
+ *     RolePermissionAssignment:
+ *       description: Permission linked to a role with optional scope.
+ *       type: object
+ *       properties:
+ *         permission:
+ *           $ref: '#/components/schemas/Permission'
+ *         scopeId:
+ *           type: string
+ *           nullable: true
+ *           description: Context in which the permission applies.
+ *       required:
+ *         - permission
  *     Role:
  *       description: Set of permissions granted to users assigned this role.
  *       type: object
@@ -56,7 +68,7 @@ import {GetRoleUseCase} from '../../../usecases/role/GetRoleUseCase';
  *           type: array
  *           description: Permissions attached to the role.
  *           items:
- *             $ref: '#/components/schemas/Permission'
+ *             $ref: '#/components/schemas/RolePermissionAssignment'
  *       required:
  *         - id
  *         - label
