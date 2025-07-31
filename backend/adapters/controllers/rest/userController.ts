@@ -1116,29 +1116,6 @@ export function createUserRouter(
      *       403:
      *         description: User lacks required permission.
      */
-    router.get('/users/:id', async (req: Request, res: Response): Promise<void> => {
-      logger.debug('GET /users/:id', getContext());
-      const checker = new PermissionChecker((req as AuthedRequest).user);
-      const useCase = new GetUserUseCase(userRepository, checker);
-      try {
-        const user = await useCase.execute(req.params.id);
-        if (!user) {
-          logger.warn('User not found', getContext());
-          res.status(404).end();
-          return;
-        }
-        logger.debug('User retrieved', getContext());
-        res.json(user);
-      } catch (err) {
-        if ((err as Error).message === 'Forbidden') {
-          logger.warn('Permission denied getting user', { ...getContext(), error: err });
-          res.status(403).json({ error: 'Forbidden' });
-          return;
-        }
-        throw err;
-      }
-    });
-
     /**
      * @openapi
      * /users/me:
@@ -1182,6 +1159,29 @@ export function createUserRouter(
       } catch (err) {
         if ((err as Error).message === 'Forbidden') {
           logger.warn('Permission denied current profile', { ...getContext(), error: err });
+          res.status(403).json({ error: 'Forbidden' });
+          return;
+        }
+        throw err;
+      }
+    });
+
+    router.get('/users/:id', async (req: Request, res: Response): Promise<void> => {
+      logger.debug('GET /users/:id', getContext());
+      const checker = new PermissionChecker((req as AuthedRequest).user);
+      const useCase = new GetUserUseCase(userRepository, checker);
+      try {
+        const user = await useCase.execute(req.params.id);
+        if (!user) {
+          logger.warn('User not found', getContext());
+          res.status(404).end();
+          return;
+        }
+        logger.debug('User retrieved', getContext());
+        res.json(user);
+      } catch (err) {
+        if ((err as Error).message === 'Forbidden') {
+          logger.warn('Permission denied getting user', { ...getContext(), error: err });
           res.status(403).json({ error: 'Forbidden' });
           return;
         }
