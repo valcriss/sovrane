@@ -64,4 +64,23 @@ describe('PermissionChecker', () => {
     const checker = new PermissionChecker(user);
     expect(checker.currentUser).toBe(user);
   });
+
+  it('respects deny assignments', () => {
+    const role = new Role('r', 'Role', [new Permission('p1', PermissionKeys.READ_USERS, '')]);
+    const user = new User('u', 'John', 'Doe', 'j@e.c', [role], 'active', dept, site, undefined, [
+      { permission: new Permission('p2', PermissionKeys.READ_USERS, ''), denyPermission: true } as any,
+    ]);
+    const checker = new PermissionChecker(user);
+    expect(checker.has(PermissionKeys.READ_USERS)).toBe(false);
+  });
+
+  it('handles scoped permissions', () => {
+    const user = new User('u', 'John', 'Doe', 'j@e.c', [], 'active', dept, site, undefined, [
+      { permission: new Permission('p', PermissionKeys.READ_USERS, ''), scopeId: 's1' } as any,
+    ]);
+    const checker = new PermissionChecker(user);
+    expect(checker.has(PermissionKeys.READ_USERS, 's1')).toBe(true);
+    expect(checker.has(PermissionKeys.READ_USERS, 's2')).toBe(false);
+    expect(checker.has(PermissionKeys.READ_USERS)).toBe(true);
+  });
 });
