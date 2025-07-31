@@ -9,6 +9,7 @@ import { Site } from '../../../domain/entities/Site';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
 
 describe('GetDepartmentManagerUseCase', () => {
@@ -30,7 +31,17 @@ describe('GetDepartmentManagerUseCase', () => {
         'A',
         'B',
         'a@b.c',
-        [new Role('admin', 'Admin', [new Permission('p', PermissionKeys.READ_DEPARTMENT, '')])],
+        [
+          new Role(
+            'admin',
+            'Admin',
+            [
+              new RolePermissionAssignment(
+                new Permission('p', PermissionKeys.READ_DEPARTMENT, ''),
+              ),
+            ],
+          ),
+        ],
         'active',
         new Department('d', 'Dept', null, null, new Site('s', 'Site')),
         new Site('s', 'Site'),

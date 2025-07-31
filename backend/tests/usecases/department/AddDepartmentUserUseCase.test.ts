@@ -9,6 +9,7 @@ import { Site } from '../../../domain/entities/Site';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { Permission } from '../../../domain/entities/Permission';
 import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 
 describe('AddDepartmentUserUseCase', () => {
   let userRepo: DeepMockProxy<UserRepositoryPort>;
@@ -34,7 +35,11 @@ describe('AddDepartmentUserUseCase', () => {
           new Role(
             'admin',
             'Admin',
-            [new Permission('p', PermissionKeys.MANAGE_DEPARTMENT_USERS, '')],
+            [
+              new RolePermissionAssignment(
+                new Permission('p', PermissionKeys.MANAGE_DEPARTMENT_USERS, ''),
+              ),
+            ],
           ),
         ],
         'active',
