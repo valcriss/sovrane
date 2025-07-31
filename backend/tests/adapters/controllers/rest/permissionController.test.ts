@@ -8,6 +8,7 @@ import { Permission } from '../../../../domain/entities/Permission';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Role } from '../../../../domain/entities/Role';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
 import { User } from '../../../../domain/entities/User';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
@@ -26,7 +27,7 @@ describe('Permission REST controller', () => {
     const site = new Site('s', 'Site');
     const department = new Department('d', 'Dept', null, null, site);
     const perm = new Permission('root', PermissionKeys.ROOT, 'root');
-    const role = new Role('r', 'Role', [perm]);
+    const role = new Role('r', 'Role', [new RolePermissionAssignment(perm)]);
     const user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
 
     app = express();

@@ -11,6 +11,7 @@ import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Department REST controller', () => {
@@ -31,7 +32,7 @@ describe('Department REST controller', () => {
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     permission = new Permission('p', PermissionKeys.ROOT, 'desc');
-    role = new Role('r', 'Role', [permission]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(permission)]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [role], 'active', department, site);
     deptRepo.create.mockResolvedValue(department);
     deptRepo.update.mockResolvedValue(department);

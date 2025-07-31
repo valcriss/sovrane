@@ -11,6 +11,7 @@ import { Department } from '../../../../domain/entities/Department';
 import { Role } from '../../../../domain/entities/Role';
 import { User } from '../../../../domain/entities/User';
 import { Permission } from '../../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Site REST controller', () => {

@@ -12,6 +12,7 @@ import { Role } from '../../../../domain/entities/Role';
 import { User } from '../../../../domain/entities/User';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Permission WebSocket gateway', () => {

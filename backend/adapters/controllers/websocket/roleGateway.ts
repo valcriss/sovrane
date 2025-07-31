@@ -11,6 +11,7 @@ import { getContext } from '../../../infrastructure/loggerContext';
 import { User } from '../../../domain/entities/User';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../domain/entities/RolePermissionAssignment';
 import { CreateRoleUseCase } from '../../../usecases/role/CreateRoleUseCase';
 import { GetRolesUseCase } from '../../../usecases/role/GetRolesUseCase';
 import { GetRoleUseCase } from '../../../usecases/role/GetRoleUseCase';
@@ -133,7 +134,7 @@ export function registerRoleGateway(
       const role = new Role(
         payload.id,
         payload.label,
-        (payload.permissions ?? []).map((p) => new Permission(p.id, p.permissionKey, p.description)),
+        (payload.permissions ?? []).map((p) => new RolePermissionAssignment(new Permission(p.id, p.permissionKey, p.description))),
       );
       const useCase = new CreateRoleUseCase(roleRepository);
       try {
@@ -160,7 +161,7 @@ export function registerRoleGateway(
       const role = new Role(
         payload.id,
         payload.label,
-        (payload.permissions ?? []).map((p) => new Permission(p.id, p.permissionKey, p.description)),
+        (payload.permissions ?? []).map((p) => new RolePermissionAssignment(new Permission(p.id, p.permissionKey, p.description))),
       );
       const useCase = new UpdateRoleUseCase(roleRepository);
       try {

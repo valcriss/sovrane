@@ -15,6 +15,7 @@ import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Role } from '../../../../domain/entities/Role';
 import { Permission } from '../../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Audit REST controller', () => {
@@ -40,7 +41,7 @@ describe('Audit REST controller', () => {
     const site = new Site('s', 'Site');
     const dept = new Department('d', 'Dept', null, null, site);
     const perm = new Permission('p', PermissionKeys.VIEW_AUDIT_LOGS, '');
-    const role = new Role('r', 'Role', [perm]);
+    const role = new Role('r', 'Role', [new RolePermissionAssignment(perm)]);
     const user = new User('u', 'John', 'Doe', 'j@example.com', [role], 'active', dept, site);
     users.findById.mockResolvedValue(user);
 

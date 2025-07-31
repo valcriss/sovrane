@@ -13,6 +13,7 @@ import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Department WebSocket gateway', () => {

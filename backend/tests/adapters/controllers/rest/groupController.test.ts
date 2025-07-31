@@ -11,6 +11,7 @@ import { Role } from '../../../../domain/entities/Role';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Group REST controller', () => {

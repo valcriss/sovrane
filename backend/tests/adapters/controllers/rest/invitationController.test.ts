@@ -13,6 +13,7 @@ import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Role } from '../../../../domain/entities/Role';
 import { Permission } from '../../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 
 describe('Invitation REST controller', () => {

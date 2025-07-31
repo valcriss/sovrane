@@ -113,7 +113,7 @@ describe('User REST controller', () => {
   function serializeRole(r: Role) {
     return {
       ...r,
-      permissions: r.permissions.map(pa => serializePermission(pa.permission)),
+      permissions: r.permissions.map(pa => ({ permission: serializePermission(pa.permission) })),
       createdAt: r.createdAt.toISOString(),
       updatedAt: r.updatedAt.toISOString(),
       createdBy: null,
@@ -166,6 +166,7 @@ describe('User REST controller', () => {
       mfaRecoveryCodes: [],
       passwordChangedAt: user.passwordChangedAt.toISOString(),
       permissions: [],
+      picture: undefined,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
       createdBy: null,
@@ -243,6 +244,7 @@ describe('User REST controller', () => {
       lastLogin: null,
       lastActivity: null,
       passwordChangedAt: user.passwordChangedAt.toISOString(),
+      picture: undefined,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
       createdBy: null,
@@ -302,6 +304,7 @@ describe('User REST controller', () => {
       mfaSecret: null,
       mfaRecoveryCodes: [],
       passwordChangedAt: user.passwordChangedAt.toISOString(),
+      picture: undefined,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
       createdBy: null,

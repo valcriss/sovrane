@@ -7,6 +7,7 @@ import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort'
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { Role } from '../../../../domain/entities/Role';
 import { Permission } from '../../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { User } from '../../../../domain/entities/User';
@@ -28,7 +29,7 @@ describe('Role REST controller', () => {
     userRepo = mockDeep<UserRepositoryPort>();
     logger = mockDeep<LoggerPort>();
     permission = new Permission('p', 'P', 'desc');
-    role = new Role('r', 'Role', [permission]);
+    role = new Role('r', 'Role', [new RolePermissionAssignment(permission)]);
     roleRepo.create.mockResolvedValue(role);
     roleRepo.update.mockResolvedValue(role);
     userRepo.findByRoleId.mockResolvedValue([]);
@@ -37,7 +38,7 @@ describe('Role REST controller', () => {
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
     const rootPerm = new Permission('root', PermissionKeys.ROOT, 'root');
-    const adminRole = new Role('admin', 'Admin', [rootPerm]);
+    const adminRole = new Role('admin', 'Admin', [new RolePermissionAssignment(rootPerm)]);
     user = new User('u', 'John', 'Doe', 'john@example.com', [adminRole], 'active', dept, site);
 
     app = express();

@@ -396,7 +396,7 @@ describe('PrismaUserRepository', () => {
           passwordChangedAt: expect.any(Date),
           createdById: undefined,
           updatedById: undefined,
-          permissions: { create: [{ scopeId: 's1', permission: { connect: { id: 'perm-1' } } }] },
+          permissions: { create: [{ scopeId: 's1', denyPermission: false, permission: { connect: { id: 'perm-1' } } }] },
           status: 'active',
         roles: {
           create: [{ role: { connect: { id: 'role-123' } } }],
@@ -730,7 +730,7 @@ describe('PrismaUserRepository', () => {
           mfaRecoveryCodes: [],
           passwordChangedAt: expect.any(Date),
           updatedById: undefined,
-          permissions: { deleteMany: {}, create: [{ scopeId: 's2', permission: { connect: { id: 'perm-2' } } }] },
+          permissions: { deleteMany: {}, create: [{ scopeId: 's2', denyPermission: false, permission: { connect: { id: 'perm-2' } } }] },
           roles: {
             deleteMany: {},
             create: [{ role: { connect: { id: 'role-123' } } }],

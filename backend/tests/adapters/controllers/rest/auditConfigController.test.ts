@@ -13,6 +13,8 @@ import { AuditConfig } from '../../../../domain/entities/AuditConfig';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
 import { Permission } from '../../../../domain/entities/Permission';
+import { RolePermissionAssignment } from '../../../../domain/entities/RolePermissionAssignment';
+import { UserPermissionAssignment } from '../../../../domain/entities/UserPermissionAssignment';
 import { PermissionKeys } from '../../../../domain/entities/PermissionKeys';
 import { Site } from '../../../../domain/entities/Site';
 import { Department } from '../../../../domain/entities/Department';

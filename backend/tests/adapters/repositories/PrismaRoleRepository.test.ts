@@ -11,15 +11,21 @@ describe('PrismaRoleRepository', () => {
   let prisma: DeepMockProxy<PrismaClient>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
   let role: Role;
+  const fixedDate = new Date('2024-01-01T00:00:00.000Z');
 
   beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(fixedDate);
+    
     prisma = mockDeep<PrismaClient>();
     logger = mockDeep<LoggerPort>();
     repository = new PrismaRoleRepository(prisma, logger);
+    
     role = new Role('role-1', 'Admin', [new RolePermissionAssignment(new Permission('perm', 'P', 'desc'))]);
   });
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.clearAllMocks();
   });
 
@@ -31,7 +37,7 @@ describe('PrismaRoleRepository', () => {
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
         permissions: [
-          { roleId: 'role-1', permissionId: 'perm', scopeId: 's1', permission: { id: 'perm', permissionKey: 'P', description: 'desc' } },
+          { roleId: 'role-1', permissionId: 'perm', scopeId: undefined, permission: { id: 'perm', permissionKey: 'P', description: 'desc', createdAt: fixedDate, updatedAt: fixedDate } },
         ],
       } as any);
 
@@ -58,12 +64,15 @@ describe('PrismaRoleRepository', () => {
         label: 'Admin',
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
+        permissions: [
+          { roleId: 'role-1', permissionId: 'perm', scopeId: undefined, permission: { id: 'perm', permissionKey: 'P', description: 'desc', createdAt: fixedDate, updatedAt: fixedDate } },
+        ],
       } as any);
 
       const result = await repository.findByLabel('Admin');
 
       expect(result).toEqual(role);
-      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { label: 'Admin' } });
+      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { label: 'Admin' }, include: { permissions: { include: { permission: true } } } });
     });
 
     it('should return null when role not found', async () => {
@@ -72,7 +81,7 @@ describe('PrismaRoleRepository', () => {
       const result = await repository.findByLabel('Unknown');
 
       expect(result).toBeNull();
-      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { label: 'Unknown' } });
+      expect(prisma.role.findFirst).toHaveBeenCalledWith({ where: { label: 'Unknown' }, include: { permissions: { include: { permission: true } } } });
     });
   });
 
@@ -83,7 +92,9 @@ describe('PrismaRoleRepository', () => {
         label: 'Admin',
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
-        permissions: [],
+        permissions: [
+          { roleId: 'role-1', permissionId: 'perm', scopeId: undefined, permission: { id: 'perm', permissionKey: 'P', description: 'desc', createdAt: fixedDate, updatedAt: fixedDate } },
+        ],
       } as any);
 
       const result = await repository.create(role);
@@ -160,7 +171,9 @@ describe('PrismaRoleRepository', () => {
         label: 'Admin',
         createdAt: role.createdAt,
         updatedAt: role.updatedAt,
-        permissions: [],
+        permissions: [
+          { roleId: 'role-1', permissionId: 'perm', scopeId: undefined, permission: { id: 'perm', permissionKey: 'P', description: 'desc', createdAt: fixedDate, updatedAt: fixedDate } },
+        ],
       } as any,
     ]);
     const result = await repository.findAll();

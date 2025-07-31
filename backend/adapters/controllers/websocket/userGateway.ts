@@ -25,6 +25,7 @@ import { VerifyMfaUseCase } from '../../../usecases/user/VerifyMfaUseCase';
 import { GetUserUseCase } from '../../../usecases/user/GetUserUseCase';
 import { Role } from '../../../domain/entities/Role';
 import { Permission } from '../../../domain/entities/Permission';
+import { UserPermissionAssignment } from '../../../domain/entities/UserPermissionAssignment';
 import { Department } from '../../../domain/entities/Department';
 import { Site } from '../../../domain/entities/Site';
 import { getContext } from '../../../infrastructure/loggerContext';
@@ -193,7 +194,7 @@ export function registerUserGateway(
         new Site(payload.site.id, payload.site.label),
         payload.picture,
         (payload.permissions ?? []).map(
-          (p) => new Permission(p.id, p.permissionKey, p.description),
+          (p) => new UserPermissionAssignment(new Permission(p.id, p.permissionKey, p.description)),
         ),
       );
       const useCase = new RegisterUserUseCase(
@@ -433,7 +434,7 @@ export function registerUserGateway(
         new Site(payload.site.id, payload.site.label),
         payload.picture,
         (payload.permissions ?? []).map(
-          (p) => new Permission(p.id, p.permissionKey, p.description),
+          (p) => new UserPermissionAssignment(new Permission(p.id, p.permissionKey, p.description)),
         ),
       );
       const useCase = new UpdateUserProfileUseCase(
