@@ -9,26 +9,31 @@ backend/
 ├── adapters/                 # Technical implementations of domain ports
 │   ├── audit/                # Audit log adapter
 │   ├── auth/                 # Authentication services
+│   ├── cache/                # Cache backends
+│   ├── config/               # Configuration persistence
 │   ├── controllers/          # REST and WebSocket controllers
 │   ├── email/                # Email services
 │   ├── logger/               # Logging implementation
+│   ├── mfa/                  # Multi-factor authentication providers
+│   ├── notification/         # Notification senders
 │   ├── orm/                  # Prisma schema and migrations
+│   ├── realtime/             # Real-time communication
 │   ├── repositories/         # Database repositories
+│   ├── scheduler/            # Cron job runner
 │   ├── storage/              # File storage backends
 │   └── token/                # JWT token service
-├── bruno/                    # HTTP request collection used for API testing
 ├── domain/                   # Pure domain entities, ports and services
-├── docs/                     # Project documentation
+├── docs/                     # Project documentation (including `docs/bruno`)
 ├── infrastructure/           # Application bootstrap and helpers
 ├── scripts/                  # Utility scripts
+├── templates/                # Mustache templates used by email adapters
 ├── tests/                    # Jest test suite
 ├── usecases/                 # Application use cases
 ├── docker-compose.dev.yml    # Development services
 ├── jest.config.js            # Jest configuration
 ├── openapi.json              # Generated OpenAPI specification
 ├── package.json              # NPM scripts and dependencies
-├── tsconfig.json             # TypeScript configuration
-└── index.ts                  # (empty entry point placeholder)
+└── tsconfig.json             # TypeScript configuration
 ```
 
 The sections below describe each file grouped by directory.
@@ -37,11 +42,19 @@ The sections below describe each file grouped by directory.
 
 ### audit
 - **PrismaAudit.ts** – Logs `AuditEvent` instances to the Prisma `AuditLog` table. Contains `log(event)` method.
+- **PrismaAuditConfigAdapter.ts** – Persists audit configuration settings.
 
 ### auth
 - **CompositeAuthService.ts** – Aggregates multiple `AuthServicePort` implementations. Methods: `authenticate`, `authenticateWithProvider`, `requestPasswordReset`, `resetPassword`, `verifyToken`.
 - **JWTAuthServiceAdapter.ts** – Authenticates users with credentials stored in PostgreSQL and verifies JWT tokens. Implements all methods from `AuthServicePort`.
 - **OIDCAuthServiceAdapter.ts** – Verifies tokens from an external OIDC provider. Implements the same methods as above (password related functions throw).
+
+### cache
+- **InMemoryCacheAdapter.ts** – Simple map-based cache used mainly for tests.
+- **RedisCacheAdapter.ts** – Redis implementation of `CachePort`.
+
+### config
+- **PrismaConfigAdapter.ts** – Stores application configuration values in the database.
 
 ### controllers
 - **rest/requestValidator.ts** – Middleware helper to validate request bodies.
@@ -52,7 +65,10 @@ The sections below describe each file grouped by directory.
 - **rest/roleController.ts** – REST routes for roles.
 - **rest/permissionController.ts** – REST routes for permissions.
 - **rest/invitationController.ts** – REST routes for user invitations.
+- **rest/configController.ts** – Manage application configuration entries.
+- **rest/auditController.ts** – Audit log endpoints.
 - **websocket/userGateway.ts** – Socket.IO gateway authenticating connections and responding to basic events.
+- **websocket/departmentGateway.ts**, **websocket/groupGateway.ts**, **websocket/roleGateway.ts**, **websocket/permissionGateway.ts**, **websocket/siteGateway.ts**, **websocket/configGateway.ts**, **websocket/invitationGateway.ts**, **websocket/auditGateway.ts** – Real-time updates for each entity type.
 
 ### email
 - **ConsoleEmailServiceAdapter.ts** – Simple email service logging messages to the console. Method: `sendMail`.
@@ -90,27 +106,40 @@ Database repositories implementing CRUD operations for each entity:
 - **NodeCronScheduler.ts** – Registers cron jobs using node-cron.
 - **jobs.ts** – Factory creating scheduled jobs including security alert detection.
 
+### realtime
+- **SocketIORealtimeAdapter.ts** – Emits events to connected Socket.IO clients.
+
+### mfa
+- **EmailOTPAdapter.ts** – Sends one-time passwords via email.
+- **TOTPAdapter.ts** – Generates and verifies time-based codes using a shared secret.
+
 
 ## bruno
-Collection of `.bru` files used with the Bruno API client. They demonstrate how to call each REST endpoint. `bruno.json` defines the workspace.
+The `docs/bruno` folder contains a collection of `.bru` files used with the Bruno API client. They demonstrate how to call each REST endpoint. `bruno.json` defines the workspace.
 
 ## domain
 
 ### entities
 Data classes representing core concepts:
-- **User.ts**, **Role.ts**, **Permission.ts**, **PermissionKeys.ts**, **Department.ts**, **Site.ts**, **UserGroup.ts**, **Invitation.ts**, **RefreshToken.ts**, **AuditEvent.ts**, **SecurityAlert.ts**
+- **User.ts**, **Role.ts**, **Permission.ts**, **PermissionKeys.ts**, **Department.ts**, **Site.ts**, **UserGroup.ts**, **Invitation.ts**, **RefreshToken.ts**, **AuditEvent.ts**, **AuditEventType.ts**, **SecurityAlert.ts**, **AppConfig.ts**, **AppConfigKeys.ts**, **AuditConfig.ts**, **UserPermissionAssignment.ts**, **RolePermissionAssignment.ts**
 Each file exports a class with properties and a constructor documenting every field.
 
 ### ports
 Interfaces defining contracts between the domain and infrastructure:
-`AuthServicePort`, `TokenServicePort`, `UserRepositoryPort`, `RoleRepositoryPort`, `PermissionRepositoryPort`, `DepartmentRepositoryPort`, `SiteRepositoryPort`, `UserGroupRepositoryPort`, `InvitationRepositoryPort`, `RefreshTokenPort`, `AuditPort`, `FileStoragePort`, `AvatarServicePort`, `EmailServicePort`, `LoggerPort`, `NotificationPort`, `SchedulerPort`.
+`AuthServicePort`, `TokenServicePort`, `UserRepositoryPort`, `RoleRepositoryPort`, `PermissionRepositoryPort`, `DepartmentRepositoryPort`, `SiteRepositoryPort`, `UserGroupRepositoryPort`, `InvitationRepositoryPort`, `RefreshTokenPort`, `AuditPort`, `AuditConfigPort`, `FileStoragePort`, `AvatarServicePort`, `EmailServicePort`, `LoggerPort`, `NotificationPort`, `SchedulerPort`, `CachePort`, `ConfigPort`, `MfaServicePort`, `OtpStorePort`, `RealtimePort`.
 
 ### services
 - **AvatarService.ts** – Handles avatar upload/deletion using a storage adapter and user repository.
 - **PermissionChecker.ts** – Utility to verify whether a `User` has a given permission.
+- **AuditConfigService.ts** – Retrieves and updates audit logging settings with caching.
+- **CacheService.ts** – Helper to lazily load values using a cache adapter.
+- **ConfigService.ts** – Accessor for application configuration values with caching.
+- **PasswordValidator.ts** – Validates password complexity rules.
+- **BootstapService.ts** – Initialises mandatory configuration and default permissions.
 
 ### dtos
 - **PaginatedResult.ts** – Shared interfaces for pagination results and query parameters.
+- **AuditLogQuery.ts** – Parameters for retrieving pages of audit log entries.
 
 ## infrastructure
 - **server.ts** – Application bootstrap creating Express app, registering routers, starting Socket.IO server and wiring adapters with the Prisma client.
@@ -127,15 +156,21 @@ Application services encapsulating domain logic. Each file exposes a single clas
 - **role/** – CRUD for roles.
 - **permission/** – CRUD for permissions.
 - **site/** – site CRUD.
+- **config/** – reading and updating configuration values.
+- **audit/** – retrieving and updating audit settings.
+- **cron/** – tasks executed periodically by the scheduler.
 - **SecurityAlertDetectorUseCase.ts** – detects suspicious logins and returns alerts.
 - **SendPasswordExpiryWarningsUseCase.ts** – emails users when passwords near expiry.
 
 ## scripts
-- **init-application.js** – Initializes the database with an administrator account.
-- **syncPermissions.ts** – Synchronizes permission keys defined in the code with the database.
+The folder currently only contains **init-application.js**, which seeds the database with an administrator account.
 
 ## docs
 - **Logging.md** – Guidelines for using the logging service and examples.
+- **Audit.md** – Details on audit log configuration and usage.
+- **Alerting.md** – Explains security alert detection and notification.
+- **MFA.md** – How to configure multi-factor authentication.
+- **Websocket.md** – Description of the real-time gateway API.
 
 ## tests
 Comprehensive Jest test suite covering entities, ports, adapters, use cases and infrastructure helpers. Each `*.test.ts` file mirrors a corresponding source file ensuring 100% coverage as configured in `jest.config.js`.
@@ -146,7 +181,7 @@ Comprehensive Jest test suite covering entities, ports, adapters, use cases and 
 - **openapi.json** – Generated OpenAPI specification from controller annotations.
 - **package.json** / **package-lock.json** – Project dependencies and scripts.
 - **tsconfig.json** – TypeScript compiler options.
-- **index.ts** – Placeholder main entry (currently empty).
+
 
 ---
 
