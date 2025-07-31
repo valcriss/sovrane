@@ -83,6 +83,8 @@ CREATE TABLE "Permission" (
 CREATE TABLE "UserPermission" (
     "userId" TEXT NOT NULL,
     "permissionId" TEXT NOT NULL,
+    "scopeId" TEXT,
+    "denyPermission" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "UserPermission_pkey" PRIMARY KEY ("userId","permissionId")
 );
@@ -91,16 +93,9 @@ CREATE TABLE "UserPermission" (
 CREATE TABLE "RolePermission" (
     "roleId" TEXT NOT NULL,
     "permissionId" TEXT NOT NULL,
+    "scopeId" TEXT,
 
     CONSTRAINT "RolePermission_pkey" PRIMARY KEY ("roleId","permissionId")
-);
-
--- CreateTable
-CREATE TABLE "DepartmentPermission" (
-    "departmentId" TEXT NOT NULL,
-    "permissionId" TEXT NOT NULL,
-
-    CONSTRAINT "DepartmentPermission_pkey" PRIMARY KEY ("departmentId","permissionId")
 );
 
 -- CreateTable
@@ -289,12 +284,6 @@ ALTER TABLE "RolePermission" ADD CONSTRAINT "RolePermission_roleId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "RolePermission" ADD CONSTRAINT "RolePermission_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "Permission"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "DepartmentPermission" ADD CONSTRAINT "DepartmentPermission_departmentId_fkey" FOREIGN KEY ("departmentId") REFERENCES "Department"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "DepartmentPermission" ADD CONSTRAINT "DepartmentPermission_permissionId_fkey" FOREIGN KEY ("permissionId") REFERENCES "Permission"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Site" ADD CONSTRAINT "Site_createdById_fkey" FOREIGN KEY ("createdById") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

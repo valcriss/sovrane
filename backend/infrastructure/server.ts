@@ -156,11 +156,17 @@ async function bootstrap(): Promise<void> {
 
   const app = express();
   app.use(express.json());
+  
+  const corsOrigin = process.env.CORS_ORIGIN ?? '*';
+  const allowCredentials = process.env.CORS_ALLOW_CREDENTIALS === 'true';
+  
   const corsOptions = {
-    origin: (process.env.CORS_ORIGIN ?? '*').split(','),
+    origin: corsOrigin === '*' && allowCredentials 
+      ? ['http://localhost:5173', 'http://localhost:3000'] // Fallback origins when credentials are needed
+      : corsOrigin.split(','),
     methods: process.env.CORS_METHODS ?? 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: process.env.CORS_ALLOWED_HEADERS ?? 'Content-Type,Authorization',
-    credentials: process.env.CORS_ALLOW_CREDENTIALS === 'true',
+    credentials: allowCredentials,
   };
   app.use(cors(corsOptions));
   app.use((req, _res, next) => {
