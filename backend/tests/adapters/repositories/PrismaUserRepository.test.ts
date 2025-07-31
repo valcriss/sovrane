@@ -346,9 +346,9 @@ describe('PrismaUserRepository', () => {
       });
     });
 
-    it('should create user with permissions', async () => {
-      const perm = new Permission('perm-1', 'READ', 'read');
-      mockUser.permissions = [new UserPermissionAssignment(perm, 's1')];
+  it('should create user with permissions', async () => {
+    const perm = new Permission('perm-1', 'READ', 'read');
+    mockUser.permissions = [new UserPermissionAssignment(perm, 's1')];
 
       const mockPrismaCreatedUserPerm = {
         id: 'user-123',
@@ -397,13 +397,47 @@ describe('PrismaUserRepository', () => {
           updatedById: undefined,
           permissions: { create: [{ scopeId: 's1', permission: { connect: { id: 'perm-1' } } }] },
           status: 'active',
-          roles: {
-            create: [{ role: { connect: { id: 'role-123' } } }],
-          },
+        roles: {
+          create: [{ role: { connect: { id: 'role-123' } } }],
         },
-        include: includeRelations,
-      });
+      },
+      include: includeRelations,
     });
+  });
+
+  it('should create user with deny permission flag', async () => {
+    const perm = new Permission('perm-1', 'READ', 'read');
+    mockUser.permissions = [new UserPermissionAssignment(perm, 's1', true)];
+
+    prismaClient.user.create.mockResolvedValue({
+      id: 'user-123',
+      firstname: 'John',
+      lastname: 'Doe',
+      email: 'john.doe@example.com',
+      password: 'hashed-password',
+      status: 'active',
+      departmentId: 'dept-1',
+      siteId: 'site-1',
+      department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null, siteId: 'site-1', site: { id: 'site-1', label: 'HQ' } },
+      site: { id: 'site-1', label: 'HQ' },
+      picture: null,
+      permissions: [{ userId: 'user-123', permissionId: 'perm-1', denyPermission: true, permission: { id: 'perm-1', permissionKey: 'READ', description: 'read' } }],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      roles: []
+    } as any);
+
+    await repository.create(mockUser);
+
+    expect(prismaClient.user.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        permissions: {
+          create: [{ scopeId: 's1', denyPermission: true, permission: { connect: { id: 'perm-1' } } }],
+        },
+      }),
+      include: includeRelations,
+    });
+  });
 
     it('should create user without roles', async () => {
       const userWithoutRoles = new User(
@@ -701,6 +735,50 @@ describe('PrismaUserRepository', () => {
             create: [{ role: { connect: { id: 'role-123' } } }],
           },
         },
+        include: includeRelations,
+      });
+    });
+
+    it('should update user deny permissions', async () => {
+      const perm = new Permission('perm-2', 'WRITE', 'write');
+      const updatedUser = new User(
+        'user-123',
+        'John',
+        'Doe',
+        'john.doe@example.com',
+        [mockRole],
+        'active',
+        department,
+        site,
+        undefined,
+        [new UserPermissionAssignment(perm, 's2', true)]
+      );
+
+      prismaClient.user.update.mockResolvedValue({
+        id: 'user-123',
+        firstname: 'John',
+        lastname: 'Doe',
+        email: 'john.doe@example.com',
+        password: 'hashed-password',
+        status: 'active',
+        departmentId: 'dept-1',
+        siteId: 'site-1',
+        department: { id: 'dept-1', label: 'IT', parentDepartmentId: null, managerUserId: null, siteId: 'site-1', site: { id: 'site-1', label: 'HQ' } },
+        site: { id: 'site-1', label: 'HQ' },
+        picture: null,
+        permissions: [{ userId: 'user-123', permissionId: 'perm-2', denyPermission: true, permission: { id: 'perm-2', permissionKey: 'WRITE', description: 'write' } }],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        roles: []
+      } as any);
+
+      await repository.update(updatedUser);
+
+      expect(prismaClient.user.update).toHaveBeenCalledWith({
+        where: { id: 'user-123' },
+        data: expect.objectContaining({
+          permissions: { deleteMany: {}, create: [{ scopeId: 's2', denyPermission: true, permission: { connect: { id: 'perm-2' } } }] },
+        }),
         include: includeRelations,
       });
     });

@@ -122,6 +122,7 @@ model UserPermission {
   permission   Permission @relation(fields: [permissionId], references: [id])
   permissionId String
   scopeId      String?
+  denyPermission Boolean @default(false)
 
   @@id([userId, permissionId])
 }
