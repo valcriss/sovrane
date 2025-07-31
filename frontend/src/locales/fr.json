@@ -1,5 +1,9 @@
 {
   "login": {
-    "username": "Utilisateur"
+    "title": "Connexion",
+    "username": "Email",
+    "password": "Mot de passe",
+    "submit": "Se connecter",
+    "error": "Email ou mot de passe invalide"
   }
 }

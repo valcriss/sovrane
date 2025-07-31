@@ -14,6 +14,10 @@ export interface ListUsersParams {
 }
 
 export default {
+  async me() {
+    const res = await client.get<User>('/users/me');
+    return res.data;
+  },
   async list(params: ListUsersParams) {
     const res = await client.get<{ items: User[]; page: number; limit: number; total: number }>('/users', { params });
     return res.data;
