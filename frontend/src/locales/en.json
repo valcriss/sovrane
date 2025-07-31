@@ -1,5 +1,9 @@
 {
   "login": {
-    "username": "Username"
+    "title": "Login",
+    "username": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "error": "Invalid credentials"
   }
 }
