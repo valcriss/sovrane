@@ -176,8 +176,8 @@ describe('PrismaUserRepository', () => {
 
       const result = await repository.findById('user-123');
 
-      expect(result?.roles[0].permissions[0].id).toBe('perm-1');
-      expect(result?.roles[0].permissions[0].permissionKey).toBe('ROOT');
+      expect(result?.roles[0].permissions[0].permission.id).toBe('perm-1');
+      expect(result?.roles[0].permissions[0].permission.permissionKey).toBe('ROOT');
     });
   });
 
