@@ -23,8 +23,7 @@ module.exports = {
     '!**/__tests__/**',
     '!**/*.test.ts',
     '!**/*.spec.ts',
-    '!**/tests/**',
-    '!**/adapters/controllers/websocket/*.ts'
+    '!**/tests/**'
   ],
   coverageThreshold: {
     global: {
