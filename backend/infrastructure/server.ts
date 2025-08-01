@@ -10,6 +10,11 @@ import { createUserRouter } from '../adapters/controllers/rest/userController';
 import { createInvitationRouter } from '../adapters/controllers/rest/invitationController';
 import { createRoleRouter } from '../adapters/controllers/rest/roleController';
 import { createAuditRouter } from '../adapters/controllers/rest/auditController';
+import { createDepartmentRouter } from '../adapters/controllers/rest/departmentController';
+import { createSiteRouter } from '../adapters/controllers/rest/siteController';
+import { createGroupRouter } from '../adapters/controllers/rest/groupController';
+import { createPermissionRouter } from '../adapters/controllers/rest/permissionController';
+import { createConfigRouter } from '../adapters/controllers/rest/configController';
 import { registerUserGateway } from '../adapters/controllers/websocket/userGateway';
 import { registerDepartmentGateway } from '../adapters/controllers/websocket/departmentGateway';
 import { registerGroupGateway } from '../adapters/controllers/websocket/groupGateway';
@@ -210,6 +215,30 @@ async function bootstrap(): Promise<void> {
   );
   app.use(
     '/api',
+    createGroupRouter(
+      groupRepository,
+      userRepository,
+      logger,
+    ),
+  );
+  app.use(
+    '/api',
+    createPermissionRouter(
+      permissionRepository,
+      logger,
+    ),
+  );
+  app.use(
+    '/api',
+    createConfigRouter(
+      getConfigUseCase,
+      updateConfigUseCase,
+      deleteConfigUseCase,
+      logger,
+    ),
+  );
+  app.use(
+    '/api',
     createAuditRouter(
       authService,
       userRepository,
@@ -235,6 +264,24 @@ async function bootstrap(): Promise<void> {
     io.adapter(createSocketIORedisAdapter(pubClient, subClient));
     logger.info('Socket.IO Redis adapter configured', getContext());
   }
+  app.use(
+    '/api',
+    createDepartmentRouter(
+      departmentRepository,
+      userRepository,
+      logger,
+      realtime,
+    ),
+  );
+  app.use(
+    '/api',
+    createSiteRouter(
+      siteRepository,
+      userRepository,
+      departmentRepository,
+      logger,
+    ),
+  );
   registerUserGateway(
     io,
     authService,
