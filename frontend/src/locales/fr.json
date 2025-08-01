@@ -1,9 +1,37 @@
 {
+  "breadcrumb": {
+    "home": "Accueil",
+    "admin": "Administration",
+    "configuration": "Configuration",
+    "users": "Utilisateurs",
+    "groups": "Groupes",
+    "roles": "Rôles",
+    "sites": "Sites",
+    "departments": "Services",
+    "observability": "Observabilité",
+    "logging": "Journalisation"
+  },
   "login": {
     "title": "Connexion",
     "username": "Email",
     "password": "Mot de passe",
     "submit": "Se connecter",
     "error": "Email ou mot de passe invalide"
+  },
+  "drawer": {
+    "admin_drawer": "Administration"
+  },
+  "adminmenu": {
+    "usersandgroups": "Utilisateurs et groupes",
+    "users": "Utilisateurs",
+    "groups": "Groupes",
+    "roles": "Rôles",
+    "sitesanddepartments": "Sites et services",
+    "sites": "Sites",
+    "departments": "Services",
+    "observability": "Observabilité",
+    "logging": "Journalisation",
+    "settings": "Paramètres",
+    "configuration": "Configuration"
   }
 }

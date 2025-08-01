@@ -3,7 +3,7 @@ import { createPinia } from 'pinia'
 import { i18n } from './plugins/i18n';
 import App from './App.vue'
 import router from './router'
-import { create, NButton, NCard, NInput, NFormItem, NAlert, NAvatar, NIcon } from 'naive-ui'
+import { create, NButton, NCard, NInput, NFormItem, NAlert, NAvatar, NIcon, NDrawer, NDrawerContent,NMenu,NBreadcrumb, NBreadcrumbItem, NDataTable, NConfigProvider } from 'naive-ui'
 
 const app = createApp(App)
 
@@ -12,7 +12,7 @@ app.use(router)
 app.use(i18n)
 app.use(
   create({
-    components: [NButton, NCard, NInput, NFormItem, NAlert, NAvatar, NIcon]
+    components: [NButton, NCard, NInput, NFormItem, NAlert, NAvatar, NIcon, NDrawer, NDrawerContent,NMenu,NBreadcrumb, NBreadcrumbItem, NDataTable, NConfigProvider]
   })
 )
 

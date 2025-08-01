@@ -1,9 +1,37 @@
 {
+  "breadcrumb": {
+    "home": "Home",
+    "admin": "Administration",
+    "configuration": "Configuration",
+    "users": "Users",
+    "groups": "Groups",
+    "roles": "Roles",
+    "sites": "Sites",
+    "departments": "Departments",
+    "observability": "Observability",
+    "logging": "Logging"
+  },
   "login": {
     "title": "Login",
     "username": "Email",
     "password": "Password",
     "submit": "Sign in",
     "error": "Invalid credentials"
+  },
+  "drawer": {
+    "admin_drawer": "Administration"
+  },
+  "adminmenu": {
+    "usersandgroups": "Users and Groups",
+    "users": "Users",
+    "groups": "Groups",
+    "roles": "Roles",
+    "sitesanddepartments": "Sites and Departments",
+    "sites": "Sites",
+    "departments": "Departments",
+    "observability": "Observability",
+    "logging": "Logging",
+    "settings": "Settings",
+    "configuration": "Configuration"
   }
 }
