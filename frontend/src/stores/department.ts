@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import DepartmentsService, { type Department, type ListDepartmentsParams } from '@/services/api/departments.service';
-import type {FilterOption} from "naive-ui/es/data-table/src/interface";
+import type { FilterOption } from "naive-ui/es/data-table/src/interface";
 
 export const useDepartmentStore = defineStore('department', () => {
   const departments = ref<Department[]>([]);
@@ -93,27 +93,27 @@ export const useDepartmentStore = defineStore('department', () => {
   }
 
 
-async function getFilterOptions(): Promise<FilterOption[]> {
-  if (!departments.value || departments.value.length === 0) {
-    await fetchDepartments();
-  }
-  
-  const filterOptions: FilterOption[] = [];
-  
-  if (!departments.value || departments.value.length === 0) {
+  async function getFilterOptions(): Promise<FilterOption[]> {
+    if (!departments.value || departments.value.length === 0) {
+      await fetchDepartments();
+    }
+
+    const filterOptions: FilterOption[] = [];
+
+    if (!departments.value || departments.value.length === 0) {
+      return filterOptions;
+    }
+
+    for (let i = 0; i < departments.value.length; i++) {
+      const department = departments.value[i];
+      filterOptions.push({
+        label: department.label,
+        value: department.id
+      });
+    }
+
     return filterOptions;
   }
-  
-  for (let i = 0; i < departments.value.length; i++) {
-    const department = departments.value[i];
-    filterOptions.push({
-      label: department.label,
-      value: department.id
-    });
-  }
-  
-  return filterOptions;
-}
 
   function clearCurrentDepartment() {
     currentDepartment.value = null;
