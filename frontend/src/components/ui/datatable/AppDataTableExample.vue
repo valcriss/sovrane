@@ -1,8 +1,8 @@
 <template>
   <div>
     <h2>Exemple d'utilisation de AppDataTable</h2>
-    <AppDataTable 
-      :columns="columns" 
+    <AppDataTable
+      :columns="columns"
       :query-function="queryFunction"
       :row-key="(row) => row.id"
       :page-size="10"
@@ -11,12 +11,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
 import type { DataTableColumn } from 'naive-ui'
 import AppDataTable from './AppDataTable.vue'
-import type { 
-  DataTableQueryParams, 
-  DataTableQueryResult 
+import type {
+  DataTableQueryParams,
+  DataTableQueryResult
 } from './AppDataTableTypes'
 
 interface ExampleData {
@@ -73,30 +72,30 @@ async function queryFunction(params: DataTableQueryParams): Promise<DataTableQue
   return new Promise((resolve) => {
     setTimeout(() => {
       let filteredData = [...mockData]
-      
+
       // Appliquer les filtres
       if (params.filters.name) {
         const nameFilter = params.filters.name as string
-        filteredData = filteredData.filter(item => 
+        filteredData = filteredData.filter(item =>
           item.name.toLowerCase().includes(nameFilter)
         )
       }
-      
+
       if (params.filters.status) {
         const statusFilter = params.filters.status as string[]
         if (statusFilter.length > 0) {
-          filteredData = filteredData.filter(item => 
+          filteredData = filteredData.filter(item =>
             statusFilter.includes(item.status)
           )
         }
       }
-      
+
       // Appliquer le tri
       if (params.order !== false) {
         filteredData.sort((a, b) => {
           const aVal = a.id
           const bVal = b.id
-          
+
           if (params.order === 'ascend') {
             return aVal - bVal
           } else {
@@ -104,18 +103,18 @@ async function queryFunction(params: DataTableQueryParams): Promise<DataTableQue
           }
         })
       }
-      
+
       // Pagination
       const start = (params.page - 1) * params.pageSize
       const end = start + params.pageSize
       const pagedData = filteredData.slice(start, end)
-      
+
       const result: DataTableQueryResult<ExampleData> = {
         data: pagedData,
         total: filteredData.length,
         pageCount: Math.ceil(filteredData.length / params.pageSize)
       }
-      
+
       resolve(result)
     }, 500) // Simule une latence réseau
   })
