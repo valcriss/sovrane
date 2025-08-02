@@ -93,19 +93,24 @@ export const useSiteStore = defineStore('site', () => {
   }
 
   async function getFilterOptions(): Promise<FilterOption[]> {
-    if (!sites.value)
-      await fetchSites()
-    const filterOptions: FilterOption[] = []
+    if (!sites.value || sites.value.length === 0) {
+      await fetchSites();
+    }
+
+    const filterOptions: FilterOption[] = [];
+
     if (!sites.value || sites.value.length === 0) {
       return filterOptions;
     }
+
     for (let i = 0; i < sites.value.length; i++) {
-      const site = sites.value[i];
+      const department = sites.value[i];
       filterOptions.push({
-        label: site.label,
-        value: site.id
-      })
+        label: department.label,
+        value: department.id
+      });
     }
+
     return filterOptions;
   }
 
