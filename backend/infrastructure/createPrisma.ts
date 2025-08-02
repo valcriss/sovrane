@@ -10,8 +10,8 @@ import { getContext } from './loggerContext';
  * @returns Configured Prisma client.
  */
 export function createPrisma(logger: LoggerPort): PrismaClient {
-  const prisma = new PrismaClient({ log: ['query'] });
-
+  //const prisma = new PrismaClient({ log: ['query'] });
+  const prisma = new PrismaClient();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (prisma as any).$on('query', (e: any) => {
     logger.trace(`SQL: ${e.query} -- ${e.params}`, getContext());

@@ -48,20 +48,16 @@ export class PermissionChecker {
       if (permKey !== key && permKey !== PermissionKeys.ROOT) {
         continue;
       }
-      
       // Check scope compatibility
       if (scopeId !== undefined) {
-        // When requesting a specific scope, assignment must match that scope or be global (null/undefined)
         if (a.scopeId !== undefined && a.scopeId !== scopeId) {
           continue;
         }
       } else {
-        // When requesting global access, assignment must be global (null/undefined)
         if (a.scopeId !== undefined) {
           continue;
         }
       }
-      
       return true;
     }
     return false;

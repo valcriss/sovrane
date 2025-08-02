@@ -99,13 +99,15 @@ async function bootstrap(): Promise<void> {
   const storage = new LocalFileStorageAdapter(process.env.STORAGE_PATH ?? './uploads', logger);
   const avatarService = new AvatarService(storage, userRepository, logger);
 
+  // Déclaration de 'audit' juste après la création de 'prisma' et 'logger'
+  const audit = new PrismaAudit(prisma, logger);
+
   const refreshRepo = new PrismaRefreshTokenRepository(prisma, logger);
   const tokenService = new JWTTokenServiceAdapter(
     process.env.JWT_SECRET ?? 'secret',
     refreshRepo,
     logger,
   );
-  const audit = new PrismaAudit(prisma, logger);
 
   const configRepo = new PrismaConfigAdapter(prisma, logger);
   const cache = process.env.REDIS_HOST && process.env.REDIS_HOST.trim()
@@ -161,7 +163,9 @@ async function bootstrap(): Promise<void> {
 
   const app = express();
   app.use(express.json());
-  
+  const httpServer = http.createServer(app);
+  const io = new SocketIOServer(httpServer);
+  const realtime = new SocketIORealtimeAdapter(io, logger);
   const corsOrigin = process.env.CORS_ORIGIN ?? '*';
   const allowCredentials = process.env.CORS_ALLOW_CREDENTIALS === 'true';
   
@@ -180,6 +184,7 @@ async function bootstrap(): Promise<void> {
 
   setupSwagger(app);
   app.use('/api', auditMiddleware);
+
   app.use(
     '/api',
     createInvitationRouter(
@@ -190,6 +195,7 @@ async function bootstrap(): Promise<void> {
       logger,
     ),
   );
+
   app.use(
     '/api',
     createUserRouter(
@@ -203,8 +209,10 @@ async function bootstrap(): Promise<void> {
       getConfigUseCase,
       passwordValidator,
       mfaService,
+      realtime
     ),
   );
+
   app.use(
     '/api',
     createRoleRouter(
@@ -213,14 +221,28 @@ async function bootstrap(): Promise<void> {
       logger,
     ),
   );
+
   app.use(
     '/api',
     createGroupRouter(
+      authService,
       groupRepository,
       userRepository,
       logger,
     ),
   );
+
+  app.use(
+    '/api',
+    createDepartmentRouter(
+      authService,
+      departmentRepository,
+      userRepository,
+      logger,
+      realtime,
+    ),
+  );
+
   app.use(
     '/api',
     createPermissionRouter(
@@ -228,6 +250,7 @@ async function bootstrap(): Promise<void> {
       logger,
     ),
   );
+
   app.use(
     '/api',
     createConfigRouter(
@@ -237,6 +260,7 @@ async function bootstrap(): Promise<void> {
       logger,
     ),
   );
+
   app.use(
     '/api',
     createAuditRouter(
@@ -250,9 +274,7 @@ async function bootstrap(): Promise<void> {
     ),
   );
   
-  const httpServer = http.createServer(app);
-  const io = new SocketIOServer(httpServer);
-  const realtime = new SocketIORealtimeAdapter(io, logger);
+
   if (process.env.REDIS_HOST && process.env.REDIS_HOST.trim()) {
     const pubClient = new IORedis({
       host: process.env.REDIS_HOST,
@@ -264,15 +286,7 @@ async function bootstrap(): Promise<void> {
     io.adapter(createSocketIORedisAdapter(pubClient, subClient));
     logger.info('Socket.IO Redis adapter configured', getContext());
   }
-  app.use(
-    '/api',
-    createDepartmentRouter(
-      departmentRepository,
-      userRepository,
-      logger,
-      realtime,
-    ),
-  );
+  
   app.use(
     '/api',
     createSiteRouter(
@@ -282,6 +296,7 @@ async function bootstrap(): Promise<void> {
       logger,
     ),
   );
+
   registerUserGateway(
     io,
     authService,

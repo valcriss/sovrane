@@ -28,6 +28,8 @@ import {GetDepartmentParentUseCase} from '../../../usecases/department/GetDepart
 import {GetDepartmentUsersUseCase} from '../../../usecases/department/GetDepartmentUsersUseCase';
 import { PermissionChecker } from '../../../domain/services/PermissionChecker';
 import { User } from '../../../domain/entities/User';
+import { AuthServicePort } from '../../../domain/ports/AuthServicePort';
+import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
 
 /**
  * @openapi
@@ -146,12 +148,39 @@ interface AuthedRequest extends Request {
 }
 
 export function createDepartmentRouter(
+  authService: AuthServicePort,
   departmentRepository: DepartmentRepositoryPort,
   userRepository: UserRepositoryPort,
   logger: LoggerPort,
   realtime: RealtimePort,
 ): Router {
   const router = express.Router();
+  const authMiddleware: express.RequestHandler = async (req, res, next) => {
+    logger.info('REST auth middleware', getContext());
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) {
+      res.status(401).end();
+      return;
+    }
+    const token = header.slice(7);
+    try {
+      const user = await authService.verifyToken(token);
+      (req as AuthedRequest).user = user;
+      logger.debug('REST auth success', getContext());
+      next();
+    } catch (err) {
+      logger.warn('REST auth failed', { ...getContext(), error: err });
+      if (err instanceof TokenExpiredException) {
+        res
+          .status(401)
+          .json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+        return;
+      }
+      res.status(401).end();
+    }
+  };
+
+  router.use(authMiddleware);
 
   /**
      * @openapi
@@ -209,7 +238,7 @@ export function createDepartmentRouter(
      *         description: User lacks required permission.
      */
   router.get('/departments', async (req: Request, res: Response): Promise<void> => {
-    logger.debug('GET /departments', getContext());
+    logger.info('GET /departments', getContext());
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const checker = new PermissionChecker((req as AuthedRequest).user);

@@ -73,7 +73,21 @@ export function createSensitiveRouteAuditMiddleware(
         ),
       );
     }
-
+    // Blocage 401 si route sensible et token absent/mal formé
+    if (matched && (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer '))) {
+      _res.status(401).end();
+      return;
+    }
+    // Blocage 401 si route sensible et token invalide
+    if (matched && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+      const token = req.headers.authorization.slice(7);
+      try {
+        await auth.verifyToken(token);
+      } catch{
+        _res.status(401).end();
+        return;
+      }
+    }
     next();
   };
 }

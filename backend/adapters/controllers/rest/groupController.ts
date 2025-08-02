@@ -1,24 +1,25 @@
 /* istanbul ignore file */
-import express, {Router} from 'express';
-import {UserGroupRepositoryPort} from '../../../domain/ports/UserGroupRepositoryPort';
-import {UserRepositoryPort} from '../../../domain/ports/UserRepositoryPort';
-import {LoggerPort} from '../../../domain/ports/LoggerPort';
-import {getContext} from '../../../infrastructure/loggerContext';
-import {UserGroup} from '../../../domain/entities/UserGroup';
-import {User} from '../../../domain/entities/User';
-import {CreateUserGroupUseCase} from '../../../usecases/group/CreateUserGroupUseCase';
-import {UpdateUserGroupUseCase} from '../../../usecases/group/UpdateUserGroupUseCase';
-import {RemoveUserGroupUseCase} from '../../../usecases/group/RemoveUserGroupUseCase';
-import {AddGroupUserUseCase} from '../../../usecases/group/AddGroupUserUseCase';
-import {RemoveGroupUserUseCase} from '../../../usecases/group/RemoveGroupUserUseCase';
-import {GetUserGroupsUseCase} from '../../../usecases/group/GetUserGroupsUseCase';
-import {AddGroupResponsibleUseCase} from '../../../usecases/group/AddGroupResponsibleUseCase';
-import {RemoveGroupResponsibleUseCase} from '../../../usecases/group/RemoveGroupResponsibleUseCase';
-import {GetGroupMembersUseCase} from '../../../usecases/group/GetGroupMembersUseCase';
-import {GetGroupResponsiblesUseCase} from '../../../usecases/group/GetGroupResponsiblesUseCase';
-import {PermissionChecker} from '../../../domain/services/PermissionChecker';
-import {PermissionKeys} from '../../../domain/entities/PermissionKeys';
+import express, { Router } from 'express';
+import { UserGroupRepositoryPort } from '../../../domain/ports/UserGroupRepositoryPort';
+import { UserRepositoryPort } from '../../../domain/ports/UserRepositoryPort';
+import { LoggerPort } from '../../../domain/ports/LoggerPort';
+import { getContext } from '../../../infrastructure/loggerContext';
+import { UserGroup } from '../../../domain/entities/UserGroup';
+import { User } from '../../../domain/entities/User';
+import { CreateUserGroupUseCase } from '../../../usecases/group/CreateUserGroupUseCase';
+import { UpdateUserGroupUseCase } from '../../../usecases/group/UpdateUserGroupUseCase';
+import { RemoveUserGroupUseCase } from '../../../usecases/group/RemoveUserGroupUseCase';
+import { AddGroupUserUseCase } from '../../../usecases/group/AddGroupUserUseCase';
+import { RemoveGroupUserUseCase } from '../../../usecases/group/RemoveGroupUserUseCase';
+import { GetUserGroupsUseCase } from '../../../usecases/group/GetUserGroupsUseCase';
+import { AddGroupResponsibleUseCase } from '../../../usecases/group/AddGroupResponsibleUseCase';
+import { RemoveGroupResponsibleUseCase } from '../../../usecases/group/RemoveGroupResponsibleUseCase';
+import { GetGroupMembersUseCase } from '../../../usecases/group/GetGroupMembersUseCase';
+import { GetGroupResponsiblesUseCase } from '../../../usecases/group/GetGroupResponsiblesUseCase';
+import { PermissionChecker } from '../../../domain/services/PermissionChecker';
+import { PermissionKeys } from '../../../domain/entities/PermissionKeys';
 import { TokenExpiredException } from '../../../domain/errors/TokenExpiredException';
+import { AuthServicePort } from '@/domain/ports/AuthServicePort';
 
 /**
  * @openapi
@@ -70,6 +71,7 @@ interface AuthedRequest extends express.Request {
 }
 
 export function createGroupRouter(
+  authService: AuthServicePort,
   groupRepository: UserGroupRepositoryPort,
   userRepository: UserRepositoryPort,
   logger: LoggerPort,
@@ -77,6 +79,7 @@ export function createGroupRouter(
   const router = express.Router();
 
   const authMiddleware: express.RequestHandler = async (req, res, next) => {
+    logger.info('REST auth middleware', getContext());
     const header = req.headers.authorization;
     if (!header?.startsWith('Bearer ')) {
       res.status(401).end();
@@ -84,14 +87,16 @@ export function createGroupRouter(
     }
     const token = header.slice(7);
     try {
-      const user = await userRepository.findById(token); // simplify for tests
-      if (!user) throw new Error('auth');
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (req as any).user = user;
+      const user = await authService.verifyToken(token);
+      (req as AuthedRequest).user = user;
+      logger.debug('REST auth success', getContext());
       next();
     } catch (err) {
+      logger.warn('REST auth failed', { ...getContext(), error: err });
       if (err instanceof TokenExpiredException) {
-        res.status(401).json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
+        res
+          .status(401)
+          .json({ error: 'Token expired', code: 'TOKEN_EXPIRED' });
         return;
       }
       res.status(401).end();
@@ -220,7 +225,7 @@ export function createGroupRouter(
     const result = await useCase.execute({
       page,
       limit,
-      filters: {search: req.query.search as string | undefined},
+      filters: { search: req.query.search as string | undefined },
     });
     if (result.items.length === 0) {
       res.status(204).end();
@@ -349,7 +354,7 @@ export function createGroupRouter(
     const result = await useCase.execute(req.params.id, {
       page,
       limit,
-      filters: {search: req.query.search as string | undefined},
+      filters: { search: req.query.search as string | undefined },
     });
     if (result.items.length === 0) {
       res.status(204).end();
@@ -429,7 +434,7 @@ export function createGroupRouter(
     const result = await useCase.execute(req.params.id, {
       page,
       limit,
-      filters: {search: req.query.search as string | undefined},
+      filters: { search: req.query.search as string | undefined },
     });
     if (result.items.length === 0) {
       res.status(204).end();

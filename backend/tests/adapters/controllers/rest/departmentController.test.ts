@@ -6,6 +6,7 @@ import { DepartmentRepositoryPort } from '../../../../domain/ports/DepartmentRep
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
 import { RealtimePort } from '../../../../domain/ports/RealtimePort';
+import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { Department } from '../../../../domain/entities/Department';
 import { Site } from '../../../../domain/entities/Site';
 import { Permission } from '../../../../domain/entities/Permission';
@@ -19,6 +20,7 @@ describe('Department REST controller', () => {
   let deptRepo: DeepMockProxy<DepartmentRepositoryPort>;
   let userRepo: DeepMockProxy<UserRepositoryPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
+  let auth: DeepMockProxy<AuthServicePort>;
   let site: Site;
   let department: Department;
   let permission: Permission;
@@ -29,6 +31,7 @@ describe('Department REST controller', () => {
     deptRepo = mockDeep<DepartmentRepositoryPort>();
     userRepo = mockDeep<UserRepositoryPort>();
     logger = mockDeep<LoggerPort>();
+    auth = mockDeep<AuthServicePort>();
     site = new Site('s', 'Site');
     department = new Department('d', 'Dept', null, null, site);
     permission = new Permission('p', PermissionKeys.ROOT, 'desc');
@@ -41,12 +44,15 @@ describe('Department REST controller', () => {
     userRepo.findById.mockResolvedValue(user);
     userRepo.update.mockResolvedValue(user);
     userRepo.findByDepartmentId.mockResolvedValue([]);
+    auth.verifyToken.mockResolvedValue(user);
 
     app = express();
     app.use(express.json());
     app.use((req, _res, next) => { (req as any).user = user; next(); });
     const realtime = mockDeep<RealtimePort>();
-    app.use('/api', createDepartmentRouter(deptRepo, userRepo, logger, realtime));
+    // Le middleware d'authentification est simulé par le middleware ci-dessus qui ajoute directement l'utilisateur
+    // Nous n'avons donc pas besoin de modifier tous les tests pour inclure un token
+    app.use('/api', createDepartmentRouter(auth, deptRepo, userRepo, logger, realtime));
   });
 
   it('should list departments', async () => {
