@@ -48,7 +48,7 @@ describe('Department REST controller', () => {
 
     app = express();
     app.use(express.json());
-    app.use((req, _res, next) => { (req as any).user = user; next(); });
+    app.use((req, _res, next) => { (req as any).user = user; req.headers.authorization = 'Bearer token'; next(); });
     const realtime = mockDeep<RealtimePort>();
     // Le middleware d'authentification est simulé par le middleware ci-dessus qui ajoute directement l'utilisateur
     // Nous n'avons donc pas besoin de modifier tous les tests pour inclure un token
@@ -124,7 +124,14 @@ describe('Department REST controller', () => {
     userRepo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
     const res = await request(app).get('/api/departments/d/users?page=1&limit=20');
     expect(res.status).toBe(200);
-    expect(userRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { departmentId: 'd', search: undefined, status: undefined, siteId: undefined, roleId: undefined } });
+    expect(userRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { departmentIds: ['d'], search: undefined, statuses: undefined, siteIds: undefined, roleIds: undefined } });
+  });
+
+  it('should filter department users by multiple ids', async () => {
+    userRepo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
+    const res = await request(app).get('/api/departments/d/users?siteIds=s1;s2&roleIds=r1;r2&statuses=active;archived');
+    expect(res.status).toBe(200);
+    expect(userRepo.findPage).toHaveBeenCalledWith({ page: 1, limit: 20, filters: { departmentIds: ['d'], search: undefined, statuses: ['active', 'archived'], siteIds: ['s1', 's2'], roleIds: ['r1', 'r2'] } });
   });
 
   it('should create a department', async () => {

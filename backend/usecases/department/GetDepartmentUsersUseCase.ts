@@ -26,7 +26,7 @@ export class GetDepartmentUsersUseCase {
   ): Promise<PaginatedResult<User>> {
     this.checker.check(PermissionKeys.READ_USERS);
     /* istanbul ignore next */
-    const filters = { ...(params.filters || {}), departmentId };
+    const filters = { ...(params.filters || {}), departmentIds: [departmentId] };
     return this.userRepository.findPage({ ...params, filters });
   }
 }

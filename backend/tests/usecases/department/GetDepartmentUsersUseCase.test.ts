@@ -51,7 +51,7 @@ describe('GetDepartmentUsersUseCase', () => {
     const result = await useCase.execute('d', { page:1, limit:20, filters:{ search:'john' } });
 
     expect(result.items).toEqual([user]);
-    expect(repo.findPage).toHaveBeenCalledWith({ page:1, limit:20, filters:{ search:'john', departmentId:'d' } });
+    expect(repo.findPage).toHaveBeenCalledWith({ page:1, limit:20, filters:{ search:'john', departmentIds:['d'] } });
   });
 
   it('should handle missing filters', async () => {
@@ -60,6 +60,6 @@ describe('GetDepartmentUsersUseCase', () => {
     const result = await useCase.execute('d', { page:1, limit:20 });
 
     expect(result.items).toEqual([user]);
-    expect(repo.findPage).toHaveBeenCalledWith({ page:1, limit:20, filters:{ departmentId:'d' } });
+    expect(repo.findPage).toHaveBeenCalledWith({ page:1, limit:20, filters:{ departmentIds:['d'] } });
   });
 });

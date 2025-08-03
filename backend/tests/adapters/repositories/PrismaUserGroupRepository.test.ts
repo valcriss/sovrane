@@ -235,10 +235,10 @@ describe('PrismaUserGroupRepository', () => {
       limit: 5,
       filters: {
         search: 'john',
-        status: 'active',
-        departmentId: 'd',
-        siteId: 's',
-        roleId: 'r',
+        statuses: ['active'],
+        departmentIds: ['d'],
+        siteIds: ['s'],
+        roleIds: ['r'],
       },
     });
     expect(result).toEqual({ items: [user], page: 1, limit: 5, total: 1 });
@@ -263,10 +263,10 @@ describe('PrismaUserGroupRepository', () => {
       limit: 5,
       filters: {
         search: 'john',
-        status: 'active',
-        departmentId: 'd',
-        siteId: 's',
-        roleId: 'r',
+        statuses: ['active'],
+        departmentIds: ['d'],
+        siteIds: ['s'],
+        roleIds: ['r'],
       },
     });
     expect(result).toEqual({ items: [user], page: 1, limit: 5, total: 1 });

@@ -144,17 +144,17 @@ export class PrismaUserRepository implements UserRepositoryPort {
         { email: { contains: params.filters.search, mode: 'insensitive' } },
       ];
     }
-    if (params.filters?.status) {
-      where.status = params.filters.status;
+    if (params.filters?.statuses && params.filters.statuses.length > 0) {
+      where.status = { in: params.filters.statuses };
     }
-    if (params.filters?.departmentId) {
-      where.departmentId = params.filters.departmentId;
+    if (params.filters?.departmentIds && params.filters.departmentIds.length > 0) {
+      where.departmentId = { in: params.filters.departmentIds };
     }
-    if (params.filters?.siteId) {
-      where.siteId = params.filters.siteId;
+    if (params.filters?.siteIds && params.filters.siteIds.length > 0) {
+      where.siteId = { in: params.filters.siteIds };
     }
-    if (params.filters?.roleId) {
-      where.roles = { some: { roleId: params.filters.roleId } };
+    if (params.filters?.roleIds && params.filters.roleIds.length > 0) {
+      where.roles = { some: { roleId: { in: params.filters.roleIds } } };
     }
     const records = await this.prisma.user.findMany({
       skip: (params.page - 1) * params.limit,

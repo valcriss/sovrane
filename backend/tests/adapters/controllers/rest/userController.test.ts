@@ -539,10 +539,52 @@ describe('User REST controller', () => {
       limit: 20,
       filters: {
         search: undefined,
-        status: undefined,
-        departmentId: undefined,
-        siteId: undefined,
-        roleId: undefined,
+        statuses: undefined,
+        departmentIds: undefined,
+        siteIds: undefined,
+        roleIds: undefined,
+      },
+    });
+  });
+
+  it('should filter users by multiple ids', async () => {
+    repo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
+
+    const res = await request(app)
+      .get('/api/users?departmentIds=d1;d2&siteIds=s1;s2&roleIds=r1;r2')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(repo.findPage).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      filters: {
+        search: undefined,
+        statuses: undefined,
+        departmentIds: ['d1', 'd2'],
+        siteIds: ['s1', 's2'],
+        roleIds: ['r1', 'r2'],
+      },
+    });
+  });
+
+  it('should filter users by multiple statuses', async () => {
+    repo.findPage.mockResolvedValue({ items: [user], page: 1, limit: 20, total: 1 });
+
+    const res = await request(app)
+      .get('/api/users?statuses=active;archived')
+      .set('Authorization', 'Bearer token');
+
+    expect(res.status).toBe(200);
+    expect(repo.findPage).toHaveBeenCalledWith({
+      page: 1,
+      limit: 20,
+      filters: {
+        search: undefined,
+        statuses: ['active', 'archived'],
+        departmentIds: undefined,
+        siteIds: undefined,
+        roleIds: undefined,
       },
     });
   });
@@ -665,10 +707,10 @@ describe('User REST controller', () => {
       limit: 20,
       filters: {
         search: undefined,
-        status: undefined,
-        departmentId: undefined,
-        siteId: undefined,
-        roleId: undefined,
+        statuses: undefined,
+        departmentIds: undefined,
+        siteIds: undefined,
+        roleIds: undefined,
       },
     });
   });

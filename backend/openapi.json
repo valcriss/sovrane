@@ -1130,29 +1130,27 @@
           },
           {
             "in": "query",
-            "name": "status",
+            "name": "statuses",
             "schema": {
-              "type": "string",
-              "enum": [
-                "active",
-                "suspended",
-                "archived"
-              ]
-            }
+              "type": "string"
+            },
+            "description": "Semicolon-separated list of user statuses (active, suspended, archived)."
           },
           {
             "in": "query",
-            "name": "siteId",
+            "name": "siteIds",
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Semicolon-separated list of site identifiers."
           },
           {
             "in": "query",
-            "name": "roleId",
+            "name": "roleIds",
             "schema": {
               "type": "string"
-            }
+            },
+            "description": "Semicolon-separated list of role identifiers."
           }
         ],
         "responses": {
@@ -3186,40 +3184,35 @@
           },
           {
             "in": "query",
-            "name": "status",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "active",
-                "suspended",
-                "archived"
-              ]
-            },
-            "description": "Filter users by status."
-          },
-          {
-            "in": "query",
-            "name": "departmentId",
+            "name": "statuses",
             "schema": {
               "type": "string"
             },
-            "description": "Filter by department identifier."
+            "description": "Semicolon-separated list of user statuses (active, suspended, archived)."
           },
           {
             "in": "query",
-            "name": "siteId",
+            "name": "departmentIds",
             "schema": {
               "type": "string"
             },
-            "description": "Filter by site identifier."
+            "description": "Semicolon-separated list of department identifiers."
           },
           {
             "in": "query",
-            "name": "roleId",
+            "name": "siteIds",
             "schema": {
               "type": "string"
             },
-            "description": "Filter by role identifier."
+            "description": "Semicolon-separated list of site identifiers."
+          },
+          {
+            "in": "query",
+            "name": "roleIds",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Semicolon-separated list of role identifiers."
           }
         ],
         "responses": {

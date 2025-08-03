@@ -973,6 +973,42 @@ describe('PrismaUserRepository', () => {
     expect(prismaClient.user.count).toHaveBeenCalled();
   });
 
+  it('should filter users by ids in pagination', async () => {
+    prismaClient.user.findMany.mockResolvedValue([] as any);
+    prismaClient.user.count.mockResolvedValue(0 as any);
+    await repository.findPage({
+      page: 1,
+      limit: 10,
+      filters: { departmentIds: ['d1', 'd2'], siteIds: ['s1'], roleIds: ['r1', 'r2'] },
+    });
+    expect(prismaClient.user.findMany).toHaveBeenCalledWith({
+      skip: 0,
+      take: 10,
+      where: {
+        departmentId: { in: ['d1', 'd2'] },
+        siteId: { in: ['s1'] },
+        roles: { some: { roleId: { in: ['r1', 'r2'] } } },
+      },
+      include: includeRelations,
+    });
+  });
+
+  it('should filter users by statuses in pagination', async () => {
+    prismaClient.user.findMany.mockResolvedValue([] as any);
+    prismaClient.user.count.mockResolvedValue(0 as any);
+    await repository.findPage({
+      page: 1,
+      limit: 10,
+      filters: { statuses: ['active', 'archived'] },
+    });
+    expect(prismaClient.user.findMany).toHaveBeenCalledWith({
+      skip: 0,
+      take: 10,
+      where: { status: { in: ['active', 'archived'] } },
+      include: includeRelations,
+    });
+  });
+
   it('should return all users', async () => {
     prismaClient.user.findMany.mockResolvedValue([
       {

@@ -5,6 +5,7 @@ import { createGroupRouter } from '../../../../adapters/controllers/rest/groupCo
 import { UserGroupRepositoryPort } from '../../../../domain/ports/UserGroupRepositoryPort';
 import { UserRepositoryPort } from '../../../../domain/ports/UserRepositoryPort';
 import { LoggerPort } from '../../../../domain/ports/LoggerPort';
+import { AuthServicePort } from '../../../../domain/ports/AuthServicePort';
 import { UserGroup } from '../../../../domain/entities/UserGroup';
 import { User } from '../../../../domain/entities/User';
 import { Role } from '../../../../domain/entities/Role';
@@ -19,6 +20,7 @@ describe('Group REST controller', () => {
   let groupRepo: DeepMockProxy<UserGroupRepositoryPort>;
   let userRepo: DeepMockProxy<UserRepositoryPort>;
   let logger: ReturnType<typeof mockDeep<LoggerPort>>;
+  let auth: DeepMockProxy<AuthServicePort>;
   let site: Site;
   let dept: Department;
   let role: Role;
@@ -29,6 +31,7 @@ describe('Group REST controller', () => {
     groupRepo = mockDeep<UserGroupRepositoryPort>();
     userRepo = mockDeep<UserRepositoryPort>();
     logger = mockDeep<LoggerPort>();
+    auth = mockDeep<AuthServicePort>();
     site = new Site('s', 'Site');
     dept = new Department('d', 'Dept', null, null, site);
     role = new Role('r', 'Role');
@@ -51,7 +54,8 @@ describe('Group REST controller', () => {
 
     app = express();
     app.use(express.json());
-    app.use('/api', createGroupRouter(groupRepo, userRepo, logger));
+    app.use('/api', createGroupRouter(auth, groupRepo, userRepo, logger));
+    auth.verifyToken.mockResolvedValue(user);
   });
 
   it('should create a group', async () => {
@@ -86,6 +90,7 @@ describe('Group REST controller', () => {
   it('should forbid update when not responsible', async () => {
     const other = new User('x', 'Jane', 'Doe', 'jane@example.com', [role], 'active', dept, site);
     userRepo.findById.mockResolvedValueOnce(other);
+    auth.verifyToken.mockResolvedValueOnce(other);
     const res = await request(app)
       .put('/api/groups/g')
       .set('Authorization', 'Bearer x')
