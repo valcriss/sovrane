@@ -993,26 +993,25 @@ export function createUserRouter(
      *           type: string
      *         description: Search term to filter users by name or email.
      *       - in: query
-     *         name: status
+     *         name: statuses
      *         schema:
      *           type: string
-     *           enum: [active, suspended, archived]
-     *         description: Filter users by status.
+     *         description: Semicolon-separated list of user statuses (active, suspended, archived).
      *       - in: query
-     *         name: departmentId
+     *         name: departmentIds
      *         schema:
      *           type: string
-     *         description: Filter by department identifier.
+     *         description: Semicolon-separated list of department identifiers.
      *       - in: query
-     *         name: siteId
+     *         name: siteIds
      *         schema:
      *           type: string
-     *         description: Filter by site identifier.
+     *         description: Semicolon-separated list of site identifiers.
      *       - in: query
-     *         name: roleId
+     *         name: roleIds
      *         schema:
      *           type: string
-     *         description: Filter by role identifier.
+     *         description: Semicolon-separated list of role identifiers.
      *     responses:
      *       200:
      *         description: Paginated user list
@@ -1057,14 +1056,20 @@ export function createUserRouter(
           limit,
           filters: {
             search: req.query.search as string | undefined,
-            status: req.query.status as
-                      | 'active'
-                      | 'suspended'
-                      | 'archived'
-                      | undefined,
-            departmentId: req.query.departmentId as string | undefined,
-            siteId: req.query.siteId as string | undefined,
-            roleId: req.query.roleId as string | undefined,
+            statuses: req.query.statuses
+              ? ((req.query.statuses as string).split(';').filter(Boolean) as Array<
+                  'active' | 'suspended' | 'archived'
+                >)
+              : undefined,
+            departmentIds: req.query.departmentIds
+              ? (req.query.departmentIds as string).split(';').filter(Boolean)
+              : undefined,
+            siteIds: req.query.siteIds
+              ? (req.query.siteIds as string).split(';').filter(Boolean)
+              : undefined,
+            roleIds: req.query.roleIds
+              ? (req.query.roleIds as string).split(';').filter(Boolean)
+              : undefined,
           },
         });
         logger.debug('Users retrieved', getContext());

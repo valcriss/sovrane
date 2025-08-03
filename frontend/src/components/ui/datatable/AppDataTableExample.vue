@@ -81,8 +81,8 @@ async function queryFunction(params: DataTableQueryParams): Promise<DataTableQue
         )
       }
 
-      if (params.filters.status) {
-        const statusFilter = params.filters.status as string[]
+      if (params.filters.statuses) {
+        const statusFilter = params.filters.statuses as string[]
         if (statusFilter.length > 0) {
           filteredData = filteredData.filter(item =>
             statusFilter.includes(item.status)

@@ -518,18 +518,20 @@ export function createDepartmentRouter(
      *           type: string
      *         description: Filter by user name or email.
      *       - in: query
-     *         name: status
+     *         name: statuses
      *         schema:
      *           type: string
-     *           enum: [active, suspended, archived]
+     *         description: Semicolon-separated list of user statuses (active, suspended, archived).
      *       - in: query
-     *         name: siteId
+     *         name: siteIds
      *         schema:
      *           type: string
+     *         description: Semicolon-separated list of site identifiers.
      *       - in: query
-     *         name: roleId
+     *         name: roleIds
      *         schema:
      *           type: string
+     *         description: Semicolon-separated list of role identifiers.
      *     responses:
      *       200:
      *         description: Paginated users list.
@@ -568,9 +570,17 @@ export function createDepartmentRouter(
       limit,
       filters: {
         search: req.query.search as string | undefined,
-        status: req.query.status as 'active' | 'suspended' | 'archived' | undefined,
-        siteId: req.query.siteId as string | undefined,
-        roleId: req.query.roleId as string | undefined,
+        statuses: req.query.statuses
+          ? ((req.query.statuses as string).split(';').filter(Boolean) as Array<
+              'active' | 'suspended' | 'archived'
+            >)
+          : undefined,
+        siteIds: req.query.siteIds
+          ? (req.query.siteIds as string).split(';').filter(Boolean)
+          : undefined,
+        roleIds: req.query.roleIds
+          ? (req.query.roleIds as string).split(';').filter(Boolean)
+          : undefined,
       },
     });
     logger.debug('Department users retrieved', getContext());

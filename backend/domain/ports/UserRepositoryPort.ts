@@ -7,14 +7,14 @@ import { ListParams, PaginatedResult } from '../dtos/PaginatedResult';
 export interface UserFilters {
   /** Free text search across name and email. */
   search?: string;
-  /** Filter by user status. */
-  status?: 'active' | 'suspended' | 'archived';
-  /** Restrict to a specific department. */
-  departmentId?: string;
-  /** Restrict to a specific site. */
-  siteId?: string;
-  /** Restrict to users having the given role. */
-  roleId?: string;
+  /** Filter by user statuses. */
+  statuses?: Array<'active' | 'suspended' | 'archived'>;
+  /** Restrict to specific departments. */
+  departmentIds?: string[];
+  /** Restrict to specific sites. */
+  siteIds?: string[];
+  /** Restrict to users having any of the given roles. */
+  roleIds?: string[];
 }
 
 /**
