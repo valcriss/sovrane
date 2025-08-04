@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {type MenuOption, NIcon} from "naive-ui";
-import {type Component, h} from "vue";
+import {type Component, h, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useUserStore} from "@/stores/user.ts";
 
@@ -28,7 +28,11 @@ import
   Building20Regular as siteIcon,
   PersonAccounts24Regular as RoleIcon
 } from '@vicons/fluent'
-import {RouterLink} from "vue-router";
+import {RouterLink, useRouter} from "vue-router";
+import type {
+  DataTableQueryParams,
+  DataTableQueryResult
+} from "@/components/ui/datatable/AppDataTableTypes.ts";
 
 
 interface MenuItem {
@@ -75,6 +79,7 @@ function renderMenuItem(list: MenuOption[], item: MenuItem) {
 }
 
 const menuOptions: MenuOption[] = []
+const selectedKeyRef = ref('')
 
 renderList(menuOptions, 'usersandgroups', [
   {key: 'users', icon: PersonIcon},
@@ -94,15 +99,21 @@ renderList(menuOptions, 'settings', [
   {key: 'configuration', icon: SettingsIcon}
 ])
 
+onMounted(() => {
+  const router = useRouter();
+  const route = router.currentRoute.value;
+  selectedKeyRef.value = route.path.replace('/admin/','')
+})
 function handleUpdateValue() {
   emit('closedrawerrequest');
 }
 </script>
 
 <template>
-  <n-menu :options="menuOptions" @update:value="handleUpdateValue"/>
+  <n-menu v-model:value="selectedKeyRef" :options="menuOptions" @update:value="handleUpdateValue"/>
 </template>
 
 <style scoped>
+
 
 </style>

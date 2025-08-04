@@ -33,5 +33,15 @@
     "logging": "Journalisation",
     "settings": "Paramètres",
     "configuration": "Configuration"
+  },
+  "users": {
+    "email": "Email",
+    "fullName": "Nom complet",
+    "status": "Statut",
+    "active": "Actif",
+    "suspended": "Suspendu",
+    "archived": "Archivé",
+    "site": "Site",
+    "department": "Service"
   }
 }

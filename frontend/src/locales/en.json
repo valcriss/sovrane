@@ -33,5 +33,15 @@
     "logging": "Logging",
     "settings": "Settings",
     "configuration": "Configuration"
+  },
+  "users": {
+    "email": "Email",
+    "fullName": "Full Name",
+    "status": "Status",
+    "active": "Active",
+    "suspended": "Suspended",
+    "archived": "Archived",
+    "site": "Site",
+    "department": "Department"
   }
 }
