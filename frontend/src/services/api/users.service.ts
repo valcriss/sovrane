@@ -7,10 +7,10 @@ export interface ListUsersParams {
   page?: number;
   limit?: number;
   search?: string;
-  status?: 'active' | 'suspended' | 'archived';
-  departmentId?: string;
-  siteId?: string;
-  roleId?: string;
+  statuses?: string; // Semicolon-separated list of user statuses (active, suspended, archived)
+  departmentIds?: string; // Semicolon-separated list of department identifiers
+  siteIds?: string; // Semicolon-separated list of site identifiers
+  roleIds?: string; // Semicolon-separated list of role identifiers
 }
 
 export default {
