@@ -80,6 +80,7 @@ const columns = computed<DataTableColumn[]>(() => [
 async function fetchUsers(params: ListUsersParams):Promise<DataTableQueryResult<UserTableRecord>> {
   try {
     const data = await usersService.list(params)
+    console.log('fetchUsers', data)
     const records :UserTableRecord[] = []
     for (const user of data.items) {
       records.push({
@@ -107,13 +108,29 @@ async function fetchUsers(params: ListUsersParams):Promise<DataTableQueryResult<
 
 async function queryFunction(queryParams: DataTableQueryParams): Promise<DataTableQueryResult<UserTableRecord>> {
   console.log('queryFunction', queryParams)
+  const statuses: string | undefined = getFilterValue(queryParams,'status')
+  const siteIds: string | undefined = getFilterValue(queryParams,'site')
+  const departmentIds: string | undefined = getFilterValue(queryParams,'department')
   const listParams: ListUsersParams = {
     page: queryParams.page,
     limit: queryParams.pageSize,
-    siteId: undefined,
-    departmentId: undefined
+    statuses: statuses,
+    siteIds: siteIds,
+    departmentIds: departmentIds
   }
+  console.log('listParams', listParams)
   return await fetchUsers(listParams)
+}
+
+function getFilterValue(queryParams: DataTableQueryParams,  key: string): string | undefined {
+  if(!queryParams.filters || !queryParams.filters[key]) {
+    return undefined
+  }
+  const filter = queryParams.filters[key] as Record<string, unknown>
+  if (Array.isArray(filter)) {
+    return filter.join(';')
+  }
+  return undefined
 }
 
 </script>

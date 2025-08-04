@@ -19,8 +19,17 @@ export default {
     return res.data;
   },
   async list(params: ListUsersParams) {
-    const res = await client.get<{ items: User[]; page: number; limit: number; total: number }>('/users', { params });
-    return res.data;
+      const res = await client.get<{ items: User[]; page: number; limit: number; total: number }>('/users', { params });
+      if(res.status === 204)
+      {
+        return {
+          items: [],
+          page: params.page || 1,
+          limit: params.limit || 10,
+          total: 0
+        };
+      }
+      return res.data;
   },
 
   async get(id: string) {
