@@ -4,6 +4,8 @@ import UsersService, { type User } from '@/services/api/users.service';
 
 export const useUserStore = defineStore('user', () => {
   const currentUser = ref<User | null>(null);
+  const lastUserEvent = ref<{ type: string; payload?: any } | null>(null);
+
   type Permission = {
     permission: { permissionKey: string };
     scopeId: string | null;
@@ -41,5 +43,9 @@ export const useUserStore = defineStore('user', () => {
     currentUser.value = null;
   }
 
-  return { currentUser, hasPermission, fetchCurrent, clear };
+  function emitUserEvent(type: string, payload?: any) {
+    lastUserEvent.value = { type, payload };
+  }
+
+  return { currentUser, hasPermission, fetchCurrent, clear, emitUserEvent, lastUserEvent };
 });

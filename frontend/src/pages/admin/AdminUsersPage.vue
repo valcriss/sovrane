@@ -2,14 +2,15 @@
 import NavigationBreadcrumb from "@/components/navigation/NavigationBreadcrumb.vue";
 import AppDataTable from "@/components/ui/datatable/AppDataTable.vue";
 import type { DataTableColumn } from 'naive-ui'
+import { NButton, NIcon } from 'naive-ui'
+import { UserEdit,UserPlus } from '@vicons/fa'
 import {useI18n} from "vue-i18n";
 import {useSiteStore} from "@/stores/site.ts";
 import {useDepartmentStore} from "@/stores/department.ts";
-import {useUserStore} from "@/stores/user.ts";
 import type {FilterOption} from "naive-ui/es/data-table/src/interface";
 import usersService from '@/services/api/users.service'
 import type { ListUsersParams } from '@/services/api/users.service'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, h } from 'vue'
 
 const siteStore = useSiteStore();
 const departmentStore = useDepartmentStore();
@@ -18,9 +19,13 @@ import type {
   DataTableQueryParams,
   DataTableQueryResult
 } from '@/components/ui/datatable/AppDataTableTypes'
-
+import ToolBar from "@/components/ui/toolbar/ToolBar.vue";
+import type { ToolBarItem, ToolBarItemClickedEvent } from "@/components/ui/toolbar/ToolBarTypes";
+import { useUserStore } from '@/stores/user';
 const departmentFilterOptions = ref<FilterOption[]>([])
 const siteFilterOptions = ref<FilterOption[]>([])
+
+const userStore = useUserStore();
 
 onMounted(async () => {
   try {
@@ -41,6 +46,16 @@ interface UserTableRecord {
   lastActivity:string
 }
 const {t} = useI18n();
+
+const toolBarItems: ToolBarItem[] = [
+  {
+    key: 'user-add',
+    label: t('users.addUser'),
+    type: 'primary',
+    icon: UserPlus
+  }
+]
+
 const columns = computed<DataTableColumn[]>(() => [
   {
     title: t('users.email'),
@@ -61,7 +76,14 @@ const columns = computed<DataTableColumn[]>(() => [
       { label: t('users.active'), value: 'active' },
       { label: t('users.suspended'), value: 'suspended' },
       { label: t('users.archived'), value: 'archived' }
-    ]
+    ],
+    render: (row) => {
+      return h('span', {
+        style: {
+          color: row.status === 'active' ? 'green' : 'red'
+        }
+      }, t("users."+row.status as string) as string)
+    }
   },
   {
     title: t('users.site'),
@@ -74,7 +96,24 @@ const columns = computed<DataTableColumn[]>(() => [
     key: 'department',
     filter: true,
     filterOptions: departmentFilterOptions.value
+  },
+  {
+  title: 'Actions',
+  key: 'actions',
+  width: 80,
+  render: (row) => {
+    return h(NButton, {
+      //quaternary: true,
+      //circle: true,
+      title: t('users.editUser'),
+      onClick: () => editUser(row.id as string)
+    }, {
+      icon: () => h(NIcon, null, {
+        default: () => h(UserEdit)
+      })
+    })
   }
+}
 ])
 
 async function fetchUsers(params: ListUsersParams):Promise<DataTableQueryResult<UserTableRecord>> {
@@ -133,11 +172,24 @@ function getFilterValue(queryParams: DataTableQueryParams,  key: string): string
   return undefined
 }
 
+function editUser(userId: string) {
+  userStore.emitUserEvent('user-update', { id: userId });
+}
+
+function handleItemClicked(event: ToolBarItemClickedEvent) {
+  if(event.key === 'user-add') {
+    userStore.emitUserEvent('user-add', { id: null });
+  }
+}
+
 </script>
 
 <template>
   <div class="p-4">
     <NavigationBreadcrumb path="/admin/users" />
+    <div class="mt-2">
+      <ToolBar :items="toolBarItems" @item-clicked="handleItemClicked"/>
+    </div>
     <div class="mt-2">
       <AppDataTable
         :columns="columns"

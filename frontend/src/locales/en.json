@@ -42,6 +42,9 @@
     "suspended": "Suspended",
     "archived": "Archived",
     "site": "Site",
-    "department": "Department"
+    "department": "Department",
+    "actions": "Actions",
+    "editUser": "Edit User",
+    "addUser": "Add User"
   }
 }

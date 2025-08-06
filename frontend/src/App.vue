@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useUserStore} from "@/stores/user.ts";
 import AppHeader from "@/components/ui/header/AppHeader.vue";
-import {computed, ref} from 'vue';
+import {computed, ref, watch} from 'vue';
 import { useAuthStore } from "@/stores/auth.ts";
 import { lightTheme } from 'naive-ui'
 
@@ -21,6 +21,17 @@ function closeDrawer() {
   drawerOpen.value = false;
   drawerContent.value = '';
 }
+
+watch(() => userStore.lastUserEvent, (event) => {
+  if (event?.type === 'user-update') {
+    console.log('App a capté l’événement :', event);
+    // 👉 Ici tu peux réagir (recharger la liste, afficher une notif, etc.)
+  }
+  if (event?.type === 'user-add') {
+    console.log('App a capté l’événement :', event);
+    // 👉 Ici tu peux réagir (recharger la liste, afficher une notif, etc.)
+  }
+}, { deep: true });
 </script>
 
 <template>
